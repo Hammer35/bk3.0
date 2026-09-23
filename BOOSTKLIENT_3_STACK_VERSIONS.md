@@ -495,3 +495,36 @@ Redis Server 7.4 исключён из базового стека из-за л�
 - базовый стек не обновляется автоматически;
 - Redis не возвращается автоматически;
 - отдельно рассматривается RabbitMQ как broker, а Valkey остаётся cache/locks при необходимости.
+
+
+---
+
+# 34. Celery + Valkey — правила production-надёжности
+
+Перед production необходимо проверить:
+
+1. late acknowledgement;
+2. worker lost / restart recovery;
+3. retry + exponential backoff;
+4. visibility timeout;
+5. soft/hard task limits;
+6. идемпотентность критичных задач;
+7. отдельные очереди;
+8. отдельные workers;
+9. persistence Valkey;
+10. восстановление после рестарта;
+11. отсутствие duplicate publish;
+12. мониторинг backlog / failed / retry;
+13. graceful shutdown;
+14. PostgreSQL как источник истины для статуса операции.
+
+Рекомендуемые очереди:
+
+- critical
+- generation
+- research
+- analytics
+- notifications
+- low_priority
+
+Valkey/Celery рассматриваются как транспорт и механизм выполнения, а не как постоянное хранилище бизнес-состояния.
