@@ -857,3 +857,27 @@ Retention (удержание файла) должно быть явным со�
 - доступ к файлам идёт через StorageService.
 
 При росте система должна позволять перейти на S3-compatible storage без изменения доменной логики.
+
+
+---
+
+# 53. Pinterest API Data — ограничения хранения
+
+Сущности, полученные из Pinterest API, нельзя автоматически считать обычными permanent records.
+
+Для Pinterest-backed объектов необходимо различать:
+
+- owned/internal data — данные, созданные внутри BOOSTKLIENT®;
+- operational references — минимальные ID и служебные поля, необходимые для публикации/синхронизации;
+- cached Pinterest data — временно полученные данные API;
+- campaign analytics — данные, хранение которых отдельно допускается правилами Pinterest при наличии доступа.
+
+До письменного подтверждения Pinterest:
+
+- не хранить полные копии competitor Pin / Board как постоянную базу;
+- не проектировать долгосрочный cache Pinterest Materials;
+- использовать TTL для временного Pinterest cache;
+- хранить только минимально необходимые operational identifiers, если это допустимо;
+- отдельным полем фиксировать source = PINTEREST_API и fetched_at / expires_at.
+
+Retention policy для Pinterest API data должна быть отдельной от собственных данных BOOSTKLIENT®.
