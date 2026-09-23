@@ -957,3 +957,23 @@ Backend обязан проверять:
 - asset permissions;
 - feature flag;
 - policy authorization status.
+
+
+---
+
+## 62. Правила переноса кода из BOOSTKLIENT® 2.0
+
+Legacy-код не копируется в 3.0 без архитектурного review.
+
+Перед переносом каждого модуля определить:
+
+1. REUSE / ADAPT / REFERENCE / DROP;
+2. к какому домену 3.0 он относится;
+3. соответствует ли новой модели данных;
+4. соответствует ли Pinterest policy;
+5. соответствует ли security rules;
+6. не переносит ли старый dependency conflict;
+7. есть ли regression tests;
+8. требуется ли refactor до включения в production.
+
+Копирование большого legacy-файла целиком в новый проект запрещено, если его ответственность пересекает несколько доменов.
