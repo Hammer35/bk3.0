@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../../apps";
+
+@theme {
+  --color-brand-pinterest: #e60023;
+}
