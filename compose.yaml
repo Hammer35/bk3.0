@@ -1,0 +1,81 @@
+name: boostklient3
+
+x-app-environment: &app-environment
+  DJANGO_SETTINGS_MODULE: config.settings.development
+  POSTGRES_DB: boostklient
+  POSTGRES_USER: boostklient
+  POSTGRES_PASSWORD: boostklient_dev_only
+  POSTGRES_HOST: db
+  POSTGRES_PORT: "5432"
+  VALKEY_URL: redis://valkey:6379/0
+
+x-app-service: &app-service
+  build:
+    context: .
+  working_dir: /app
+  environment: *app-environment
+  volumes:
+    - .:/app
+    - media_data:/app/var/media
+  depends_on:
+    db:
+      condition: service_healthy
+    valkey:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:17.10-bookworm
+    environment:
+      POSTGRES_DB: boostklient
+      POSTGRES_USER: boostklient
+      POSTGRES_PASSWORD: boostklient_dev_only
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U boostklient -d boostklient"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command:
+      - valkey-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  web:
+    <<: *app-service
+    command: >
+      sh -c "python manage.py migrate &&
+             uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    <<: *app-service
+    command: celery -A config worker -l INFO -Q critical,generation,research,analytics,notifications,low_priority
+    restart: unless-stopped
+
+  beat:
+    <<: *app-service
+    command: celery -A config beat -l INFO
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  valkey_data:
+  media_data:
