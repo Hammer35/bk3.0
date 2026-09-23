@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}BOOSTKLIENT® 3.0 — Skeleton{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">BOOSTKLIENT® 3.0</p>
+    <h1>{% trans "Каркас проекта поднят" %}</h1>
+    <p>{% trans "Django, PostgreSQL, Valkey и Celery подготовлены. Следующий этап — ИИ-стратег и продуктовые модули." %}</p>
+
+    <div class="status-grid">
+        <article class="status-card"><strong>Django ASGI</strong><span>{% trans "готов" %}</span></article>
+        <article class="status-card"><strong>PostgreSQL</strong><span>{% trans "подключён" %}</span></article>
+        <article class="status-card"><strong>Valkey + Celery</strong><span>{% trans "подготовлены" %}</span></article>
+    </div>
+</section>
+{% endblock %}
