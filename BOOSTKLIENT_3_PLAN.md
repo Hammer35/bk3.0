@@ -786,3 +786,64 @@ BOOSTKLIENT® распределяет:
 - наличие API endpoint не означает, что любой UX-сценарий разрешён политикой Pinterest.
 
 Модуль «Конкуренты» должен быть feature-gated до получения письменного разрешения Pinterest.
+
+
+---
+
+# 38. Миграция с BOOSTKLIENT® 2.0
+
+Зафиксирован принцип:
+
+> BOOSTKLIENT® 3.0 — новый проект и новая архитектура. BOOSTKLIENT® 2.0 используется как донор проверенных механизмов и бизнес-логики, а не как каркас новой версии.
+
+Код 2.0 классифицируется по четырём категориям:
+
+- REUSE — перенос почти без изменений;
+- ADAPT — перенос с встраиванием в новую архитектуру;
+- REFERENCE — использовать как образец/спецификацию и переписать;
+- DROP — не переносить.
+
+Приоритетно переиспользуются:
+
+- Pinterest OAuth;
+- refresh tokens;
+- publish confirmation;
+- scheduler;
+- image/video publishing;
+- recovery зависших публикаций;
+- retry временных ошибок;
+- observability;
+- billing concepts;
+- compliance/data lifecycle;
+- regression tests.
+
+Не переносить как фундамент:
+
+- старую ORM schema;
+- старый UI;
+- монолитные views/tasks/services;
+- дублирующие модели;
+- legacy dependency freeze;
+- Pinterest scraping;
+- competitor Pinterest data без письменного разрешения Pinterest.
+
+Перенос данных выполняется через:
+
+**чистая БД 3.0 + controlled importer 2.0 → 3.0**
+
+Не использовать сложную цепочку ORM migrations как основной способ превращения БД 2.0 в БД 3.0.
+
+Importer должен поддерживать:
+
+- dry-run;
+- validation;
+- mapping старых сущностей в новую схему;
+- idempotency;
+- import batch ID;
+- отчёт;
+- повторный запуск;
+- контролируемый rollback.
+
+Подробный аудит хранится в:
+
+`BOOSTKLIENT_2_TO_3_AUDIT.md`
