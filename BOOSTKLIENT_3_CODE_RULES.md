@@ -932,3 +932,28 @@ BOOSTKLIENT® 3.0 не должен работать напрямую с пут�
 Очистка выполняется автоматически через Celery Beat и отдельные Celery tasks.
 
 Бизнес-логика не должна требовать ручной чистки файлов пользователем.
+
+
+---
+
+## 61. Pinterest Policy Gates
+
+Функции, ограниченные Pinterest Developer Guidelines, должны быть защищены не только UI, но и backend feature flags / permissions.
+
+Обязательные gates:
+
+- competitor research на Pinterest API;
+- auto-approval / auto-publish;
+- beta Ads capabilities;
+- Lead Ads;
+- Advanced Auction;
+- спорные способы хранения Pinterest data.
+
+Нельзя включать такие возможности простым отображением кнопки во frontend.
+
+Backend обязан проверять:
+- access tier;
+- OAuth scopes;
+- asset permissions;
+- feature flag;
+- policy authorization status.
