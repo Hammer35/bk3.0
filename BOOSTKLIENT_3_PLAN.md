@@ -766,3 +766,23 @@ BOOSTKLIENT® распределяет:
 Это живой документ.
 
 Все новые архитектурные решения BOOSTKLIENT® 3.0 должны добавляться сюда по мере обсуждения.
+
+
+---
+
+# 37. Pinterest Compliance (обязательные ограничения платформы)
+
+Архитектура BOOSTKLIENT® 3.0 обязана учитывать Pinterest Developer Guidelines.
+
+Зафиксированные ограничения:
+
+- production требует Standard access;
+- публикация Pin не должна происходить без явного выбора/подтверждения пользователя;
+- режим полного auto-approval для публикации отключён до отдельного письменного разрешения Pinterest;
+- competitor research / benchmarking на Pinterest Materials/API запрещён без письменного разрешения Pinterest;
+- scraping Pinterest запрещён как запасной источник данных;
+- Pinterest API data не считается автоматически разрешённой к долгосрочному хранению;
+- Pinterest Materials нельзя использовать для training/fine-tuning AI без явного разрешения;
+- наличие API endpoint не означает, что любой UX-сценарий разрешён политикой Pinterest.
+
+Модуль «Конкуренты» должен быть feature-gated до получения письменного разрешения Pinterest.
