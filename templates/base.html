@@ -1,0 +1,21 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="system">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BOOSTKLIENT® 3.0{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <script defer src="{% static 'js/core/theme.js' %}"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a href="{% url 'core:home' %}" class="brand">BOOSTKLIENT®</a>
+        <button type="button" data-theme-toggle>{% trans "Тема" %}</button>
+    </header>
+
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
