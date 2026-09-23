@@ -1,0 +1,19 @@
+{
+  "name": "boostklient-3",
+  "private": true,
+  "version": "3.0.0-dev",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/app.css -o ./static/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/app.css -o ./static/css/app.css --watch",
+    "vendor:js": "mkdir -p static/vendor && cp node_modules/htmx.org/dist/htmx.min.js static/vendor/htmx.min.js && cp node_modules/alpinejs/dist/cdn.min.js static/vendor/alpine.min.js",
+    "build": "npm run build:css && npm run vendor:js"
+  },
+  "dependencies": {
+    "alpinejs": "3.17.4",
+    "htmx.org": "2.0.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}
