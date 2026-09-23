@@ -922,3 +922,24 @@ Celery/Valkey не является источником истины для б�
 Удаление временного файла должно удалять и связанную metadata только в корректном порядке.
 
 Для критичных опубликованных медиа рекомендуется отдельный retention rule (правило хранения).
+
+
+---
+
+# 56. Pinterest Platform Compliance Security
+
+Platform policy считается частью security/compliance слоя.
+
+Запрещено выпускать в production без отдельной проверки:
+
+- auto-publish без user approval;
+- competitor research на Pinterest API data;
+- scraping Pinterest;
+- долгосрочное хранение Pinterest API data без подтверждённого основания;
+- training/fine-tuning AI на Pinterest Materials.
+
+Критичные Pinterest feature flags должны иметь безопасное значение по умолчанию:
+
+- competitor_research_pinterest = OFF;
+- ai_auto_approve_publish = OFF;
+- pinterest_scraping = OFF;
