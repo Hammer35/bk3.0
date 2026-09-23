@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# BOOSTKLIENT® 3.0 generated/runtime
+node_modules/
+staticfiles/
+media/
+var/media/
+npm-debug.log*
