@@ -18,7 +18,7 @@
 | Python | 3.12.x | основной язык |
 | Django | 5.2 LTS | web-framework |
 | Celery | 5.6.x | фоновые задачи |
-| Redis Server | 7.4.x | broker / cache / временное состояние |
+| Valkey | 8.1.x | broker / cache / временное состояние |
 | PostgreSQL | 17.x | основная база данных |
 | Psycopg | 3.x | PostgreSQL driver |
 | HTMX | 2.0.x | серверная интерактивность |
@@ -58,7 +58,7 @@ Django 5.2 выбран как LTS (долгосрочно поддержива�
 
 ---
 
-# 4. Celery + Redis
+# 4. Celery + Valkey
 
 Использовать:
 - Celery 5.6.x;
@@ -66,7 +66,7 @@ Django 5.2 выбран как LTS (долгосрочно поддержива�
 
 Назначение:
 - Celery — фоновые и отложенные задачи;
-- Redis — broker (брокер сообщений), cache (кэш), временное состояние и locks (блокировки) при необходимости.
+- Valkey — broker (брокер сообщений), cache (кэш), временное состояние и locks (блокировки) при необходимости.
 
 ---
 
@@ -114,7 +114,7 @@ Django 5.2 выбран как LTS (долгосрочно поддержива�
 Плохо:
 - Django>=5
 - celery без версии
-- redis без версии
+- Valkey / Python client без зафиксированной версии
 - psycopg без версии
 
 После создания первого стабильного окружения нужно зафиксировать точные patch versions.
@@ -186,7 +186,7 @@ Local development, CI, staging и production должны использоват
 1. поддерживает ли Python 3.12;
 2. поддерживает ли Django 5.2, если интегрируется с Django;
 3. не конфликтует ли с Celery 5.6;
-4. не требует ли другую версию Redis;
+4. совместима ли с Valkey 8.1.x;
 5. не требует ли другую версию PostgreSQL;
 6. не тянет ли устаревшие зависимости;
 7. активно ли поддерживается;
@@ -271,9 +271,9 @@ Warnings при установке пакетов нельзя игнориро�
 Не использовать:
 - python:latest;
 - postgres:latest;
-- redis:latest.
+- valkey/valkey:latest.
 
-Использовать конкретные ветки Python 3.12, PostgreSQL 17 и Redis 7.4.
+Использовать конкретные ветки Python 3.12, PostgreSQL 17 и Valkey 8.1.
 
 ---
 
@@ -290,13 +290,13 @@ Warnings при установке пакетов нельзя игнориро�
 
 ---
 
-# 20. Redis client
+# 20. Valkey и Python client
 
 Различать:
-- Redis Server;
-- Python redis client.
+- Valkey Server;
+- Python RESP-compatible client (на первом этапе redis-py, если compatibility test проходит).
 
-Redis Server зафиксирован: 7.4.x.
+Valkey зафиксирован: 8.1.x.
 
 Python package redis фиксируется отдельно в lock-файле и должен быть совместим с Celery 5.6, Python 3.12 и Redis 7.4.
 
@@ -357,7 +357,7 @@ Python package redis фиксируется отдельно в lock-файле 
 
 # 25. Документ обновляется вместе со стеком
 
-Если меняется Python, Django, Celery, Redis, PostgreSQL, Psycopg, HTMX, Alpine или Tailwind — этот документ обновляется в том же PR/commit.
+Если меняется Python, Django, Celery, Valkey, PostgreSQL, Psycopg, HTMX, Alpine или Tailwind — этот документ обновляется в том же PR/commit.
 
 ---
 
@@ -365,7 +365,7 @@ Python package redis фиксируется отдельно в lock-файле 
 
 Обновление базового компонента — отдельная задача.
 
-Нельзя во время другой feature-задачи неожиданно менять версию Django, Python, Celery, PostgreSQL, Redis или frontend stack.
+Нельзя во время другой feature-задачи неожиданно менять версию Django, Python, Celery, PostgreSQL, Valkey или frontend stack.
 
 ---
 
@@ -421,7 +421,7 @@ AI SDK меняются быстро.
 
 **Celery 5.6.x**
 
-**Redis Server 7.4.x**
+**Valkey 8.1.x**
 
 **PostgreSQL 17.x**
 
@@ -461,3 +461,37 @@ AI SDK меняются быстро.
 - production-like staging.
 
 Обновление HTMX 2.x → 4.x не выполняется автоматически и не совмещается с обычной feature-разработкой.
+
+
+---
+
+# 33. Valkey — лицензионное и совместимое решение
+
+Redis Server 7.4 исключён из базового стека из-за лицензионной неопределённости для коммерческого SaaS.
+
+Выбран:
+
+**Valkey 8.1.x**
+
+Причины:
+- BSD-3-Clause;
+- зрелая поддерживаемая ветка;
+- совместимость по Redis/RESP-протоколу;
+- подходит по архитектурной роли broker/cache.
+
+Обязательный Compatibility Gate перед production:
+
+1. Celery 5.6 запускает и получает задачи через Valkey;
+2. retry работает корректно;
+3. worker корректно переживает restart;
+4. worker восстанавливается после временной потери соединения;
+5. visibility timeout настроен;
+6. persistence настроен и протестирован;
+7. TLS проверен, если используется;
+8. Celery Beat проверен, если добавляется;
+9. idempotency задач подтверждена интеграционными тестами.
+
+Если Valkey не проходит Compatibility Gate:
+- базовый стек не обновляется автоматически;
+- Redis не возвращается автоматически;
+- отдельно рассматривается RabbitMQ как broker, а Valkey остаётся cache/locks при необходимости.
