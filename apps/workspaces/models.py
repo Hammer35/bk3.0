@@ -46,3 +46,14 @@ class Membership(BaseModel):
 
     def __str__(self):
         return f"{self.user} @ {self.workspace} ({self.role})"
+
+    @property
+    def can_manage_businesses(self):
+        return self.role in BUSINESS_MANAGEMENT_ROLES
+
+
+BUSINESS_MANAGEMENT_ROLES = (
+    Membership.Role.OWNER,
+    Membership.Role.ADMIN,
+    Membership.Role.EDITOR,
+)

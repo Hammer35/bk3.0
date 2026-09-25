@@ -18,8 +18,11 @@ class Business(BaseModel):
     slug = models.SlugField(max_length=220)
     website = models.URLField(blank=True)
     niche = models.CharField(max_length=200, blank=True)
+    subniche = models.CharField(max_length=200, blank=True)
     language = models.CharField(max_length=10, default="ru")
     market = models.CharField(max_length=80, blank=True)
+    audience = models.TextField(blank=True)
+    goals = models.TextField(blank=True)
     status = models.CharField(
         max_length=16,
         choices=Status.choices,

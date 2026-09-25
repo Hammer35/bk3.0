@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Создание бизнеса — BOOSTKLIENT®" %}{% endblock %}
+
+{% block content %}
+<section class="form-shell">
+    <div class="panel form-card">
+        <div>
+            <p class="eyebrow">{% trans "Первый шаг" %}</p>
+            <h1>{% trans "Расскажите о первом бизнесе" %}</h1>
+            <p>{% trans "Создадим рабочее пространство и базовый профиль. Его можно будет дополнить вместе с ИИ-стратегом." %}</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-field">
+                    <div class="form-label-row">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <details class="field-help">
+                            <summary aria-label="{% blocktranslate with field_label=field.label %}Что вводить в поле «{{ field_label }}»{% endblocktranslate %}" title="{% trans 'Что вводить' %}">?</summary>
+                            <div class="field-tooltip" role="note">{{ field.help_text }}</div>
+                        </details>
+                    </div>
+                    {{ field }}
+                    {% if field.errors %}<ul class="form-errors">{{ field.errors }}</ul>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-primary">{% trans "Создать профиль" %}</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

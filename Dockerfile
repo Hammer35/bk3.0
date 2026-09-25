@@ -13,9 +13,14 @@ RUN apt-get update \
 COPY requirements/base.txt /app/requirements/base.txt
 RUN pip install --no-cache-dir -r /app/requirements/base.txt
 
-COPY . /app
+RUN useradd --create-home --uid 10001 app
 
-RUN mkdir -p /app/var/media /app/staticfiles
+COPY --chown=app:app . /app
+
+RUN mkdir -p /app/var/media /app/staticfiles \
+    && chown -R app:app /app
+
+USER app
 
 EXPOSE 8000
 

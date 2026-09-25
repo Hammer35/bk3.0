@@ -1,18 +1,95 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}BOOSTKLIENT® 3.0 — Skeleton{% endblock %}
+{% block title %}BOOSTKLIENT® 3.0{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <p class="eyebrow">BOOSTKLIENT® 3.0</p>
-    <h1>{% trans "Каркас проекта поднят" %}</h1>
-    <p>{% trans "Django, PostgreSQL, Valkey и Celery подготовлены. Следующий этап — ИИ-стратег и продуктовые модули." %}</p>
+{% if request.user.is_authenticated %}
+    <header class="workbench-page-header">
+        <div>
+            <h1>{% trans "Мой бизнес" %}</h1>
+            <p>{% trans "Управляйте профилем бизнеса, создавайте Pinterest-стратегию и запускайте следующий шаг." %}</p>
+        </div>
+    </header>
 
-    <div class="status-grid">
-        <article class="status-card"><strong>Django ASGI</strong><span>{% trans "готов" %}</span></article>
-        <article class="status-card"><strong>PostgreSQL</strong><span>{% trans "подключён" %}</span></article>
-        <article class="status-card"><strong>Valkey + Celery</strong><span>{% trans "подготовлены" %}</span></article>
+    <div class="business-workbench">
+        <aside class="business-records" aria-labelledby="business-records-heading">
+            <section class="record-panel">
+                <div class="record-panel-header">
+                    <h2 id="business-records-heading">{% trans "Рабочие пространства" %}</h2>
+                    <span>{{ memberships|length }}</span>
+                </div>
+                <div class="record-list">
+                    {% for membership in memberships %}
+                        {% with workspace=membership.workspace %}
+                            <article class="record-row">
+                                <div>
+                                    <h3>{{ workspace.name }}</h3>
+                                    <p>{{ membership.get_role_display }}</p>
+                                </div>
+                                {% if membership.can_manage_businesses %}
+                                    <a href="{% url 'businesses:create' workspace.slug %}">{% trans "Добавить бизнес" %}</a>
+                                {% endif %}
+                            </article>
+                        {% endwith %}
+                    {% empty %}
+                        <p class="empty-state">{% trans "Рабочих пространств пока нет." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+
+        <section class="business-workspace" aria-labelledby="businesses-heading">
+            <div class="workflow-rail" aria-label="{% trans 'Рабочий путь' %}">
+                <div><span>01</span><strong>{% trans "Профиль" %}</strong><p>{% trans "Контекст бизнеса" %}</p></div>
+                <div><span>02</span><strong>{% trans "Стратег" %}</strong><p>{% trans "Диагностика и план" %}</p></div>
+                <div><span>03</span><strong>{% trans "Контент" %}</strong><p>{% trans "Следующий модуль" %}</p></div>
+            </div>
+
+            <div class="workspace-section-header">
+                <h2 id="businesses-heading">{% trans "Бизнесы" %}</h2>
+                <p>{% trans "Исходные данные для работы ИИ-стратега" %}</p>
+            </div>
+
+            <div class="business-table" role="list">
+                {% for business in businesses %}
+                    <article class="business-row" role="listitem">
+                        <div class="business-row-identity">
+                            <span class="business-initial" aria-hidden="true">{{ business.name|slice:":1" }}</span>
+                            <div>
+                                <h3>{{ business.name }}</h3>
+                                <p>{{ business.workspace.name }}{% if business.niche %} · {{ business.niche }}{% endif %}</p>
+                            </div>
+                        </div>
+
+                        <dl class="business-row-facts">
+                            {% if business.market %}<div><dt>{% trans "Рынок" %}</dt><dd>{{ business.market }}</dd></div>{% endif %}
+                            <div><dt>{% trans "Язык" %}</dt><dd>{{ business.language|upper }}</dd></div>
+                            <div><dt>{% trans "Статус" %}</dt><dd{% if business.status == "ACTIVE" %} class="status-active"{% endif %}>{% if business.status == "ACTIVE" %}{% trans "Активен" %}{% else %}{% trans "В архиве" %}{% endif %}</dd></div>
+                            {% if business.website %}<div class="fact-website"><dt>{% trans "Сайт" %}</dt><dd><a href="{{ business.website }}" rel="noopener noreferrer" target="_blank">{{ business.website }}</a></dd></div>{% endif %}
+                        </dl>
+
+                        <div class="business-row-action">
+                            <p>{% trans "Следующий шаг" %}</p>
+                            <a class="button button-primary" href="{% url 'strategist:chat' business.workspace.slug business.slug %}">{% trans "Открыть ИИ-стратега" %}</a>
+                        </div>
+
+                        {% if business.goals or business.audience %}
+                            <div class="business-row-notes">
+                                {% if business.goals %}<p><span>{% trans "Цель" %}</span>{{ business.goals }}</p>{% endif %}
+                                {% if business.audience %}<p><span>{% trans "Аудитория" %}</span>{{ business.audience }}</p>{% endif %}
+                            </div>
+                        {% endif %}
+                    </article>
+                {% empty %}
+                    <div class="empty-business-state">
+                        <p class="eyebrow">{% trans "Следующий шаг" %}</p>
+                        <h3>{% trans "Добавьте первый бизнес" %}</h3>
+                        <p>{% trans "После этого ИИ-стратег сможет работать с его контекстом." %}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
     </div>
-</section>
+{% endif %}
 {% endblock %}

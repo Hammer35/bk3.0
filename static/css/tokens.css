@@ -1,0 +1,60 @@
+@font-face { font-family: "BK Manrope"; src: url("../fonts/app/manrope-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "BK Oswald"; src: url("../fonts/app/oswald-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+
+:root,
+html[data-theme="light"] {
+  --font-body: "BK Manrope", Arial, sans-serif;
+  --font-display: "BK Manrope", Arial, sans-serif;
+  --font-compact: "BK Oswald", Arial, sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --radius-control: 2px;
+  --radius-panel: 2px;
+  --line-width: 1px;
+  --page-gutter: clamp(18px, 3vw, 48px);
+  --sidebar-width: 216px;
+  --bg: #f5f4f0;
+  --sidebar-bg: #eeece7;
+  --surface: #ffffff;
+  --surface-raised: #ebe9e3;
+  --surface-active: #ffe8ec;
+  --text: #171717;
+  --muted: #5f5d57;
+  --quiet: #77746c;
+  --line: #d5d2ca;
+  --line-strong: #aaa69d;
+  --accent: #fa2135;
+  --accent-hover: #d9142b;
+  --accent-ink: #ffffff;
+  --chat-user-bg: #34282a;
+  --chat-user-border: #594347;
+  --chat-user-text: #f4ecee;
+  --success: #137a4c;
+  --danger: #cb2340;
+  --focus: #d9142b;
+}
+
+html[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --sidebar-bg: #090909;
+  --surface: #111110;
+  --surface-raised: #181817;
+  --surface-active: #2a1014;
+  --text: #f0efec;
+  --muted: #aaa9a4;
+  --quiet: #74736f;
+  --line: #30302e;
+  --line-strong: #4b4a46;
+  --accent: #fa2135;
+  --accent-hover: #ff4152;
+  --accent-ink: #ffffff;
+  --success: #58cb86;
+  --danger: #ff7180;
+  --focus: #ff6674;
+}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Новый бизнес — BOOSTKLIENT®" %}{% endblock %}
+
+{% block content %}
+<section class="form-shell">
+    <div class="panel form-card">
+        <div>
+            <p class="eyebrow">{{ workspace.name }}</p>
+            <h1>{% trans "Добавить бизнес" %}</h1>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<ul class="form-errors">{{ field.errors }}</ul>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-primary">{% trans "Добавить" %}</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

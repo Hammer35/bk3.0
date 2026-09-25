@@ -1,0 +1,7 @@
+{% load i18n %}
+{% for chat_message in chat_messages %}
+    <article{% if chat_message.public_id %} id="chat-message-{{ chat_message.public_id }}"{% endif %} class="chat-message chat-message-{{ chat_message.role|lower }}"{% if chat_message.role == "USER" %} tabindex="-1"{% endif %}>
+        <strong>{% if chat_message.role == "USER" %}{% trans "Вы" %}{% else %}{% trans "ИИ-стратег" %}{% endif %}</strong>
+        <p>{{ chat_message.content|linebreaksbr }}</p>
+    </article>
+{% endfor %}

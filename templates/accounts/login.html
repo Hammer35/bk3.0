@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Вход — BOOSTKLIENT®" %}{% endblock %}
+
+{% block content %}
+<section class="form-shell">
+    <div class="panel form-card">
+        <div>
+            <p class="eyebrow">BOOSTKLIENT®</p>
+            <h1>{% trans "Войти" %}</h1>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            {% if form.non_field_errors %}<ul class="form-errors">{{ form.non_field_errors }}</ul>{% endif %}
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<ul class="form-errors">{{ field.errors }}</ul>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-primary">{% trans "Войти" %}</button>
+        </form>
+        <p class="form-footer">{% trans "Нет аккаунта?" %} <a href="{% url 'accounts:register' %}">{% trans "Создать аккаунт" %}</a></p>
+    </div>
+</section>
+{% endblock %}

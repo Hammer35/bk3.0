@@ -23,9 +23,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "apps.accounts",
     "apps.core",
     "apps.workspaces",
     "apps.businesses",
+    "apps.strategist",
 ]
 
 MIDDLEWARE = [
@@ -43,7 +45,7 @@ ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        "BACKEND": "django.db.backends.django.DjangoTemplates",
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -97,7 +99,17 @@ MEDIA_ROOT = BASE_DIR / "var" / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "core:home"
+LOGOUT_REDIRECT_URL = "core:landing"
+
 VALKEY_URL = os.getenv("VALKEY_URL", "redis://valkey:6379/0")
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": VALKEY_URL,
+    }
+}
 CELERY_BROKER_URL = VALKEY_URL
 CELERY_RESULT_BACKEND = VALKEY_URL
 CELERY_TASK_DEFAULT_QUEUE = "low_priority"
@@ -112,3 +124,33 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
+AUTH_LOGIN_RATE_LIMIT = int(os.getenv("AUTH_LOGIN_RATE_LIMIT", "5"))
+AUTH_REGISTRATION_RATE_LIMIT = int(os.getenv("AUTH_REGISTRATION_RATE_LIMIT", "3"))
+AUTH_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RATE_LIMIT_WINDOW_SECONDS", "300"))
+
+GIGACHAT_API_TOKEN = os.getenv("GIGACHAT_API_TOKEN", "")
+GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2")
+GIGACHAT_MODEL_PRIORITY = tuple(
+    dict.fromkeys(
+        model.strip()
+        for model in (
+            GIGACHAT_MODEL,
+            *os.getenv(
+                "GIGACHAT_MODEL_PRIORITY",
+                "GigaChat-2,GigaChat-3-Lightning,GigaChat-2-Pro,GigaChat-3-Pro,"
+                "GigaChat-2-Max,GigaChat-3-Ultra",
+            ).split(","),
+        )
+        if model.strip()
+    )
+)
+GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS = int(
+    os.getenv("GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS", "300")
+)
+GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
+GIGACHAT_BASE_URL = os.getenv("GIGACHAT_BASE_URL", "https://api.giga.chat/v1")
+GIGACHAT_TIMEOUT_SECONDS = float(os.getenv("GIGACHAT_TIMEOUT_SECONDS", "45"))
+GIGACHAT_CA_BUNDLE_FILE = os.getenv(
+    "GIGACHAT_CA_BUNDLE_FILE",
+    str(BASE_DIR / "infra" / "certs" / "russian_trusted_root_ca_pem.crt"),
+)

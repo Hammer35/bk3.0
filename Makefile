@@ -28,10 +28,10 @@ superuser:
 	docker compose exec web python manage.py createsuperuser
 
 build:
-	docker compose build
+	docker compose build web
 
 rebuild:
-	docker compose build --no-cache
+	docker compose build --no-cache web
 
 clean:
 	docker compose down -v

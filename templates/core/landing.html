@@ -1,0 +1,99 @@
+{% extends "landing_base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "BOOSTKLIENT® | Pinterest для товаров" %}{% endblock %}
+
+{% block body %}
+<header class="landing-nav">
+    <a class="landing-brand" href="{% url 'core:landing' %}">BOOSTKLIENT®</a>
+    <nav aria-label="{% trans 'Основная навигация' %}">
+        <a href="#how-it-works">{% trans "Как это работает" %}</a>
+        <a href="#for-sellers">{% trans "Для продавцов" %}</a>
+    </nav>
+    <div class="landing-nav-actions">
+        <button type="button" class="landing-button landing-button-secondary landing-theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
+        {% if request.user.is_authenticated %}
+            <a class="landing-link" href="{% url 'core:home' %}">{% trans "Рабочая среда" %}</a>
+        {% else %}
+            <a class="landing-link" href="{% url 'login' %}">{% trans "Войти" %}</a>
+            <a class="landing-button landing-button-primary" href="{% url 'accounts:register' %}">{% trans "Попробовать бесплатно" %}</a>
+        {% endif %}
+    </div>
+</header>
+
+<main>
+    <section class="landing-hero" aria-labelledby="landing-title">
+        <div class="landing-hero-copy">
+            <p class="landing-kicker">{% trans "Pinterest для Wildberries, Ozon и Etsy" %}</p>
+            <h1 id="landing-title"><span>{% trans "Каталог → Pinterest" %}</span><span>{% trans "Трафик к товарам" %}</span></h1>
+            <p>{% trans "Подготовьте пины, ключевые слова и план публикаций из готовых карточек, фото и видео." %}</p>
+            <div class="landing-actions">
+                {% if request.user.is_authenticated %}
+                    <a class="landing-button landing-button-primary" href="{% url 'core:home' %}">{% trans "Открыть рабочую среду" %}</a>
+                {% else %}
+                    <a class="landing-button landing-button-primary" href="{% url 'accounts:register' %}">{% trans "Попробовать бесплатно" %}</a>
+                {% endif %}
+                <a class="landing-button landing-button-secondary" href="#how-it-works">{% trans "Посмотреть путь" %}</a>
+            </div>
+        </div>
+        <figure class="landing-hero-visual">
+            <img src="{% static 'images/landing-product-image-quality.png' %}" alt="{% trans 'Пример визуалов товара для Pinterest: подходящие и неподходящие изображения' %}">
+            <figcaption>{% trans "Начинаем с товарных визуалов, которые можно превратить в понятный Pinterest-контент." %}</figcaption>
+        </figure>
+    </section>
+
+    <section class="landing-route" id="how-it-works" aria-labelledby="route-title">
+        <div class="landing-section-intro">
+            <p class="landing-kicker">{% trans "Рабочий маршрут" %}</p>
+            <h2 id="route-title">{% trans "Не новый контент с нуля, а новая точка входа к вашему ассортименту." %}</h2>
+        </div>
+        <ol class="landing-route-steps">
+            <li>
+                <span>01</span>
+                <h3>{% trans "Каталог" %}</h3>
+                <p>{% trans "Карточки товаров, фото и видео становятся исходными материалами." %}</p>
+            </li>
+            <li>
+                <span>02</span>
+                <h3>{% trans "Pinterest" %}</h3>
+                <p>{% trans "ИИ-стратег помогает собрать темы, ключевые слова и содержание пинов." %}</p>
+            </li>
+            <li>
+                <span>03</span>
+                <h3>{% trans "Трафик" %}</h3>
+                <p>{% trans "Публикации ведут к товарам там, где уже оформлена покупка." %}</p>
+            </li>
+        </ol>
+    </section>
+
+    <section class="landing-sellers" id="for-sellers" aria-labelledby="sellers-title">
+        <div>
+            <p class="landing-kicker">{% trans "Для продавцов" %}</p>
+            <h2 id="sellers-title">{% trans "Уже есть карточки товара? Есть с чего начать." %}</h2>
+        </div>
+        <div class="landing-seller-copy">
+            <p>{% trans "BoostKlient собирает контекст бизнеса до работы со стратегией, чтобы ИИ не был отдельным общим чатом." %}</p>
+            <ul>
+                <li>{% trans "Wildberries, Ozon и Etsy" %}</li>
+                <li>{% trans "Собственные фотографии и видео" %}</li>
+                <li>{% trans "Профиль бизнеса, стратегия и контент в одной рабочей среде" %}</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="landing-final" aria-labelledby="final-title">
+        <p class="landing-kicker">BOOSTKLIENT®</p>
+        <h2 id="final-title">{% trans "Соберите первый контекст бизнеса и начните Pinterest-стратегию." %}</h2>
+        {% if request.user.is_authenticated %}
+            <a class="landing-button landing-button-primary" href="{% url 'core:home' %}">{% trans "Открыть рабочую среду" %}</a>
+        {% else %}
+            <a class="landing-button landing-button-primary" href="{% url 'accounts:register' %}">{% trans "Попробовать бесплатно" %}</a>
+        {% endif %}
+    </section>
+</main>
+
+<footer class="landing-footer">
+    <span>BOOSTKLIENT®</span>
+    <a href="{% url 'login' %}">{% trans "Войти" %}</a>
+</footer>
+{% endblock %}

@@ -1,0 +1,102 @@
+name: boostklient3
+
+x-app-environment: &app-environment
+  DJANGO_SETTINGS_MODULE: config.settings.production
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?DJANGO_SECRET_KEY is required}
+  DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:?DJANGO_ALLOWED_HOSTS is required}
+  CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:?CSRF_TRUSTED_ORIGINS is required}
+  POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+  POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+  POSTGRES_HOST: ${POSTGRES_HOST:?POSTGRES_HOST is required}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+  VALKEY_URL: redis://valkey:6379/0
+  GIGACHAT_API_TOKEN: ${GIGACHAT_API_TOKEN:?GIGACHAT_API_TOKEN is required}
+  GIGACHAT_MODEL: ${GIGACHAT_MODEL:-GigaChat-2}
+  GIGACHAT_MODEL_PRIORITY: ${GIGACHAT_MODEL_PRIORITY:-GigaChat-2,GigaChat-3-Lightning,GigaChat-2-Pro,GigaChat-3-Pro,GigaChat-2-Max,GigaChat-3-Ultra}
+  GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS: ${GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS:-300}
+  GIGACHAT_SCOPE: ${GIGACHAT_SCOPE:-GIGACHAT_API_PERS}
+
+x-app-service: &app-service
+  image: ${BOOSTKLIENT_IMAGE:?BOOSTKLIENT_IMAGE is required}
+  environment: *app-environment
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    valkey:
+      condition: service_healthy
+
+services:
+  migrate:
+    image: ${BOOSTKLIENT_IMAGE:?BOOSTKLIENT_IMAGE is required}
+    user: "0:0"
+    environment: *app-environment
+    command: >
+      sh -c "chown -R 10001:10001 /app/var/media &&
+             python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput"
+    volumes:
+      - media_data:/app/var/media
+      - static_data:/app/staticfiles
+    depends_on:
+      valkey:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    <<: *app-service
+    command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 2
+    volumes:
+      - media_data:/app/var/media
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health/live/"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    <<: *app-service
+    command: celery -A config worker -l INFO -Q critical,generation,research,analytics,notifications,low_priority
+
+  beat:
+    <<: *app-service
+    command: celery -A config beat -l INFO --schedule /tmp/celerybeat-schedule
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?APP_DOMAIN is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - static_data:/srv/static:ro
+      - media_data:/srv/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  valkey_data:
+  media_data:
+  static_data:
+  caddy_data:
+  caddy_config:

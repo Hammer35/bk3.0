@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% trans "ИИ-стратег — BOOSTKLIENT®" %}{% endblock %}
+{% block content %}
+<section class="form-shell strategist-shell">
+    <div class="panel form-card">
+        <p class="eyebrow">{{ business.name }}</p>
+        <h1>{% trans "ИИ-стратег" %}</h1>
+        <p>{% trans "Планируйте Pinterest-контент и следующий шаг для этого бизнеса." %}</p>
+        <div class="chat-history" aria-live="polite">
+            {% if chat_messages %}
+                {% include "strategist/_chat_messages.html" %}
+            {% elif conversation %}
+                <p class="empty-state">{% trans "Задайте первый вопрос о контенте или стратегии." %}</p>
+            {% else %}
+                <p class="empty-state">{% trans "Выберите сессию слева или создайте новую." %}</p>
+            {% endif %}
+        </div>
+        {% if conversation %}
+            <form id="chat-composer" class="chat-composer" method="post" action="{% url 'strategist:session' business.workspace.slug business.slug conversation.slug %}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}<ul class="form-errors">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                <div class="form-field">
+                    {{ form.message.label_tag }}
+                    <div class="chat-composer-control">
+                        {{ form.message }}
+                        <button type="submit" class="button button-primary chat-send-button" aria-label="{% trans 'Спросить ИИ-стратега' %}" title="{% trans 'Отправить сообщение' %}">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none">
+                                <path d="M12 19V5m-6 6 6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                    {% for error in form.message.errors %}<span class="form-errors">{{ error }}</span>{% endfor %}
+                    <p class="form-errors chat-request-error" data-network-error="{% trans 'Не удалось отправить сообщение. Проверьте соединение и повторите попытку.' %}" role="alert" hidden></p>
+                </div>
+            </form>
+        {% else %}
+            <form method="post" action="{% url 'strategist:new-session' business.workspace.slug business.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="button button-primary">{% trans "Новая сессия" %}</button>
+            </form>
+        {% endif %}
+    </div>
+</section>
+<script src="{% static 'js/strategist/chat.js' %}" defer></script>
+{% endblock %}
