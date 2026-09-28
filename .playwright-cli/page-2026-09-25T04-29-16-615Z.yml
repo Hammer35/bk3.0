@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "BOOSTKLIENT®" [ref=e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e4]:
+      - link "Войти" [ref=e5] [cursor=pointer]:
+        - /url: /accounts/login/
+      - button "Тема" [ref=e6] [cursor=pointer]
+  - main [ref=e7]:
+    - generic [ref=e9]:
+      - paragraph [ref=e10]: BOOSTKLIENT® 3.0
+      - heading "Pinterest-стратегия для вашего бизнеса" [level=1] [ref=e11]
+      - paragraph [ref=e12]: Создайте профиль бизнеса — ИИ-стратег поможет определить следующий шаг.
+      - generic [ref=e13]:
+        - link "Начать" [ref=e14] [cursor=pointer]:
+          - /url: /accounts/register/
+        - link "Войти" [ref=e15] [cursor=pointer]:
+          - /url: /accounts/login/

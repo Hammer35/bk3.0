@@ -18,6 +18,8 @@
 .button-primary:hover { background: var(--accent-hover); }
 .button-secondary { border-color: var(--line-strong); background: transparent; color: var(--text); }
 .button-secondary:hover { border-color: var(--text); }
+.button-danger { border-color: var(--danger); background: transparent; color: var(--danger); }
+.button-danger:hover { background: var(--danger); color: var(--accent-ink); }
 .button-ghost { min-height: 34px; padding: 8px 10px; background: transparent; color: var(--muted); }
 .button-ghost:hover { color: var(--text); }
 .button-small { min-height: 34px; padding: 8px 11px; font-size: 12px; }

@@ -84,6 +84,11 @@ Development работает без .env.
 
 Production settings специально не позволят стартовать без DJANGO_SECRET_KEY.
 
+Для подключения Pinterest OAuth нужны `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET`,
+`PINTEREST_REDIRECT_URI` (точный callback `http://localhost:8000/pinterest/callback/`) и отдельный
+`PINTEREST_TOKEN_ENCRYPTION_KEY`. Ключ шифрования токенов не менять после подключения
+аккаунтов без предварительной ротации зашифрованных значений.
+
 Когда дойдём до реальных Pinterest/OpenAI ключей, секреты будут передаваться runtime-окружением или secrets manager, но не коммититься.
 
 ## Важно: без venv

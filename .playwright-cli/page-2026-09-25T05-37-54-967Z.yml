@@ -1,0 +1,60 @@
+- generic [ref=f6e1]:
+  - banner [ref=f6e2]:
+    - link "BOOSTKLIENT®" [ref=f6e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f6e4]:
+      - button "Тёмная тема" [active] [pressed] [ref=f6e56]:
+        - generic [ref=f6e6]: ◐Тёмная тема
+      - link "Попробовать бесплатно" [ref=f6e7] [cursor=pointer]:
+        - /url: /auth/register/
+  - main [ref=f6e8]:
+    - region [ref=f6e9]:
+      - generic [ref=f6e10]:
+        - paragraph [ref=f6e11]: Pinterest для Wildberries, Ozon и Etsy
+        - heading "Каталог → Pinterest Трафик к товарам" [level=1] [ref=f6e12]:
+          - generic [ref=f6e13]: Каталог → Pinterest
+          - generic [ref=f6e14]: Трафик к товарам
+        - paragraph [ref=f6e15]: Подготовьте пины, ключевые слова и план публикаций из готовых карточек, фото и видео.
+        - generic [ref=f6e16]:
+          - link "Попробовать бесплатно" [ref=f6e17] [cursor=pointer]:
+            - /url: /auth/register/
+          - link "Посмотреть путь" [ref=f6e18] [cursor=pointer]:
+            - /url: "#how-it-works"
+      - figure "Начинаем с товарных визуалов, которые можно превратить в понятный Pinterest-контент." [ref=f6e19]:
+        - 'img "Пример визуалов товара для Pinterest: подходящие и неподходящие изображения" [ref=f6e20]'
+    - region [ref=f6e22]:
+      - generic [ref=f6e23]:
+        - paragraph [ref=f6e24]: Рабочий маршрут
+        - heading "Не новый контент с нуля, а новая точка входа к вашему ассортименту." [level=2] [ref=f6e25]
+      - list [ref=f6e26]:
+        - listitem [ref=f6e27]:
+          - generic [ref=f6e28]: "01"
+          - heading "Каталог" [level=3] [ref=f6e29]
+          - paragraph [ref=f6e30]: Карточки товаров, фото и видео становятся исходными материалами.
+        - listitem [ref=f6e31]:
+          - generic [ref=f6e32]: "02"
+          - heading "Pinterest" [level=3] [ref=f6e33]
+          - paragraph [ref=f6e34]: ИИ-стратег помогает собрать темы, ключевые слова и содержание пинов.
+        - listitem [ref=f6e35]:
+          - generic [ref=f6e36]: "03"
+          - heading "Трафик" [level=3] [ref=f6e37]
+          - paragraph [ref=f6e38]: Публикации ведут к товарам там, где уже оформлена покупка.
+    - region [ref=f6e39]:
+      - generic [ref=f6e40]:
+        - paragraph [ref=f6e41]: Для продавцов
+        - heading "Уже есть карточки товара? Есть с чего начать." [level=2] [ref=f6e42]
+      - generic [ref=f6e43]:
+        - paragraph [ref=f6e44]: BoostKlient собирает контекст бизнеса до работы со стратегией, чтобы ИИ не был отдельным общим чатом.
+        - list [ref=f6e45]:
+          - listitem [ref=f6e46]: Wildberries, Ozon и Etsy
+          - listitem [ref=f6e47]: Собственные фотографии и видео
+          - listitem [ref=f6e48]: Профиль бизнеса, стратегия и контент в одной рабочей среде
+    - region [ref=f6e49]:
+      - paragraph [ref=f6e50]: BOOSTKLIENT®
+      - heading "Соберите первый контекст бизнеса и начните Pinterest-стратегию." [level=2] [ref=f6e51]
+      - link "Попробовать бесплатно" [ref=f6e52] [cursor=pointer]:
+        - /url: /auth/register/
+  - contentinfo [ref=f6e53]:
+    - generic [ref=f6e54]: BOOSTKLIENT®
+    - link "Войти" [ref=f6e55] [cursor=pointer]:
+      - /url: /login/

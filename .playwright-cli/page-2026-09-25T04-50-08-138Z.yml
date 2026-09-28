@@ -1,0 +1,26 @@
+- generic [ref=f2e2]:
+  - complementary "Навигация приложения" [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - link "BOOSTKLIENT®" [ref=f2e5] [cursor=pointer]:
+        - /url: /
+      - paragraph [ref=f2e6]: Каталог → стратегия → органический трафик
+    - navigation [ref=f2e7]:
+      - link "Мой бизнес" [ref=f2e8] [cursor=pointer]:
+        - /url: /
+    - generic [ref=f2e9]: design-preview
+  - generic [ref=f2e11]:
+    - banner [ref=f2e12]:
+      - generic [ref=f2e13]: Рабочая среда
+      - button "Выйти" [ref=f2e16] [cursor=pointer]
+    - main [ref=f2e17]:
+      - generic [ref=f2e19]:
+        - paragraph [ref=f2e20]: Интерьер
+        - heading "ИИ-стратег" [level=1] [ref=f2e21]
+        - paragraph [ref=f2e22]: Планируйте Pinterest-контент и следующий шаг для этого бизнеса.
+        - paragraph [ref=f2e24]: Задайте первый вопрос о контенте или стратегии.
+        - generic [ref=f2e25]:
+          - generic [ref=f2e26]:
+            - generic [ref=f2e27]: "Сообщение:"
+            - textbox "Сообщение:" [ref=f2e28]:
+              - /placeholder: "Например: составь план первых 10 пинов для моего бизнеса."
+          - button "Спросить ИИ-стратега" [ref=f2e29] [cursor=pointer]

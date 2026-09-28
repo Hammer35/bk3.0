@@ -6,31 +6,35 @@ from apps.workspaces.models import Workspace
 
 class Business(BaseModel):
     class Status(models.TextChoices):
-        ACTIVE = "ACTIVE", "Active"
-        ARCHIVED = "ARCHIVED", "Archived"
+        ACTIVE = "ACTIVE", "Активный"
+        ARCHIVED = "ARCHIVED", "Архивный"
 
     workspace = models.ForeignKey(
         Workspace,
         on_delete=models.CASCADE,
         related_name="businesses",
+        verbose_name="рабочее пространство",
     )
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=220)
-    website = models.URLField(blank=True)
-    niche = models.CharField(max_length=200, blank=True)
-    subniche = models.CharField(max_length=200, blank=True)
-    language = models.CharField(max_length=10, default="ru")
-    market = models.CharField(max_length=80, blank=True)
-    audience = models.TextField(blank=True)
-    goals = models.TextField(blank=True)
+    name = models.CharField(max_length=200, verbose_name="название бизнеса")
+    slug = models.SlugField(max_length=220, verbose_name="слаг")
+    website = models.URLField(blank=True, verbose_name="сайт")
+    niche = models.CharField(max_length=200, blank=True, verbose_name="ниша")
+    subniche = models.CharField(max_length=200, blank=True, verbose_name="подниша")
+    language = models.CharField(max_length=10, default="ru", verbose_name="язык")
+    market = models.CharField(max_length=80, blank=True, verbose_name="рынок")
+    audience = models.TextField(blank=True, verbose_name="целевая аудитория")
+    goals = models.TextField(blank=True, verbose_name="цели бизнеса")
     status = models.CharField(
         max_length=16,
         choices=Status.choices,
         default=Status.ACTIVE,
+        verbose_name="статус",
     )
-    archived_at = models.DateTimeField(null=True, blank=True)
+    archived_at = models.DateTimeField(null=True, blank=True, verbose_name="дата архивации")
 
     class Meta:
+        verbose_name = "бизнес"
+        verbose_name_plural = "бизнесы"
         constraints = [
             models.UniqueConstraint(
                 fields=["workspace", "slug"],

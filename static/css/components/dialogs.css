@@ -1,0 +1,80 @@
+.confirmation-dialog {
+  width: min(440px, calc(100% - var(--space-5)));
+  max-width: none;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: var(--line-width) solid var(--line-strong);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 var(--space-3) var(--space-7) rgb(0 0 0 / 28%);
+}
+
+.confirmation-dialog::backdrop {
+  background: rgb(0 0 0 / 64%);
+}
+
+.confirmation-dialog-content {
+  padding: var(--space-6);
+}
+
+.confirmation-dialog-kicker {
+  color: var(--quiet);
+  font-family: var(--font-compact);
+  font-size: 10px;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.confirmation-dialog-content h2 {
+  margin: var(--space-2) 0 0;
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.confirmation-dialog-content p {
+  margin: var(--space-2) 0 0;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.confirmation-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.confirmation-dialog-actions .button {
+  min-width: 112px;
+}
+
+.pinterest-disconnect-confirmation {
+  width: min(560px, 100%);
+  margin: var(--space-7) auto;
+}
+
+.pinterest-disconnect-confirmation .panel-body {
+  padding: var(--space-6);
+}
+
+.pinterest-disconnect-confirmation h1 {
+  margin: var(--space-2) 0 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 400;
+}
+
+.pinterest-disconnect-confirmation__account {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.pinterest-disconnect-confirmation .confirmation-dialog-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .confirmation-dialog-actions {
+    flex-direction: column-reverse;
+  }
+}

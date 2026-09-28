@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Удалить Pinterest аккаунт" %} · BOOSTKLIENT® 3.0{% endblock %}
+
+{% block content %}
+    <section class="panel pinterest-disconnect-confirmation" aria-labelledby="disconnect-title">
+        <div class="panel-body">
+            <p class="eyebrow">{% trans "Pinterest · подтверждение" %}</p>
+            <h1 id="disconnect-title">{% trans "Удалить подключение?" %}</h1>
+            <p class="pinterest-disconnect-confirmation__account">@{{ account.username|default:account.pinterest_user_id }}</p>
+            <p>{% trans "Аккаунт будет удалён из BOOSTKLIENT, а его OAuth-токены — очищены. Это действие нельзя отменить." %}</p>
+            <div class="confirmation-dialog-actions">
+                <a class="button button-secondary" href="{% url 'core:home' %}">{% trans "Оставить аккаунт" %}</a>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="confirmation_token" value="{{ confirmation_token }}">
+                    <button class="button button-danger" type="submit">{% trans "Да, удалить аккаунт" %}</button>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

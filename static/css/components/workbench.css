@@ -41,6 +41,16 @@
 .business-row-action { display: grid; align-content: center; gap: var(--space-3); }
 .business-row-action > p { margin: 0; }
 .business-row-action .button { width: 100%; }
+.pinterest-connection { display: grid; gap: var(--space-2); padding-top: var(--space-3); border-top: var(--line-width) solid var(--line); }
+.pinterest-connection h4 { margin: 0; color: var(--quiet); font-family: var(--font-compact); font-size: 10px; font-weight: 400; letter-spacing: .075em; text-transform: uppercase; }
+.pinterest-account-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); border-bottom: var(--line-width) solid var(--line); }
+.pinterest-account-name { overflow: hidden; color: var(--text); font-size: 12px; text-overflow: ellipsis; }
+.pinterest-account-status, .pinterest-connection-empty { color: var(--muted); font-size: 12px; }
+.pinterest-account-status.status-active { color: var(--text); }
+.pinterest-account-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: var(--space-2); }
+.pinterest-account-actions .button { width: 100%; }
+.pinterest-connection > form { grid-column: 1 / -1; margin-top: var(--space-1); }
+.pinterest-connection-empty { margin: 0; }
 .business-row-notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: var(--line-width) solid var(--line); }
 .business-row-notes p { margin: 0; padding: var(--space-3) var(--space-5); color: var(--muted); font-size: 12px; }
 .business-row-notes p + p { border-left: var(--line-width) solid var(--line); }

@@ -72,6 +72,36 @@
                         <div class="business-row-action">
                             <p>{% trans "Следующий шаг" %}</p>
                             <a class="button button-primary" href="{% url 'strategist:chat' business.workspace.slug business.slug %}">{% trans "Открыть ИИ-стратега" %}</a>
+                            <section class="pinterest-connection" aria-label="{% trans 'Pinterest аккаунты' %}">
+                                <h4>{% trans "Pinterest" %}</h4>
+                                {% for pinterest_account in business.active_pinterest_accounts %}
+                                    <div class="pinterest-account-row">
+                                        <span class="pinterest-account-name">@{{ pinterest_account.username|default:pinterest_account.pinterest_user_id }}</span>
+                                        <span class="pinterest-account-status{% if pinterest_account.is_connected %} status-active{% endif %}">{{ pinterest_account.get_status_display }}</span>
+                                        {% if business.can_manage_pinterest %}
+                                            <div class="pinterest-account-actions">
+                                                {% if not pinterest_account.is_connected %}
+                                                    <form method="post" action="{% url 'pinterest:reconnect' pinterest_account.public_id %}" data-confirm-message="{% trans 'Переподключить Pinterest? Вы будете перенаправлены на Pinterest для повторного подтверждения доступа.' %}">
+                                                        {% csrf_token %}
+                                                        <button class="button button-secondary" type="submit">{% trans "Переподключить" %}</button>
+                                                    </form>
+                                                {% endif %}
+                                                <form method="get" action="{% url 'pinterest:disconnect' pinterest_account.public_id %}">
+                                                    <button class="button button-danger" type="submit">{% trans "Удалить аккаунт" %}</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% empty %}
+                                    <p class="pinterest-connection-empty">{% trans "Аккаунт не подключён" %}</p>
+                                {% endfor %}
+                                {% if business.can_connect_pinterest %}
+                                    <form method="post" action="{% url 'pinterest:connect' business.public_id %}" data-confirm-message="{% if business.active_pinterest_accounts %}{% trans 'Подключить ещё один Pinterest аккаунт к этому бизнесу? Вы будете перенаправлены на Pinterest для подтверждения доступа.' %}{% else %}{% trans 'Подключить Pinterest к этому бизнесу? Вы будете перенаправлены на Pinterest для подтверждения доступа.' %}{% endif %}">
+                                        {% csrf_token %}
+                                        <button class="button button-secondary" type="submit">{% if business.active_pinterest_accounts %}{% trans "Добавить Pinterest аккаунт" %}{% else %}{% trans "Подключить Pinterest" %}{% endif %}</button>
+                                    </form>
+                                {% endif %}
+                            </section>
                         </div>
 
                         {% if business.goals or business.audience %}

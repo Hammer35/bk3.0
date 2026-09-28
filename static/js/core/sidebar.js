@@ -32,11 +32,5 @@
     });
     updateToggle();
 
-    document.querySelectorAll("[data-delete-session]").forEach((form) => {
-      form.addEventListener("submit", (event) => {
-        const prompt = form.dataset.confirmMessage;
-        if (prompt && !window.confirm(prompt)) event.preventDefault();
-      });
-    });
   });
 })();

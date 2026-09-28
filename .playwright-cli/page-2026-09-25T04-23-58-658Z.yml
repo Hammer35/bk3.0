@@ -1,0 +1,18 @@
+- generic [ref=f2e3]:
+  - banner [ref=f2e4]:
+    - generic [ref=f2e5]: BOOSTKLIENT® 3.0
+    - generic [ref=f2e6]:
+      - button "Тема" [ref=f2e7] [cursor=pointer]
+      - button "Выйти" [ref=f2e9] [cursor=pointer]
+  - main [ref=f2e10]:
+    - generic [ref=f2e12]:
+      - paragraph [ref=f2e13]: Тестовый бизнес
+      - heading "ИИ-стратег" [level=1] [ref=f2e14]
+      - paragraph [ref=f2e15]: Планируйте Pinterest-контент и следующий шаг для этого бизнеса.
+      - paragraph [ref=f2e17]: Задайте первый вопрос о контенте или стратегии.
+      - generic [ref=f2e18]:
+        - generic [ref=f2e19]:
+          - generic [ref=f2e20]: "Сообщение:"
+          - textbox "Сообщение:" [ref=f2e21]:
+            - /placeholder: "Например: составь план первых 10 пинов для моего бизнеса."
+        - button "Спросить ИИ-стратега" [ref=f2e22] [cursor=pointer]

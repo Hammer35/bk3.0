@@ -1,0 +1,18 @@
+- generic [ref=f10e3]:
+  - banner [ref=f10e4]:
+    - generic [ref=f10e5]: Рабочая среда
+    - generic [ref=f10e6]:
+      - button "Тёмная тема" [pressed] [ref=f10e7] [cursor=pointer]
+      - button "Выйти" [ref=f10e10] [cursor=pointer]
+  - main [ref=f10e11]:
+    - generic [ref=f10e13]:
+      - paragraph [ref=f10e14]: Тест темы
+      - heading "ИИ-стратег" [level=1] [ref=f10e15]
+      - paragraph [ref=f10e16]: Планируйте Pinterest-контент и следующий шаг для этого бизнеса.
+      - paragraph [ref=f10e18]: Задайте первый вопрос о контенте или стратегии.
+      - generic [ref=f10e19]:
+        - generic [ref=f10e20]:
+          - generic [ref=f10e21]: "Сообщение:"
+          - textbox "Сообщение:" [ref=f10e22]:
+            - /placeholder: "Например: составь план первых 10 пинов для моего бизнеса."
+        - button "Спросить ИИ-стратега" [ref=f10e23] [cursor=pointer]

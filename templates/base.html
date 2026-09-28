@@ -23,7 +23,7 @@
                 </div>
                 <div id="app-sidebar" class="sidebar-content">
                     <nav class="sidebar-nav" aria-label="{% trans 'Разделы приложения' %}">
-                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' %} aria-current="page"{% endif %}>
+                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}>
                             <span class="nav-item-full">{% trans "Мой бизнес" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "МБ" %}</span>
                         </a>
                     </nav>
@@ -107,5 +107,17 @@
             </div>
         </div>
     {% endif %}
+    <dialog class="confirmation-dialog" data-form-confirmation data-confirmation-action="{% trans 'Продолжить' %}" data-confirmation-delete="{% trans 'Удалить аккаунт' %}" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
+        <div class="confirmation-dialog-content">
+            <span class="confirmation-dialog-kicker" data-confirmation-kicker>{% trans "Подтверждение действия" %}</span>
+            <h2 id="confirmation-title" data-confirmation-title>{% trans "Продолжить?" %}</h2>
+            <p id="confirmation-message" data-confirmation-message></p>
+            <div class="confirmation-dialog-actions">
+                <button type="button" class="button button-secondary" data-confirmation-cancel>{% trans "Отмена" %}</button>
+                <button type="button" class="button button-primary" data-confirmation-accept>{% trans "Продолжить" %}</button>
+            </div>
+        </div>
+    </dialog>
+    <script src="{% static 'js/core/form-confirmation.js' %}" defer></script>
 </body>
 </html>

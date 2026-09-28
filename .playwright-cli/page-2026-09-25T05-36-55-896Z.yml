@@ -1,0 +1,73 @@
+- generic [ref=f4e2]:
+  - complementary "Навигация приложения" [ref=f4e3]:
+    - generic [ref=f4e4]:
+      - link "BOOSTKLIENT®" [ref=f4e5] [cursor=pointer]:
+        - /url: /
+      - paragraph [ref=f4e6]: Каталог → стратегия → органический трафик
+    - navigation [ref=f4e7]:
+      - link "Мой бизнес" [ref=f4e8] [cursor=pointer]:
+        - /url: /app/
+    - generic [ref=f4e9]: theme-preview
+  - generic [ref=f4e11]:
+    - banner [ref=f4e12]:
+      - generic [ref=f4e13]: Рабочая среда
+      - generic [ref=f4e14]:
+        - button "Тёмная тема" [pressed] [ref=f4e15] [cursor=pointer]
+        - button "Выйти" [ref=f4e18] [cursor=pointer]
+    - main [ref=f4e19]:
+      - generic [ref=f4e21]:
+        - heading "Мой бизнес" [level=1] [ref=f4e22]
+        - paragraph [ref=f4e23]: Управляйте профилем бизнеса, создавайте Pinterest-стратегию и запускайте следующий шаг.
+      - generic [ref=f4e24]:
+        - complementary [ref=f4e25]:
+          - generic [ref=f4e26]:
+            - generic [ref=f4e27]:
+              - heading "Рабочие пространства" [level=2] [ref=f4e28]
+              - generic [ref=f4e29]: "1"
+            - article [ref=f4e31]:
+              - generic [ref=f4e32]:
+                - heading "Проверка темы" [level=3] [ref=f4e33]
+                - paragraph [ref=f4e34]: Owner
+              - link "Добавить бизнес" [ref=f4e35] [cursor=pointer]:
+                - /url: /businesses/workspace/5b47fd07-daf3-404c-a1a0-b72ef96b821f/create/
+        - region [ref=f4e36]:
+          - generic "Рабочий путь" [ref=f4e37]:
+            - generic [ref=f4e38]:
+              - generic [ref=f4e39]: "01"
+              - strong [ref=f4e40]: Профиль
+              - paragraph [ref=f4e41]: Контекст бизнеса
+            - generic [ref=f4e42]:
+              - generic [ref=f4e43]: "02"
+              - strong [ref=f4e44]: Стратег
+              - paragraph [ref=f4e45]: Диагностика и план
+            - generic [ref=f4e46]:
+              - generic [ref=f4e47]: "03"
+              - strong [ref=f4e48]: Контент
+              - paragraph [ref=f4e49]: Следующий модуль
+          - generic [ref=f4e50]:
+            - heading "Бизнесы" [level=2] [ref=f4e51]
+            - paragraph [ref=f4e52]: Исходные данные для работы ИИ-стратега
+          - list [ref=f4e53]:
+            - listitem [ref=f4e54]:
+              - generic [ref=f4e55]:
+                - generic [aria-hidden] [ref=f4e56]: Т
+                - generic [ref=f4e57]:
+                  - heading "Тест темы" [level=3] [ref=f4e58]
+                  - paragraph [ref=f4e59]: Проверка темы · Товары для дома
+              - generic [ref=f4e60]:
+                - generic [ref=f4e61]:
+                  - term [ref=f4e62]: Рынок
+                  - definition [ref=f4e63]: Россия
+                - generic [ref=f4e64]:
+                  - term [ref=f4e65]: Язык
+                  - definition [ref=f4e66]: RU
+                - generic [ref=f4e67]:
+                  - term [ref=f4e68]: Статус
+                  - definition [ref=f4e69]: Активен
+              - generic [ref=f4e70]:
+                - paragraph [ref=f4e71]: Следующий шаг
+                - link "Открыть ИИ-стратега" [ref=f4e72] [cursor=pointer]:
+                  - /url: /strategist/business/b29e6af1-5228-4b5d-8218-f8555e9a9c16/
+              - paragraph [ref=f4e74]:
+                - generic [ref=f4e75]: Аудитория
+                - text: Проверка светлой и тёмной темы

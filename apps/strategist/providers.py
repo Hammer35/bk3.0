@@ -37,6 +37,12 @@ class GigaChatCompletion:
     total_tokens: int
 
 
+@dataclass(frozen=True)
+class GigaChatEmbeddingBatch:
+    vectors: list[list[float]]
+    prompt_tokens: int
+
+
 class GigaChatProvider:
     """Small adapter around the official SDK used by the strategist only."""
 
@@ -77,6 +83,27 @@ class GigaChatProvider:
                 logger.warning("GigaChat model unavailable; trying fallback: %s", model)
 
         raise GigaChatProviderError("All eligible GigaChat models are unavailable.") from last_error
+
+    def embed(self, texts: list[str], *, model: str | None = None) -> GigaChatEmbeddingBatch:
+        credentials = settings.GIGACHAT_API_TOKEN.strip()
+        if not credentials:
+            raise GigaChatConfigurationError("GigaChat authorization key is not configured.")
+        if not texts:
+            return GigaChatEmbeddingBatch(vectors=[], prompt_tokens=0)
+
+        try:
+            with self._client() as client:
+                response = client.embeddings(texts, model=model or settings.GIGACHAT_EMBEDDING_MODEL)
+        except Exception as error:
+            raise GigaChatProviderError("GigaChat embedding request failed.") from error
+
+        ordered = sorted(response.data, key=lambda item: item.index)
+        if len(ordered) != len(texts) or [item.index for item in ordered] != list(range(len(texts))):
+            raise GigaChatProviderError("GigaChat returned an incomplete embedding response.")
+        return GigaChatEmbeddingBatch(
+            vectors=[item.embedding for item in ordered],
+            prompt_tokens=sum(item.usage.prompt_tokens for item in ordered),
+        )
 
     def _available_model_ids(self) -> tuple[str, ...]:
         cache_key = "strategist:gigachat:available-models:v1"

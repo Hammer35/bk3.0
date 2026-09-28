@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.workspaces",
     "apps.businesses",
+    "apps.pinterest",
+    "apps.knowledge",
     "apps.strategist",
 ]
 
@@ -119,6 +121,12 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_SOFT_TIME_LIMIT = 270
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BEAT_SCHEDULE = {
+    "refresh-pinterest-oauth-tokens-daily": {
+        "task": "apps.pinterest.tasks.refresh_pinterest_tokens",
+        "schedule": 86400.0,
+    },
+}
 
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
@@ -149,8 +157,25 @@ GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS = int(
 )
 GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
 GIGACHAT_BASE_URL = os.getenv("GIGACHAT_BASE_URL", "https://api.giga.chat/v1")
+GIGACHAT_EMBEDDING_MODEL = os.getenv("GIGACHAT_EMBEDDING_MODEL", "EmbeddingsGigaR")
 GIGACHAT_TIMEOUT_SECONDS = float(os.getenv("GIGACHAT_TIMEOUT_SECONDS", "45"))
 GIGACHAT_CA_BUNDLE_FILE = os.getenv(
     "GIGACHAT_CA_BUNDLE_FILE",
     str(BASE_DIR / "infra" / "certs" / "russian_trusted_root_ca_pem.crt"),
 )
+
+PINTEREST_CLIENT_ID = os.getenv("PINTEREST_CLIENT_ID", "")
+PINTEREST_CLIENT_SECRET = os.getenv("PINTEREST_CLIENT_SECRET", "")
+PINTEREST_REDIRECT_URI = os.getenv("PINTEREST_REDIRECT_URI", "")
+PINTEREST_SCOPES = tuple(
+    scope.strip()
+    for scope in os.getenv(
+        "PINTEREST_SCOPES", "user_accounts:read,boards:read,boards:write,pins:read,pins:write"
+    ).replace(" ", ",").split(",")
+    if scope.strip()
+)
+PINTEREST_APP_CREATED_BEFORE_CONTINUOUS_REFRESH = (
+    os.getenv("PINTEREST_APP_CREATED_BEFORE_2025_09_25", "false").lower()
+    in {"1", "true", "yes"}
+)
+PINTEREST_TOKEN_ENCRYPTION_KEY = os.getenv("PINTEREST_TOKEN_ENCRYPTION_KEY", "")
