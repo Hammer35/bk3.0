@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from redis import Redis
 
 from apps.businesses.selectors import get_businesses_for_user
+from apps.pinterest.sync import snapshot_key
 from apps.workspaces.selectors import get_workspace_memberships_for_user
 
 
@@ -19,12 +21,17 @@ def home(request):
     if not memberships.exists():
         return redirect("workspaces:onboarding")
 
+    businesses = get_businesses_for_user(request.user)
+    for business in businesses:
+        for account in business.active_pinterest_accounts:
+            account.pinterest_sync_snapshot = cache.get(snapshot_key(account)) or {}
+
     return render(
         request,
         "core/home.html",
         {
             "memberships": memberships,
-            "businesses": get_businesses_for_user(request.user),
+            "businesses": businesses,
         },
     )
 

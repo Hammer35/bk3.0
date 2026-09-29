@@ -8,7 +8,7 @@
   padding: 10px 15px;
   cursor: pointer;
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: calc(13px * var(--interface-font-scale, 1));
   font-weight: 400;
   line-height: 1;
   text-decoration: none;
@@ -22,5 +22,5 @@
 .button-danger:hover { background: var(--danger); color: var(--accent-ink); }
 .button-ghost { min-height: 34px; padding: 8px 10px; background: transparent; color: var(--muted); }
 .button-ghost:hover { color: var(--text); }
-.button-small { min-height: 34px; padding: 8px 11px; font-size: 12px; }
+.button-small { min-height: 34px; padding: 8px 11px; font-size: calc(12px * var(--interface-font-scale, 1)); }
 button.button { appearance: none; }

@@ -44,6 +44,27 @@ cases:
       - "Сообщает, что нужен актуальный официальный источник, если он не был загружен или проверен."
       - "Не использует scraping Pinterest как замену разрешённому источнику."
 
+  - id: pinterest_analytics_evidence_and_hypothesis
+    user_context:
+      pinterest_api:
+        account: "@sample_shop"
+        period: "2026-08-01 — 2026-08-30"
+        metrics:
+          IMPRESSIONS: 1200
+          PIN_CLICK: 60
+          OUTBOUND_CLICK: 12
+        daily_peak:
+          metric: "OUTBOUND_CLICK"
+          date: "2026-08-18"
+          value: 5
+      site_analytics: null
+    user_message: "Почему 18 августа было больше переходов? Сколько было заказов?"
+    expected:
+      - "Называет 5 исходящих кликов 18 августа фактом из Pinterest API за указанный период."
+      - "Не называет причину пика без подтверждающих данных; возможные объяснения обозначает гипотезами."
+      - "Не выводит количество заказов из исходящих кликов и просит данные сайта/маркетплейса для ответа."
+      - "Не смешивает исходящие клики с открытиями Pin и показами."
+
   - id: user_corrects_assumption
     user_context:
       conversation:

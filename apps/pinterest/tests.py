@@ -1,4 +1,5 @@
 from datetime import timedelta
+from types import SimpleNamespace
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
@@ -14,6 +15,7 @@ from apps.workspaces.models import Membership, Workspace
 
 from .crypto import decrypt_token, encrypt_token
 from .models import PinterestAccount
+from .strategist_tools import PinterestReadError, _request
 
 
 @override_settings(
@@ -115,3 +117,54 @@ class PinterestOAuthFlowTest(TestCase):
         with override_settings(PINTEREST_TOKEN_ENCRYPTION_KEY=Fernet.generate_key().decode("ascii")):
             with self.assertRaises(ValueError):
                 decrypt_token(ciphertext)
+
+    def test_persistent_401_marks_account_for_reconnect(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-401",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token", return_value=True) as refresh,
+            patch("apps.pinterest.strategist_tools._get", side_effect=[
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=401),
+            ]) as get,
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "Переподключи"):
+                _request(account, "/user_account/analytics", {})
+
+        refresh.assert_called_once()
+        self.assertEqual(get.call_count, 3)
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.REAUTH_REQUIRED)
+        self.assertEqual(account.last_auth_error, "api_http_401_after_refresh")
+
+    def test_resource_401_keeps_valid_profile_connected(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-resource-401",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token", return_value=True),
+            patch("apps.pinterest.strategist_tools._get", side_effect=[
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=200),
+            ]),
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "Доступ к профилю работает"):
+                _request(account, "/user_account/analytics", {})
+
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)

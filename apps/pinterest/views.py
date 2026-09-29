@@ -16,6 +16,7 @@ from apps.workspaces.permissions import can_manage_businesses
 
 from .models import PinterestAccount
 from .services import PinterestOAuthError, authorization_url, connect_account, disconnect_account, exchange_code, fetch_profile
+from .sync import snapshot_key, sync_pinterest_account
 
 STATE_TTL_SECONDS = 600
 DISCONNECT_CONFIRMATION_SALT = "pinterest.disconnect-confirmation"
@@ -112,7 +113,38 @@ def disconnect(request, account_id):
         return HttpResponseBadRequest("Подтверждение отключения Pinterest недействительно.")
 
     disconnect_account(account)
+    cache.delete(snapshot_key(account))
+    cache.delete(f"pinterest:sync-lock:{account.public_id}")
+    cache.delete(f"pinterest:sync-cooldown:{account.public_id}")
     messages.success(request, "Pinterest аккаунт отключён. OAuth-токены удалены.")
+    return redirect("core:home")
+
+
+@login_required
+@require_POST
+def sync_account(request, account_id):
+    account = get_object_or_404(
+        PinterestAccount.objects.select_related("business__workspace"),
+        public_id=account_id,
+        deleted_at__isnull=True,
+        status=PinterestAccount.Status.CONNECTED,
+        business__status=Business.Status.ACTIVE,
+    )
+    if not can_manage_businesses(user=request.user, workspace=account.business.workspace):
+        raise Http404
+
+    result = sync_pinterest_account(account=account)
+    if result.get("busy"):
+        messages.warning(request, "Синхронизация уже выполняется. Подожди немного и обнови страницу.")
+    elif result.get("synced"):
+        failed = [name for name, state in result["resources"].items() if state.get("error")]
+        truncated = any(state.get("ok") and not state.get("complete", True) for state in result["resources"].values())
+        if failed or truncated:
+            messages.warning(request, "Часть данных обновлена; Pinterest не вернул все запрошенные ресурсы.")
+        else:
+            messages.success(request, f"Данные @{account.username or account.pinterest_user_id} синхронизированы.")
+    else:
+        messages.error(request, "Pinterest не вернул данные. Проверь разрешения аккаунта и повтори попытку позже.")
     return redirect("core:home")
 
 

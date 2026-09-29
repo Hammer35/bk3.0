@@ -13,6 +13,7 @@ app_name = "accounts"
 
 urlpatterns = [
     path("register/", views.register, name="register"),
+    path("preferences/interface-scale/", views.update_interface_preference, name="interface-scale"),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
 ]

@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 html { background: var(--bg); color-scheme: light; }
 html[data-theme="dark"] { color-scheme: dark; }
-body { min-width: 320px; margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+body { min-width: 320px; margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: calc(14px * var(--interface-font-scale, 1)); line-height: 1.5; overflow-wrap: anywhere; }
 button, input, textarea { font: inherit; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }

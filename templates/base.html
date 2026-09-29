@@ -1,6 +1,6 @@
 {% load static i18n %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light">
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,6 +79,7 @@
                     <span class="topbar-context">{% trans "Рабочая среда" %}</span>
                     <div class="topbar-actions">
                         <button type="button" class="button button-secondary button-small theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
+                        {% include "includes/interface_scale_control.html" %}
                         <form method="post" action="{% url 'accounts:logout' %}">
                             {% csrf_token %}
                             <button type="submit" class="button button-secondary button-small">{% trans "Выйти" %}</button>
@@ -107,6 +108,7 @@
             </div>
         </div>
     {% endif %}
+    <script src="{% static 'js/core/interface-scale.js' %}" defer></script>
     <dialog class="confirmation-dialog" data-form-confirmation data-confirmation-action="{% trans 'Продолжить' %}" data-confirmation-delete="{% trans 'Удалить аккаунт' %}" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
         <div class="confirmation-dialog-content">
             <span class="confirmation-dialog-kicker" data-confirmation-kicker>{% trans "Подтверждение действия" %}</span>

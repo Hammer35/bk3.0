@@ -1,9 +1,9 @@
 .panel { border: var(--line-width) solid var(--line); border-radius: var(--radius-panel); background: var(--surface); }
 .panel-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--line-width) solid var(--line); }
-.panel-title { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 400; letter-spacing: -.01em; }
+.panel-title { margin: 0; font-family: var(--font-display); font-size: calc(18px * var(--interface-font-scale, 1)); font-weight: 400; letter-spacing: -.01em; }
 .panel-body { padding: var(--space-4); }
-.eyebrow { margin: 0; color: var(--quiet); font-family: var(--font-compact); font-size: 11px; letter-spacing: .08em; line-height: 1.25; text-transform: uppercase; }
-.meta { margin: 0; color: var(--muted); font-size: 13px; }
+.eyebrow { margin: 0; color: var(--quiet); font-family: var(--font-compact); font-size: calc(11px * var(--interface-font-scale, 1)); letter-spacing: .08em; line-height: 1.25; text-transform: uppercase; }
+.meta { margin: 0; color: var(--muted); font-size: calc(13px * var(--interface-font-scale, 1)); }
 .messages { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
 .message { margin: 0; padding: var(--space-3); border: var(--line-width) solid var(--line); background: var(--surface); color: var(--text); }
 .empty-state { margin: 0; color: var(--muted); }

@@ -1,0 +1,76 @@
+.interface-scale-control {
+  position: relative;
+  color: inherit;
+  font-family: inherit;
+}
+
+.interface-scale-trigger {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: var(--line-width, 1px) solid var(--line-strong, var(--landing-line));
+  border-radius: var(--radius-control, 2px);
+  color: inherit;
+  cursor: pointer;
+  list-style: none;
+}
+
+.interface-scale-trigger::-webkit-details-marker { display: none; }
+.interface-scale-trigger:hover { border-color: currentColor; }
+.interface-scale-trigger:focus-visible { outline: 2px solid var(--focus, var(--landing-accent)); outline-offset: 3px; }
+.interface-scale-trigger svg { display: block; }
+
+.interface-scale-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--space-2, 8px));
+  right: 0;
+  width: min(280px, calc(100vw - 32px));
+  padding: var(--space-4, 16px);
+  border: var(--line-width, 1px) solid var(--line-strong, var(--landing-line));
+  background: var(--surface, var(--landing-surface));
+  color: var(--text, var(--landing-text));
+}
+
+.interface-scale-panel h2 {
+  margin: 0;
+  font-family: inherit;
+  font-size: calc(14px * var(--interface-font-scale, 1));
+  font-weight: 400;
+}
+
+.interface-scale-actions {
+  display: grid;
+  grid-template-columns: 36px minmax(50px, 1fr) 36px auto;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  margin-top: var(--space-3, 12px);
+}
+
+.interface-scale-actions button {
+  min-height: 36px;
+  padding: 6px 9px;
+  border: var(--line-width, 1px) solid var(--line-strong, var(--landing-line));
+  border-radius: var(--radius-control, 2px);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.interface-scale-actions button:hover:not(:disabled) { border-color: currentColor; }
+.interface-scale-actions button:focus-visible { outline: 2px solid var(--focus, var(--landing-accent)); outline-offset: 2px; }
+.interface-scale-actions button:disabled { cursor: not-allowed; opacity: .5; }
+.interface-scale-actions output { text-align: center; font-variant-numeric: tabular-nums; }
+.interface-scale-actions [data-interface-scale-reset] { border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+
+.interface-scale-status {
+  min-height: 1.25em;
+  margin: var(--space-2, 8px) 0 0;
+  color: var(--muted, var(--landing-muted));
+  font-size: calc(12px * var(--interface-font-scale, 1));
+}
+
+.landing-nav-actions .interface-scale-control { color: var(--landing-text); }
+.landing-nav-actions .interface-scale-trigger { width: 36px; height: 36px; }

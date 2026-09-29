@@ -1,0 +1,19 @@
+{% load i18n %}
+<details class="interface-scale-control" data-interface-scale-control data-save-url="{% url 'accounts:interface-scale' %}" data-saving-label="{% trans 'Сохраняю…' %}" data-saved-label="{% trans 'Сохранено' %}" data-error-label="{% trans 'Не удалось сохранить размер текста. Попробуйте ещё раз.' %}">
+    <summary class="interface-scale-trigger" aria-label="{% trans 'Размер текста' %}" title="{% trans 'Размер текста' %}">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path d="M3 11.25 4.4 6.8a1.5 1.5 0 0 1 1.43-1.05h4.42a1.5 1.5 0 0 1 1.44 1.05L13 11.25M11.2 11.25 12.6 6.8a1.5 1.5 0 0 1 1.43-1.05h4.42a1.5 1.5 0 0 1 1.44 1.05l1.4 4.45M3 11.25h10m-10 0c0 2.35 1.5 4 3.5 4s3.5-1.65 3.5-4m2 0h10m-10 0c0 2.35 1.5 4 3.5 4s3.5-1.65 3.5-4M13 11.25l-1-1.5-1 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </summary>
+    <section class="interface-scale-panel" aria-label="{% trans 'Размер текста' %}">
+        <h2>{% trans "Размер текста" %}</h2>
+        <div class="interface-scale-actions" role="group" aria-label="{% trans 'Изменить размер текста' %}">
+            <button type="button" class="button button-secondary button-small" data-interface-scale-decrease aria-label="{% trans 'Уменьшить текст' %}" title="{% trans 'Уменьшить текст' %}">−</button>
+            <output data-interface-scale-value aria-live="polite" aria-atomic="true">{{ interface_font_scale_percent|default:100 }}%</output>
+            <button type="button" class="button button-secondary button-small" data-interface-scale-increase aria-label="{% trans 'Увеличить текст' %}" title="{% trans 'Увеличить текст' %}">+</button>
+            <button type="button" class="button button-ghost button-small" data-interface-scale-reset>{% trans "Сбросить" %}</button>
+        </div>
+        <p class="interface-scale-status" data-interface-scale-status role="status" aria-live="polite"></p>
+    </section>
+</details>
+<form hidden aria-hidden="true">{% csrf_token %}</form>

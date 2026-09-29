@@ -20,14 +20,14 @@
 .confirmation-dialog-kicker {
   color: var(--quiet);
   font-family: var(--font-compact);
-  font-size: 10px;
+  font-size: calc(10px * var(--interface-font-scale, 1));
   letter-spacing: .075em;
   text-transform: uppercase;
 }
 
 .confirmation-dialog-content h2 {
   margin: var(--space-2) 0 0;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--interface-font-scale, 1));
   font-weight: 400;
 }
 
@@ -59,7 +59,7 @@
 
 .pinterest-disconnect-confirmation h1 {
   margin: var(--space-2) 0 0;
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(calc(1.5rem * var(--interface-font-scale, 1)), calc(4vw * var(--interface-font-scale, 1)), calc(2rem * var(--interface-font-scale, 1)));
   font-weight: 400;
 }
 

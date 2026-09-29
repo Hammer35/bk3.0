@@ -1,6 +1,11 @@
 (() => {
   const STORAGE_KEY = "boostklient-theme";
   const root = document.documentElement;
+  const fontScalePercent = Number(root.dataset.interfaceFontScale);
+  if (Number.isInteger(fontScalePercent) && fontScalePercent >= 100 && fontScalePercent <= 200) {
+    root.style.setProperty("--interface-font-scale", String(fontScalePercent / 100));
+    root.dataset.fontScaleLarge = String(fontScalePercent > 100);
+  }
 
   function systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

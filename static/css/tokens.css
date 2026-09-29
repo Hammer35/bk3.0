@@ -3,6 +3,7 @@
 
 :root,
 html[data-theme="light"] {
+  --interface-font-scale: 1;
   --font-body: "BK Manrope", Arial, sans-serif;
   --font-display: "BK Manrope", Arial, sans-serif;
   --font-compact: "BK Oswald", Arial, sans-serif;

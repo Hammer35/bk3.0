@@ -13,6 +13,7 @@
     <div class="landing-nav-actions">
         <button type="button" class="landing-button landing-button-secondary landing-theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
         {% if request.user.is_authenticated %}
+            {% include "includes/interface_scale_control.html" %}
             <a class="landing-link" href="{% url 'core:home' %}">{% trans "Рабочая среда" %}</a>
         {% else %}
             <a class="landing-link" href="{% url 'login' %}">{% trans "Войти" %}</a>

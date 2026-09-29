@@ -80,6 +80,12 @@
                                         <span class="pinterest-account-status{% if pinterest_account.is_connected %} status-active{% endif %}">{{ pinterest_account.get_status_display }}</span>
                                         {% if business.can_manage_pinterest %}
                                             <div class="pinterest-account-actions">
+                                                {% if pinterest_account.is_connected %}
+                                                    <form method="post" action="{% url 'pinterest:sync-account' pinterest_account.public_id %}">
+                                                        {% csrf_token %}
+                                                        <button class="button button-secondary" type="submit">{% trans "Синхронизировать" %}</button>
+                                                    </form>
+                                                {% endif %}
                                                 {% if not pinterest_account.is_connected %}
                                                     <form method="post" action="{% url 'pinterest:reconnect' pinterest_account.public_id %}" data-confirm-message="{% trans 'Переподключить Pinterest? Вы будете перенаправлены на Pinterest для повторного подтверждения доступа.' %}">
                                                         {% csrf_token %}
@@ -90,6 +96,9 @@
                                                     <button class="button button-danger" type="submit">{% trans "Удалить аккаунт" %}</button>
                                                 </form>
                                             </div>
+                                        {% endif %}
+                                        {% if pinterest_account.pinterest_sync_snapshot.synced_at %}
+                                            <small class="pinterest-sync-status">{% trans "Синхронизировано" %}: {{ pinterest_account.pinterest_sync_snapshot.synced_at|date:"d.m.Y H:i" }}</small>
                                         {% endif %}
                                     </div>
                                 {% empty %}

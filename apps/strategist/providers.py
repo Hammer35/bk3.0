@@ -1,11 +1,12 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import cache
 
 from gigachat import GigaChat
-from gigachat.models import Chat, Messages, MessagesRole
+from gigachat.models import Chat, Function, Messages, MessagesRole
 
 from .model_catalog import TaskCapability
 from .model_routing import GigaChatModelRouter
@@ -35,6 +36,8 @@ class GigaChatCompletion:
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
+    function_call: dict[str, Any] | None = None
+    functions_state_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,7 @@ class GigaChatProvider:
         "system": MessagesRole.SYSTEM,
         "user": MessagesRole.USER,
         "assistant": MessagesRole.ASSISTANT,
+        "function": MessagesRole.FUNCTION,
     }
 
     def __init__(self, router: GigaChatModelRouter | None = None):
@@ -57,9 +61,11 @@ class GigaChatProvider:
 
     def complete(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         capability: TaskCapability = TaskCapability.CHAT,
+        functions: list[Function] | None = None,
+        function_call: str | None = None,
     ) -> GigaChatCompletion:
         credentials = settings.GIGACHAT_API_TOKEN.strip()
         if not credentials:
@@ -75,7 +81,12 @@ class GigaChatProvider:
         last_error = None
         for model in candidates:
             try:
-                return self._complete_with_model(messages=messages, model=model)
+                return self._complete_with_model(
+                    messages=messages,
+                    model=model,
+                    functions=functions,
+                    function_call=function_call,
+                )
             except GigaChatRequestError as error:
                 last_error = error
                 if not error.can_fallback:
@@ -121,15 +132,30 @@ class GigaChatProvider:
         cache.set(cache_key, model_ids, settings.GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS)
         return model_ids
 
-    def _complete_with_model(self, *, messages: list[dict[str, str]], model: str) -> GigaChatCompletion:
+    def _complete_with_model(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        model: str,
+        functions: list[Function] | None = None,
+        function_call: str | None = None,
+    ) -> GigaChatCompletion:
         try:
             chat = Chat(
                 model=model,
                 messages=[
-                    Messages(role=self.role_map[message["role"]], content=message["content"])
+                    Messages(
+                        role=self.role_map[message["role"]],
+                        content=message.get("content", ""),
+                        name=message.get("name"),
+                        function_call=message.get("function_call"),
+                        functions_state_id=message.get("functions_state_id"),
+                    )
                     for message in messages
                 ],
                 max_tokens=1200,
+                functions=functions,
+                function_call=function_call,
             )
             with self._client() as client:
                 response = client.chat(chat)
@@ -139,8 +165,10 @@ class GigaChatProvider:
                 can_fallback=self._can_fallback(error),
             ) from error
 
-        content = response.choices[0].message.content.strip() if response.choices else ""
-        if not content:
+        message = response.choices[0].message if response.choices else None
+        content = (message.content or "").strip() if message else ""
+        call = getattr(message, "function_call", None) if message else None
+        if not content and not call:
             raise GigaChatRequestError(model=model, can_fallback=False)
 
         usage = response.usage
@@ -150,6 +178,12 @@ class GigaChatProvider:
             prompt_tokens=getattr(usage, "prompt_tokens", 0) if usage else 0,
             completion_tokens=getattr(usage, "completion_tokens", 0) if usage else 0,
             total_tokens=getattr(usage, "total_tokens", 0) if usage else 0,
+            function_call=(
+                {"name": call.name, "arguments": call.arguments or {}}
+                if call
+                else None
+            ),
+            functions_state_id=getattr(message, "functions_state_id", None) if message else None,
         )
 
     @staticmethod

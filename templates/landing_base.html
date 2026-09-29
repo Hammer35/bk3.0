@@ -1,6 +1,6 @@
 {% load static i18n %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light">
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,5 +12,6 @@
 </head>
 <body class="landing-body">
     {% block body %}{% endblock %}
+    <script src="{% static 'js/core/interface-scale.js' %}" defer></script>
 </body>
 </html>
