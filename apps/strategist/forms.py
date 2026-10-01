@@ -9,7 +9,7 @@ class StrategistMessageForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 "rows": 1,
-                "placeholder": _("Например: составь план первых 10 пинов для моего бизнеса."),
+                "placeholder": _("Напишите стратегу или вставьте ссылку на товар Wildberries"),
             }
         ),
     )

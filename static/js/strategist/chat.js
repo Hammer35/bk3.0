@@ -28,7 +28,7 @@
     if (!chatMap || chatMap.querySelector(`[data-chat-target="${messageNode.id}"]`)) return;
     chatMap.querySelector(".chat-map-empty")?.remove();
 
-    const question = messageNode.querySelector("p")?.textContent?.trim() || "";
+    const question = messageNode.querySelector(".chat-message-content")?.textContent?.trim() || "";
     const item = document.createElement("li");
     const button = document.createElement("button");
     const index = document.createElement("span");

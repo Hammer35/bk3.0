@@ -19,9 +19,17 @@
 .page-shell { padding: var(--space-6) var(--page-gutter) var(--space-8); }
 .chat-history { display: grid; gap: var(--space-3); max-height: 480px; overflow-y: auto; padding: var(--space-4); border: var(--line-width) solid var(--line); background: var(--bg); }
 .chat-message { max-width: 82%; padding: var(--space-3); border: var(--line-width) solid var(--line-strong); border-radius: var(--radius-control); background: var(--surface-raised); }
-.chat-message p { margin: var(--space-2) 0 0; }
+.chat-message-content { margin-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.chat-message-assistant .chat-message-content { white-space: normal; }
+.chat-message-content > :first-child { margin-top: 0; }
+.chat-message-content > :last-child { margin-bottom: 0; }
+.chat-message-content p { margin: 0 0 var(--space-3); }
+.chat-message-content h3 { margin: var(--space-4) 0 var(--space-2); color: var(--text); font-size: calc(16px * var(--interface-font-scale, 1)); line-height: 1.3; }
+.chat-message-content ul, .chat-message-content ol { margin: 0 0 var(--space-3); padding-left: var(--space-5); }
+.chat-message-content li + li { margin-top: var(--space-2); }
+.chat-message-content hr { margin: var(--space-4) 0; border: 0; border-top: var(--line-width) solid var(--line); }
 .chat-message-user { justify-self: end; border-color: var(--chat-user-border); background: var(--chat-user-bg); color: var(--chat-user-text); }
-.chat-message-assistant { justify-self: start; }
+.chat-message-assistant { justify-self: start; width: min(100%, 760px); }
 .chat-map-item { position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; width: 100%; min-height: 38px; padding: 6px 8px; border: var(--line-width) solid var(--line); border-radius: var(--radius-control); background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; text-align: left; }
 .chat-map-item:hover, .chat-map-item:focus-visible { border-color: var(--accent); color: var(--text); }
 .chat-map-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

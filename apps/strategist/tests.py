@@ -1,8 +1,9 @@
 from unittest.mock import patch
-from datetime import timedelta
+from datetime import date, timedelta
 import json
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +18,8 @@ from apps.strategist.providers import (
     GigaChatProvider,
     GigaChatRequestError,
 )
-from apps.strategist.services import _format_pinterest_analytics
+from apps.strategist.services import _format_pinterest_analytics, respond_to_message
+from apps.strategist.advice import analytics_advice, comparison_issues, analytics_followup_context, enforce_advice_boundaries, metric_value, local_knowledge_context
 from apps.workspaces.models import Membership, Workspace
 
 
@@ -35,6 +37,32 @@ class StrategistChatTest(TestCase):
             "strategist:chat",
             kwargs={"workspace_slug": self.business.workspace.slug, "business_slug": self.business.slug},
         )
+
+    @patch("apps.strategist.services._pinterest_analytics_answer", return_value="Данные Pinterest получены.")
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_single_connected_account_month_statistics_uses_direct_read(self, complete, analytics):
+        PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.user,
+            pinterest_user_id="one-account",
+            username="PinAutomation",
+            access_token_encrypted="unused",
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(self.url, {"message": "СТАТИСТИКУ ПО НЕМУ ЗА МЕСЯЦ, ЧТО ХОРОШО, ЧТО ПЛОХО"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(AIMessage.objects.order_by("-created_at").first().content, "Данные Pinterest получены.")
+        analytics.assert_called_once()
+        self.assertEqual(analytics.call_args.kwargs["account"].username, "PinAutomation")
+        self.assertEqual(
+            (analytics.call_args.kwargs["end_date"] - analytics.call_args.kwargs["start_date"]).days,
+            29,
+        )
+        complete.assert_not_called()
 
     @patch("apps.strategist.services.GigaChatProvider.complete")
     def test_message_is_sent_and_response_usage_is_stored(self, complete):
@@ -156,7 +184,9 @@ class StrategistChatTest(TestCase):
         self.assertIn("Максимум показов среди доступных дней: 99", answer)
         self.assertIn("недоступных дат — 1", answer)
         self.assertNotIn("VIDEO_AVG_WATCH_TIME", answer)
-        self.assertLess(len(answer.splitlines()), 8)
+        self.assertIn("\n\nЗа период\n  • показы — 382", answer)
+        self.assertIn("\n\nВидео\n  • запуски видео — 16", answer)
+        self.assertGreater(len(answer.splitlines()), 8)
 
     def test_reauth_account_is_named_in_analysis_answer(self):
         PinterestAccount.objects.create(
@@ -217,3 +247,128 @@ class GigaChatModelRoutingTest(SimpleTestCase):
             [call.kwargs["model"] for call in complete_with_model.call_args_list],
             ["GigaChat-2", "GigaChat-2-Pro"],
         )
+
+
+class AdviceEvidenceTests(SimpleTestCase):
+    def test_local_case_is_available_with_source_and_transfer_limits(self):
+        context = local_knowledge_context("Практический кейс роста исходящих кликов", project_root=settings.BASE_DIR, today=date(2026, 9, 30))
+        self.assertIn("pink-seed-marketing", context)
+        self.assertIn("380%", context)
+        self.assertIn("эффект отдельного действия не выделен", context)
+
+    def test_future_sources_are_not_used(self):
+        context = local_knowledge_context("Практический кейс", project_root=settings.BASE_DIR, today=date(2000, 1, 1))
+        self.assertEqual(context, "")
+
+    def response(self, start, end, metrics, status="READY"):
+        return {"all": {"summary_metrics": metrics, "daily_metrics": [
+            {"date": str(start + timedelta(days=i)), "data_status": status, "metrics": {}}
+            for i in range((end - start).days + 1)
+        ]}}
+
+    def test_real_counts_and_video_are_not_misinterpreted(self):
+        old = self.response(date(2026, 8, 2), date(2026, 8, 31), {"IMPRESSION": 1171290, "OUTBOUND_CLICK": 1644})
+        current = self.response(date(2026, 9, 1), date(2026, 9, 30), {"IMPRESSION": 2128033, "OUTBOUND_CLICK": 3627, "VIDEO_10S_VIEW": 928})
+        answer = _format_pinterest_analytics(account=PinterestAccount(username="sample"), result=current,
+            start_date=date(2026, 9, 1), end_date=date(2026, 9, 30), previous_result=old,
+            previous_period=(date(2026, 8, 2), date(2026, 8, 31)))
+        self.assertIn("+120,62%", answer)
+        self.assertNotIn("0,43%", answer)
+        self.assertIn("нельзя оценить качество видео", answer)
+        self.assertIn("уточните цель", answer)
+
+    def test_complete_equal_periods_and_missing_estimated_days(self):
+        period = (date(2026, 9, 3), date(2026, 9, 4))
+        before = (date(2026, 9, 1), date(2026, 9, 2))
+        old = self.response(*before, {"IMPRESSION": 100})
+        current = self.response(*period, {"IMPRESSION": 80})
+        self.assertEqual(comparison_issues(current, old, period, before, today=date(2026, 9, 5)), [])
+        for status in ("UNAVAILABLE", "ESTIMATE", None):
+            current["all"]["daily_metrics"][0]["data_status"] = status
+            self.assertTrue(comparison_issues(current, old, period, before, today=date(2026, 9, 5)))
+        current["all"]["daily_metrics"] = []
+        self.assertTrue(comparison_issues(current, old, period, before, today=date(2026, 9, 5)))
+
+    def test_incomplete_period_does_not_diagnose_decline(self):
+        period = (date(2026, 9, 3), date(2026, 9, 4))
+        before = (date(2026, 9, 1), date(2026, 9, 2))
+        answer = _format_pinterest_analytics(account=PinterestAccount(username="sample"),
+            result=self.response(*period, {"IMPRESSION": 10}, status="UNAVAILABLE"),
+            previous_result=self.response(*before, {"IMPRESSION": 100}),
+            start_date=period[0], end_date=period[1], previous_period=before)
+        self.assertNotIn("Показы снизились", answer)
+        self.assertNotIn("снижения не обнаружено", answer)
+        self.assertIn("Сначала получите полные данные", answer)
+
+    def test_zero_baseline_missing_negative_and_nonfinite_values(self):
+        for value in (None, True, -1, float("inf"), float("nan"), "100"):
+            self.assertIsNone(metric_value({"SAVE": value}, "SAVE"))
+        good, bad, actions = analytics_advice({"IMPRESSION": 100, "SAVE": 0}, {"IMPRESSION": 0})
+        self.assertTrue(bad)
+        self.assertTrue(actions)
+        self.assertNotIn("%", " ".join(good))
+
+    def test_counts_can_rise_while_rates_fall(self):
+        good, bad, actions = analytics_advice({"IMPRESSION": 2000, "SAVE": 15}, {"IMPRESSION": 1000, "SAVE": 10})
+        self.assertTrue(any("Показы выросли" in text for text in good))
+        self.assertTrue(any("Доля сохранений снизилась" in text for text in bad))
+        self.assertTrue(actions)
+
+    def test_advertising_advice_is_gated_but_organic_text_remains(self):
+        self.assertEqual(enforce_advice_boundaries("Отвечу на вопрос о ссылке."), "Отвечу на вопрос о ссылке.")
+        answer = enforce_advice_boundaries("Проверьте ссылку.\n\nСоздайте карусель с мини-игрой.\n\nРассчитайте ROI кампании.")
+        self.assertIn("Проверьте ссылку.", answer)
+        self.assertNotIn("Создайте", answer)
+        self.assertNotIn("Рассчитайте", answer)
+        self.assertEqual(answer.count("Рекламный кабинет"), 1)
+        self.assertIn("не проверены", answer)
+
+    def test_followup_uses_only_trusted_context_and_stops_at_topic_change(self):
+        trusted = {"role": "ASSISTANT", "provider": "pinterest-api", "model": "direct-read",
+            "content": "Органика @first\nПериод: 2026-09-01 — 2026-09-07 · Pinterest API"}
+        self.assertEqual(analytics_followup_context("Что делать?", [trusted])[0], "first")
+        self.assertIsNone(analytics_followup_context("Что делать?", [{**trusted, "provider": "gigachat"}]))
+        self.assertIsNone(analytics_followup_context("Что делать @second?", [trusted]))
+        self.assertIsNone(analytics_followup_context("Как улучшить сайт?", [trusted]))
+        self.assertIsNone(analytics_followup_context("Дай рекомендации по рекламе", [trusted]))
+        self.assertIsNone(analytics_followup_context("Что делать?", [{"role": "USER", "content": "Обсудим сайт"}, trusted]))
+
+
+class AdviceFollowupIntegrationTests(TestCase):
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    @patch("apps.strategist.services._pinterest_analytics_answer", return_value="Проверенные показатели")
+    def test_followup_keeps_account_and_exact_dates_with_multiple_accounts(self, analytics, complete):
+        user = get_user_model().objects.create_user("followup-owner")
+        workspace = Workspace.objects.create(name="Followup", slug="followup", created_by=user)
+        business = Business.objects.create(workspace=workspace, name="Sample", slug="sample")
+        for username in ("first", "second"):
+            PinterestAccount.objects.create(business=business, connected_by=user, pinterest_user_id=username,
+                username=username, access_token_encrypted="unused", access_token_expires_at=timezone.now() + timedelta(days=1))
+        conversation = AIConversation.objects.create(business=business, created_by=user)
+        AIMessage.objects.create(conversation=conversation, role="ASSISTANT", provider="pinterest-api", model="direct-read",
+            content="Органика @second\nПериод: 2026-09-01 — 2026-09-07 · Pinterest API")
+        message = AIMessage.objects.create(conversation=conversation, role="USER", content="А ГДЕ ВЫВОДЫ? ЧТО ХОРОШО ЧТО ПЛОХО? КАК УЛУЧШИТЬ?")
+        answer = respond_to_message(user_message=message)
+        self.assertEqual(answer.content, "Проверенные показатели")
+        self.assertEqual(analytics.call_args.kwargs["account"].username, "second")
+        self.assertEqual(analytics.call_args.kwargs["start_date"], date(2026, 9, 1))
+        self.assertEqual(analytics.call_args.kwargs["end_date"], date(2026, 9, 7))
+        complete.assert_not_called()
+
+
+    @patch("apps.strategist.services.search_knowledge", side_effect=RuntimeError("embedding unavailable"))
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_embedding_failure_uses_local_case_and_gates_stored_answer(self, complete, search):
+        user = get_user_model().objects.create_user("local-case-owner")
+        workspace = Workspace.objects.create(name="Local case", slug="local-case", created_by=user)
+        business = Business.objects.create(workspace=workspace, name="Case", slug="case")
+        conversation = AIConversation.objects.create(business=business, created_by=user)
+        message = AIMessage.objects.create(conversation=conversation, role="USER", content="Приведи практический кейс роста исходящих кликов")
+        complete.return_value = GigaChatCompletion(content="Проверьте целевую ссылку.\n\nСоздайте карусель с опросом.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
+        answer = respond_to_message(user_message=message)
+        system = complete.call_args.args[0][0]["content"]
+        self.assertIn("pink-seed-marketing", system)
+        self.assertIn("эффект отдельного действия не выделен", system)
+        self.assertIn("Проверьте целевую ссылку", answer.content)
+        self.assertNotIn("Создайте карусель", answer.content)
+        self.assertEqual(answer.total_tokens, 15)

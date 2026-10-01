@@ -138,6 +138,7 @@ AUTH_REGISTRATION_RATE_LIMIT = int(os.getenv("AUTH_REGISTRATION_RATE_LIMIT", "3"
 AUTH_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RATE_LIMIT_WINDOW_SECONDS", "300"))
 
 GIGACHAT_API_TOKEN = os.getenv("GIGACHAT_API_TOKEN", "")
+STRATEGIST_PRODUCT_VISION_ENABLED = os.getenv("STRATEGIST_PRODUCT_VISION_ENABLED", "false").lower() == "true"
 GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2")
 GIGACHAT_MODEL_PRIORITY = tuple(
     dict.fromkeys(
@@ -171,7 +172,7 @@ PINTEREST_REDIRECT_URI = os.getenv("PINTEREST_REDIRECT_URI", "")
 PINTEREST_SCOPES = tuple(
     scope.strip()
     for scope in os.getenv(
-        "PINTEREST_SCOPES", "user_accounts:read,boards:read,boards:write,pins:read,pins:write"
+        "PINTEREST_SCOPES", "user_accounts:read,boards:read,boards:write,pins:read,pins:write,ads:read"
     ).replace(" ", ",").split(",")
     if scope.strip()
 )

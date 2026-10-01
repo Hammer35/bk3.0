@@ -50,6 +50,8 @@ _RESOURCES = {
     "followed_interests": ("/users/{username}/interests/follow", {"user_accounts:read"}),
     "trend_articles": ("/trends/editorial_articles", {"user_accounts:read"}),
     "trend_keywords": ("/trends/keywords/{region}/top/{trend_type}", {"user_accounts:read"}),
+    "suggested_terms": ("/terms/suggested", {"ads:read"}),
+    "related_terms": ("/terms/related", {"ads:read"}),
     "trend_category_details": ("/trends/product_categories/details", {"user_accounts:read"}),
     "trend_categories": ("/trends/product_categories/trending", {"user_accounts:read"}),
     "trend_topics": ("/trends/topics/featured", {"user_accounts:read"}),
@@ -79,6 +81,8 @@ _OPTION_KEYS = {
     "pins_analytics": {"pin_ids", "start_date", "end_date", "app_types", "metric_types"},
     "trend_articles": {"region"},
     "trend_keywords": {"interests", "genders", "ages", "include_keywords", "normalize_against_group", "limit", "include_demographics"},
+    "suggested_terms": {"term", "limit"},
+    "related_terms": {"terms"},
     "trend_category_details": {"product_categories", "region", "lookback_window", "engagement_type"},
     "trend_categories": {"region", "verticals", "ages", "genders", "engagement_type"},
     "trend_topics": {"interest", "region"},
@@ -93,6 +97,7 @@ _REQUIRED_OPTIONS = {
     "pin_analytics": {"start_date", "end_date", "metric_types"},
     "pins_analytics": {"pin_ids", "start_date", "end_date", "metric_types"},
     "trend_articles": {"region"},
+    "suggested_terms": {"term"}, "related_terms": {"terms"},
     "trend_category_details": {"product_categories", "region"},
     "trend_categories": {"region"}, "trend_topics": {"region"},
 }
@@ -111,6 +116,7 @@ def pinterest_read_function():
             "top_pins/top_video_pins(start_date,end_date,sort_by и фильтры), "
             "pin_analytics(pin_id,start_date,end_date,metric_types), pins_analytics(pin_ids,start_date, "
             "end_date,metric_types), trend_articles(region), trend_keywords(region,trend_type path arguments), "
+            "suggested_terms(term,limit), related_terms(terms), "
             "trend_category_details(product_categories,region), trend_categories(region), "
             "trend_topics(region). Массивы кодируй JSON-массивами. Передавай bookmark из ответа "
             "без изменений для следующей страницы."
@@ -233,7 +239,7 @@ def _endpoint(resource, arguments, options):
     if resource == "trend_keywords":
         region = str(arguments.get("region", ""))
         trend_type = str(arguments.get("trend_type", ""))
-        if not re.fullmatch(r"[A-Za-z0-9_-]{1,40}", region) or not re.fullmatch(r"[A-Za-z0-9_-]{1,40}", trend_type):
+        if not re.fullmatch(r"[A-Za-z0-9_+-]{1,40}", region) or not re.fullmatch(r"[A-Za-z0-9_-]{1,40}", trend_type):
             return {"error": "Для поиска трендов укажи region и trend_type из Pinterest API."}
     else:
         region = trend_type = ""
@@ -251,6 +257,20 @@ def _endpoint(resource, arguments, options):
     if resource == "trend_keywords" and "limit" in params:
         if not isinstance(params["limit"], int) or not 1 <= params["limit"] <= 25:
             return {"error": "Для трендов укажи limit от 1 до 25."}
+    if resource == "suggested_terms":
+        term = params.get("term")
+        if not isinstance(term, str) or not 1 <= len(term.strip()) <= 100:
+            return {"error": "Для подсказок укажи term длиной от 1 до 100 символов."}
+        params["term"] = term.strip()
+        if "limit" in params and (not isinstance(params["limit"], int) or not 1 <= params["limit"] <= 10):
+            return {"error": "Для подсказок укажи limit от 1 до 10."}
+    if resource == "related_terms":
+        terms = params.get("terms")
+        if not isinstance(terms, list) or not 1 <= len(terms) <= 5 or any(
+            not isinstance(term, str) or not 1 <= len(term.strip()) <= 100 for term in terms
+        ):
+            return {"error": "Для связанных запросов укажи список terms из 1–5 непустых фраз."}
+        params["terms"] = [term.strip() for term in terms]
     path = path.format(
         board_id=board_id,
         section_id=section_id,
@@ -265,7 +285,7 @@ def _endpoint(resource, arguments, options):
     if resource in {"secret_boards", "search_pins"}:
         if resource == "search_pins":
             scopes = scopes | {"pins:read_secret"}
-    return path, _encode_arrays(params), scopes
+    return path, params if resource == "related_terms" else _encode_arrays(params), scopes
 
 
 def _validate_date_range(params):

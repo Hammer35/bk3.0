@@ -31,6 +31,7 @@ class AIMessage(BaseModel):
     conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name="messages", verbose_name="сессия")
     role = models.CharField(max_length=16, choices=Role.choices, verbose_name="отправитель")
     content = models.TextField(verbose_name="сообщение")
+    assets = models.JSONField(default=dict, blank=True, verbose_name="данные карточки в чате")
     provider = models.CharField(max_length=32, blank=True, verbose_name="провайдер ИИ")
     model = models.CharField(max_length=80, blank=True, verbose_name="модель ИИ")
     prompt_tokens = models.PositiveIntegerField(default=0, verbose_name="токены запроса")
@@ -41,3 +42,18 @@ class AIMessage(BaseModel):
         ordering = ("created_at",)
         verbose_name = "сообщение ИИ-стратега"
         verbose_name_plural = "сообщения ИИ-стратега"
+
+
+class WBImageAnalysis(BaseModel):
+    sha256 = models.CharField(max_length=64, unique=True, verbose_name="хеш изображения")
+    description = models.TextField(verbose_name="описание изображения")
+    machine_description = models.TextField(blank=True, verbose_name="исходное описание модели")
+    person = models.BooleanField(default=False, verbose_name="есть человек")
+    person_wears_product = models.BooleanField(default=False, verbose_name="товар на человеке")
+    clean = models.BooleanField(default=False, verbose_name="чистое фото")
+    reviewed = models.BooleanField(default=False, verbose_name="описание проверено")
+    model = models.CharField(max_length=80, default="GigaChat-2-Pro", verbose_name="модель анализа")
+
+    class Meta:
+        verbose_name = "анализ изображения WB"
+        verbose_name_plural = "анализы изображений WB"

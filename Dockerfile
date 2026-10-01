@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r /app/requirements/base.txt
 RUN useradd --create-home --uid 10001 app
 
 COPY --chown=app:app . /app
+RUN python scripts/build_css_bundles.py
 
 RUN mkdir -p /app/var/media /app/staticfiles \
     && chown -R app:app /app

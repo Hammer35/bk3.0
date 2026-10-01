@@ -9,6 +9,7 @@ x-app-environment: &app-environment
   POSTGRES_PORT: "5432"
   VALKEY_URL: redis://valkey:6379/0
   GIGACHAT_API_TOKEN: ${GIGACHAT_API_TOKEN:-}
+  STRATEGIST_PRODUCT_VISION_ENABLED: ${STRATEGIST_PRODUCT_VISION_ENABLED:-false}
   PINTEREST_CLIENT_ID: ${PINTEREST_CLIENT_ID:-}
   PINTEREST_CLIENT_SECRET: ${PINTEREST_CLIENT_SECRET:-}
   PINTEREST_REDIRECT_URI: ${PINTEREST_REDIRECT_URI:-}
@@ -75,7 +76,7 @@ services:
       sh -c "python manage.py migrate &&
              uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload"
     ports:
-      - "8000:8000"
+      - "${WEB_PORT:-8000}:8000"
     restart: unless-stopped
 
   worker:

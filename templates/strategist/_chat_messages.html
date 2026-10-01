@@ -1,7 +1,20 @@
-{% load i18n %}
+{% load i18n strategist_format %}
 {% for chat_message in chat_messages %}
     <article{% if chat_message.public_id %} id="chat-message-{{ chat_message.public_id }}"{% endif %} class="chat-message chat-message-{{ chat_message.role|lower }}"{% if chat_message.role == "USER" %} tabindex="-1"{% endif %}>
         <strong>{% if chat_message.role == "USER" %}{% trans "Вы" %}{% else %}{% trans "ИИ-стратег" %}{% endif %}</strong>
-        <p>{{ chat_message.content|linebreaksbr }}</p>
+        <div class="chat-message-content">{% if chat_message.role == "USER" %}{{ chat_message.content }}{% else %}{{ chat_message.content|strategist_reply }}{% endif %}</div>
+        {% if chat_message.assets.url %}
+            <p><a href="{{ chat_message.assets.url }}" target="_blank" rel="noopener noreferrer">Открыть карточку товара</a></p>
+        {% endif %}
+        {% if chat_message.assets.images %}
+            <div class="chat-product-images">
+                {% for item in chat_message.assets.images %}
+                    <figure>
+                        <img src="{{ item.url }}" alt="Фото товара {{ item.index }}" loading="lazy">
+                        <figcaption>Фото {{ item.index }}{% if item.description %}: {{ item.description }}{% if not item.reviewed %} (описание модели, не проверено){% endif %}{% endif %}</figcaption>
+                    </figure>
+                {% endfor %}
+            </div>
+        {% endif %}
     </article>
 {% endfor %}
