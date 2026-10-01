@@ -399,6 +399,10 @@ button.button { appearance: none; }
 .chat-product-images figure { margin: 0; }
 .chat-product-images img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: contain; background: var(--surface); }
 .chat-product-images figcaption { margin-top: var(--space-2); font-size: 0.85em; overflow-wrap: anywhere; }
+.chat-store-catalog { margin-top: var(--space-3); border-top: var(--line-width) solid var(--line); padding-top: var(--space-2); }
+.chat-store-catalog summary { cursor: pointer; font-weight: 600; }
+.chat-store-catalog ol { max-height: 440px; overflow-y: auto; margin: var(--space-2) 0 0; padding-left: var(--space-5); }
+.chat-store-catalog li { padding: var(--space-1) 0; overflow-wrap: anywhere; }
 .chat-map-item { position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; width: 100%; min-height: 38px; padding: 6px 8px; border: var(--line-width) solid var(--line); border-radius: var(--radius-control); background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; text-align: left; }
 .chat-map-item:hover, .chat-map-item:focus-visible { border-color: var(--accent); color: var(--text); }
 .chat-map-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

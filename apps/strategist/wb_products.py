@@ -142,9 +142,19 @@ def read_product(article: str, url: str) -> dict:
         "title": str(card.get("imt_name") or "").strip(),
         "description": str(card.get("description") or "").strip(),
         "brand": str((card.get("selling") or {}).get("brand_name") or "").strip(),
+        "seller_id": (card.get("selling") or {}).get("supplier_id") or 0,
         "category": str(card.get("subj_name") or "").strip(),
         "characteristics": characteristics,
         "photo_count": photo_count,
         "duplicate_count": duplicate_count,
         "images": images,
     }
+
+
+def read_product_seller_id(article: str) -> int:
+    """Read seller identity from the original card without loading its photos."""
+    _, card = _read_card(article)
+    try:
+        return int((card.get("selling") or {}).get("supplier_id") or 0)
+    except (TypeError, ValueError):
+        return 0

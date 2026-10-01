@@ -1,0 +1,14 @@
+[Unit]
+Description=BoostKlient WB browser session helper
+
+[Service]
+Type=simple
+WorkingDirectory=/home/evgen/bk3.0
+Environment=HTTP_PROXY=
+Environment=HTTPS_PROXY=
+ExecStart=/home/evgen/BoostKlient/venv/bin/python /home/evgen/bk3.0/scripts/wb_browser_helper.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

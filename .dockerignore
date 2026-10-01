@@ -1,5 +1,6 @@
 .env
 .env.*
+.wb_browser.sock
 .git
 .github
 __pycache__/

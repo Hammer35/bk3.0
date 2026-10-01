@@ -16,5 +16,25 @@
                 {% endfor %}
             </div>
         {% endif %}
+        {% if chat_message.assets.wb_store %}
+            <details class="chat-store-catalog">
+                <summary>Каталог {% if chat_message.assets.wb_store.kind == "brand" %}бренда{% else %}продавца{% endif %}: {{ chat_message.assets.wb_store.loaded_total }} товаров{% if not chat_message.assets.wb_store.complete %} (неполный){% endif %}</summary>
+                <ol>
+                    {% for item in chat_message.assets.wb_store.products %}
+                        <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name|default:item.article }}</a> · {{ item.seller|default:"продавец не указан" }} · {{ item.article }}</li>
+                    {% endfor %}
+                </ol>
+            </details>
+        {% endif %}
+        {% if chat_message.assets.wb_seller_store %}
+            <details class="chat-store-catalog">
+                <summary>Каталог продавца: {{ chat_message.assets.wb_seller_store.loaded_total }} товаров{% if not chat_message.assets.wb_seller_store.complete %} (неполный){% endif %}</summary>
+                <ol>
+                    {% for item in chat_message.assets.wb_seller_store.products %}
+                        <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name|default:item.article }}</a> · {{ item.article }}</li>
+                    {% endfor %}
+                </ol>
+            </details>
+        {% endif %}
     </article>
 {% endfor %}
