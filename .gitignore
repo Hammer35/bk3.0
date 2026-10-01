@@ -225,3 +225,6 @@ media/
 var/media/
 npm-debug.log*
 .wb_browser.sock
+
+# Local browser profiles and diagnostics
+.yandex-localhost-*

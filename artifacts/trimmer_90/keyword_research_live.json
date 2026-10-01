@@ -1,0 +1,1694 @@
+{
+  "product": "Триммер для бороды и тела",
+  "account": "@PinAutomation",
+  "region": "PL+RO+HU+SK+CZ",
+  "researched_at": "2026-10-01T05:48:49.573093+00:00",
+  "seeds": [
+    "trimmer",
+    "beard",
+    "boyfriend gifts",
+    "gifts for dad",
+    "new year gifts for him"
+  ],
+  "candidates_found": 55,
+  "candidates": [
+    {
+      "original": "italian beard",
+      "sources": [
+        "pinterest_trends"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 10,
+          "growth_yoy_pct": 100,
+          "last_week_index": 96,
+          "peak_week": "2026-09-13"
+        }
+      }
+    },
+    {
+      "original": "beard",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ],
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": -4,
+          "growth_yoy_pct": -1,
+          "last_week_index": 85,
+          "peak_week": "2026-02-01"
+        }
+      }
+    },
+    {
+      "original": "beard styles",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ],
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": -2,
+          "growth_yoy_pct": -40,
+          "last_week_index": 59,
+          "peak_week": "2026-01-25"
+        }
+      }
+    },
+    {
+      "original": "goatee beard",
+      "sources": [
+        "pinterest_trends"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 6,
+          "growth_yoy_pct": 0,
+          "last_week_index": 81,
+          "peak_week": "2026-09-13"
+        }
+      }
+    },
+    {
+      "original": "bearded dragon",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ],
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": -10,
+          "growth_yoy_pct": 10,
+          "last_week_index": 71,
+          "peak_week": "2026-08-16"
+        }
+      }
+    },
+    {
+      "original": "bearded vulture",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ],
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": -20,
+          "growth_yoy_pct": 20,
+          "last_week_index": 52,
+          "peak_week": "2026-05-31"
+        }
+      }
+    },
+    {
+      "original": "man with beard",
+      "sources": [
+        "pinterest_trends"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": -5,
+          "growth_yoy_pct": -20,
+          "last_week_index": 58,
+          "peak_week": "2025-11-16"
+        }
+      }
+    },
+    {
+      "original": "boyfriend gifts",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "boyfriend gifts"
+        ],
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 100,
+          "growth_yoy_pct": -10,
+          "last_week_index": 93,
+          "peak_week": "2025-12-07"
+        }
+      }
+    },
+    {
+      "original": "diy boyfriend gifts",
+      "sources": [
+        "pinterest_trends"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 200,
+          "growth_yoy_pct": 40,
+          "last_week_index": 100,
+          "peak_week": "2026-09-27"
+        }
+      }
+    },
+    {
+      "original": "gifts for dad",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "gifts for dad"
+        ],
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 20,
+          "growth_yoy_pct": -2,
+          "last_week_index": 12,
+          "peak_week": "2025-12-14"
+        }
+      }
+    },
+    {
+      "original": "christmas gifts for dad",
+      "sources": [
+        "pinterest_trends"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 90,
+          "growth_yoy_pct": 50,
+          "last_week_index": 7,
+          "peak_week": "2025-12-07"
+        }
+      }
+    },
+    {
+      "original": "trimmer",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer for men",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer grass",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer line",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer mower",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer for women",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer string",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "tremors movie",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer head",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "trimmer for bushes",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "beard trimmer",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "bearded dragon lifespan",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "bearded dragon for sale",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "beard oil",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "beardsley zoo",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "beard papa",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts for birthday",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts ideas",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts for anniversary",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts near me",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts reddit",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts amazon",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts target",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "boyfriend gifts etsy",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dads birthday",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad who wants nothing",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dads who have everything",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad who has everything",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad on wedding day",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad near me",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad from daughter",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad target",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "gifts for dad walmart",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new year gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new year gifts for boyfriend",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new year gifts for men",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new year gifts for boyfriend ideas",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "chinese new year gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "lunar new year gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "happy new year gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new year gift ideas for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "best new year gift for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    },
+    {
+      "original": "new years eve gift for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {}
+    }
+  ],
+  "keywords": [
+    {
+      "original": "boyfriend gifts",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "boyfriend gifts"
+        ],
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 100,
+          "growth_yoy_pct": -10,
+          "last_week_index": 93,
+          "peak_week": "2025-12-07"
+        }
+      },
+      "ru": "подарки парню",
+      "kind": "gift"
+    },
+    {
+      "original": "gifts for dad",
+      "sources": [
+        "pinterest_trends",
+        "google_suggest"
+      ],
+      "source_queries": {
+        "pinterest_trends": [
+          "gifts for dad"
+        ],
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {
+        "pinterest_trends": {
+          "growth_mom_pct": 20,
+          "growth_yoy_pct": -2,
+          "last_week_index": 12,
+          "peak_week": "2025-12-14"
+        }
+      },
+      "ru": "подарки папе",
+      "kind": "gift"
+    },
+    {
+      "original": "trimmer",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {},
+      "ru": "триммер",
+      "kind": "product"
+    },
+    {
+      "original": "trimmer for men",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "trimmer"
+        ]
+      },
+      "seeds": [
+        "trimmer"
+      ],
+      "metrics": {},
+      "ru": "триммер для мужчин",
+      "kind": "product"
+    },
+    {
+      "original": "beard trimmer",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "beard"
+        ]
+      },
+      "seeds": [
+        "beard"
+      ],
+      "metrics": {},
+      "ru": "триммер для бороды",
+      "kind": "product"
+    },
+    {
+      "original": "boyfriend gifts for birthday",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {},
+      "ru": "подарок парню на день рождения",
+      "kind": "gift"
+    },
+    {
+      "original": "boyfriend gifts ideas",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "boyfriend gifts"
+        ]
+      },
+      "seeds": [
+        "boyfriend gifts"
+      ],
+      "metrics": {},
+      "ru": "идеи подарков парню",
+      "kind": "gift"
+    },
+    {
+      "original": "gifts for dads birthday",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {},
+      "ru": "подарок папе на день рождения",
+      "kind": "gift"
+    },
+    {
+      "original": "gifts for dad from daughter",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "gifts for dad"
+        ]
+      },
+      "seeds": [
+        "gifts for dad"
+      ],
+      "metrics": {},
+      "ru": "подарок папе от дочери",
+      "kind": "gift"
+    },
+    {
+      "original": "new year gifts for him",
+      "sources": [
+        "google_suggest"
+      ],
+      "source_queries": {
+        "google_suggest": [
+          "new year gifts for him"
+        ]
+      },
+      "seeds": [
+        "new year gifts for him"
+      ],
+      "metrics": {},
+      "ru": "подарок мужчине на Новый год",
+      "kind": "gift"
+    }
+  ],
+  "pin_keyword_sets": [
+    {
+      "number": 1,
+      "keywords": [
+        "подарки парню",
+        "триммер",
+        "триммер для мужчин"
+      ],
+      "keyword_ids": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "number": 2,
+      "keywords": [
+        "подарки парню",
+        "триммер",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "number": 3,
+      "keywords": [
+        "подарки парню",
+        "триммер для мужчин",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "number": 4,
+      "keywords": [
+        "подарки папе",
+        "триммер",
+        "триммер для мужчин"
+      ],
+      "keyword_ids": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "number": 5,
+      "keywords": [
+        "подарки папе",
+        "триммер",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        1,
+        2,
+        4
+      ]
+    },
+    {
+      "number": 6,
+      "keywords": [
+        "подарки папе",
+        "триммер для мужчин",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        1,
+        3,
+        4
+      ]
+    },
+    {
+      "number": 7,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "number": 8,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "number": 9,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        6
+      ]
+    },
+    {
+      "number": 10,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        7
+      ]
+    },
+    {
+      "number": 11,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        8
+      ]
+    },
+    {
+      "number": 12,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        2,
+        3,
+        9
+      ]
+    },
+    {
+      "number": 13,
+      "keywords": [
+        "триммер",
+        "триммер для бороды",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        4,
+        5
+      ]
+    },
+    {
+      "number": 14,
+      "keywords": [
+        "триммер",
+        "триммер для бороды",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "number": 15,
+      "keywords": [
+        "триммер",
+        "триммер для бороды",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        4,
+        7
+      ]
+    },
+    {
+      "number": 16,
+      "keywords": [
+        "триммер",
+        "триммер для бороды",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        2,
+        4,
+        8
+      ]
+    },
+    {
+      "number": 17,
+      "keywords": [
+        "триммер",
+        "триммер для бороды",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        2,
+        4,
+        9
+      ]
+    },
+    {
+      "number": 18,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "number": 19,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "number": 20,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        3,
+        4,
+        7
+      ]
+    },
+    {
+      "number": 21,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        3,
+        4,
+        8
+      ]
+    },
+    {
+      "number": 22,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        3,
+        4,
+        9
+      ]
+    },
+    {
+      "number": 23,
+      "keywords": [
+        "подарки парню",
+        "триммер"
+      ],
+      "keyword_ids": [
+        0,
+        2
+      ]
+    },
+    {
+      "number": 24,
+      "keywords": [
+        "подарки парню",
+        "триммер для мужчин"
+      ],
+      "keyword_ids": [
+        0,
+        3
+      ]
+    },
+    {
+      "number": 25,
+      "keywords": [
+        "подарки парню",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        0,
+        4
+      ]
+    },
+    {
+      "number": 26,
+      "keywords": [
+        "подарки папе",
+        "триммер"
+      ],
+      "keyword_ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "number": 27,
+      "keywords": [
+        "подарки папе",
+        "триммер для мужчин"
+      ],
+      "keyword_ids": [
+        1,
+        3
+      ]
+    },
+    {
+      "number": 28,
+      "keywords": [
+        "подарки папе",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        1,
+        4
+      ]
+    },
+    {
+      "number": 29,
+      "keywords": [
+        "триммер",
+        "триммер для мужчин"
+      ],
+      "keyword_ids": [
+        2,
+        3
+      ]
+    },
+    {
+      "number": 30,
+      "keywords": [
+        "триммер",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        2,
+        4
+      ]
+    },
+    {
+      "number": 31,
+      "keywords": [
+        "триммер",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        5
+      ]
+    },
+    {
+      "number": 32,
+      "keywords": [
+        "триммер",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        2,
+        6
+      ]
+    },
+    {
+      "number": 33,
+      "keywords": [
+        "триммер",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        2,
+        7
+      ]
+    },
+    {
+      "number": 34,
+      "keywords": [
+        "триммер",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        2,
+        8
+      ]
+    },
+    {
+      "number": 35,
+      "keywords": [
+        "триммер",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        2,
+        9
+      ]
+    },
+    {
+      "number": 36,
+      "keywords": [
+        "триммер для мужчин",
+        "триммер для бороды"
+      ],
+      "keyword_ids": [
+        3,
+        4
+      ]
+    },
+    {
+      "number": 37,
+      "keywords": [
+        "триммер для мужчин",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "number": 38,
+      "keywords": [
+        "триммер для мужчин",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        3,
+        6
+      ]
+    },
+    {
+      "number": 39,
+      "keywords": [
+        "триммер для мужчин",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        3,
+        7
+      ]
+    },
+    {
+      "number": 40,
+      "keywords": [
+        "триммер для мужчин",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        3,
+        8
+      ]
+    },
+    {
+      "number": 41,
+      "keywords": [
+        "триммер для мужчин",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        3,
+        9
+      ]
+    },
+    {
+      "number": 42,
+      "keywords": [
+        "триммер для бороды",
+        "подарок парню на день рождения"
+      ],
+      "keyword_ids": [
+        4,
+        5
+      ]
+    },
+    {
+      "number": 43,
+      "keywords": [
+        "триммер для бороды",
+        "идеи подарков парню"
+      ],
+      "keyword_ids": [
+        4,
+        6
+      ]
+    },
+    {
+      "number": 44,
+      "keywords": [
+        "триммер для бороды",
+        "подарок папе на день рождения"
+      ],
+      "keyword_ids": [
+        4,
+        7
+      ]
+    },
+    {
+      "number": 45,
+      "keywords": [
+        "триммер для бороды",
+        "подарок папе от дочери"
+      ],
+      "keyword_ids": [
+        4,
+        8
+      ]
+    },
+    {
+      "number": 46,
+      "keywords": [
+        "триммер для бороды",
+        "подарок мужчине на Новый год"
+      ],
+      "keyword_ids": [
+        4,
+        9
+      ]
+    }
+  ],
+  "requested_pins": 90,
+  "distinct_sets_available": 46,
+  "gigachat_total_tokens": 1795,
+  "notices": [
+    "Поисковые подсказки Pinterest недоступны: аккаунту не выдано разрешение ads:read."
+  ]
+}
