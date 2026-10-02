@@ -47,15 +47,36 @@
     chatMap.append(item);
   }
 
-  const appendMessages = (markup) => {
+  const createOptimisticUserMessage = (content) => {
+    const message = document.createElement("article");
+    const author = document.createElement("strong");
+    const body = document.createElement("div");
+    message.id = `chat-message-pending-${Date.now()}`;
+    message.className = "chat-message chat-message-user";
+    message.tabIndex = -1;
+    author.textContent = form.dataset.userLabel || "Вы";
+    body.className = "chat-message-content";
+    body.textContent = content;
+    message.append(author, body);
+    return message;
+  };
+
+  const appendMessages = (markup, optimisticMessage = null) => {
     if (!markup) return null;
     history.querySelector(".empty-state")?.remove();
     const template = document.createElement("template");
     template.innerHTML = markup;
-    const userMessages = [...template.content.querySelectorAll(".chat-message-user[id]")];
+    const serverUserMessages = [...template.content.querySelectorAll(".chat-message-user[id]")];
+    if (optimisticMessage?.isConnected && serverUserMessages.length) {
+      const canonicalUserMessage = serverUserMessages.shift();
+      optimisticMessage.replaceWith(canonicalUserMessage);
+      addChatMapItem(canonicalUserMessage);
+    } else if (optimisticMessage?.isConnected) {
+      optimisticMessage.remove();
+    }
     const lastMessage = template.content.querySelector(".chat-message:last-child");
     history.append(template.content);
-    userMessages.forEach(addChatMapItem);
+    serverUserMessages.forEach(addChatMapItem);
     return lastMessage ? history.lastElementChild : null;
   };
 
@@ -73,10 +94,18 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (form.dataset.submitting === "true") return;
-    if (!messageField?.value.trim()) {
+    const submittedMessage = messageField?.value || "";
+    if (!submittedMessage.trim()) {
       messageField?.focus();
       return;
     }
+    const formData = new FormData(form);
+    const optimisticMessage = createOptimisticUserMessage(submittedMessage);
+    history.querySelector(".empty-state")?.remove();
+    history.append(optimisticMessage);
+    messageField.value = "";
+    resizeComposer();
+    optimisticMessage.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
     form.dataset.submitting = "true";
     form.setAttribute("aria-busy", "true");
@@ -86,11 +115,11 @@
     try {
       const response = await fetch(form.action || window.location.href, {
         method: "POST",
-        body: new FormData(form),
+        body: formData,
         headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" },
       });
       const result = await response.json();
-      const lastMessage = appendMessages(result.messages_html);
+      const lastMessage = appendMessages(result.messages_html, optimisticMessage);
 
       if (result.conversation_url) {
         window.history.replaceState({}, "", result.conversation_url);
@@ -116,6 +145,9 @@
       if (result.error) {
         showError(result.error);
       } else if (result.errors) {
+        optimisticMessage.remove();
+        messageField.value = submittedMessage;
+        resizeComposer();
         const errors = Object.values(result.errors).flat().map((item) => item.message);
         showError(errors.join(" "));
       } else if (!response.ok) {

@@ -22,6 +22,10 @@ class GigaChatProviderError(Exception):
     pass
 
 
+class GigaChatEmbeddingQuotaError(GigaChatProviderError):
+    pass
+
+
 class GigaChatRequestError(GigaChatProviderError):
     def __init__(self, *, model: str, can_fallback: bool):
         super().__init__("GigaChat request failed.")
@@ -102,10 +106,28 @@ class GigaChatProvider:
         if not texts:
             return GigaChatEmbeddingBatch(vectors=[], prompt_tokens=0)
 
+        embedding_model = model or settings.GIGACHAT_EMBEDDING_MODEL
+        quota_cache_key = f"strategist:gigachat:embedding-quota:{embedding_model}"
+        if cache.get(quota_cache_key):
+            raise GigaChatEmbeddingQuotaError("GigaChat embedding quota is temporarily unavailable.")
         try:
             with self._client() as client:
-                response = client.embeddings(texts, model=model or settings.GIGACHAT_EMBEDDING_MODEL)
+                response = client.embeddings(texts, model=embedding_model)
         except Exception as error:
+            status_code = getattr(error, "status_code", None)
+            if status_code is None:
+                status_code = getattr(getattr(error, "response", None), "status_code", None)
+            if status_code is None and len(error.args) > 1:
+                status_code = error.args[1]
+            if not isinstance(status_code, int) or not 100 <= status_code <= 599:
+                status_code = "unknown"
+            logger.warning(
+                "GigaChat embedding failed: error_type=%s status_code=%s",
+                type(error).__name__, status_code,
+            )
+            if status_code == 402:
+                cache.set(quota_cache_key, True, timeout=300)
+                raise GigaChatEmbeddingQuotaError("GigaChat embedding quota is unavailable.") from error
             raise GigaChatProviderError("GigaChat embedding request failed.") from error
 
         ordered = sorted(response.data, key=lambda item: item.index)

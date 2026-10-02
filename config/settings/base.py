@@ -139,7 +139,7 @@ AUTH_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RATE_LIMIT_WINDOW_SECONDS",
 
 GIGACHAT_API_TOKEN = os.getenv("GIGACHAT_API_TOKEN", "")
 STRATEGIST_PRODUCT_VISION_ENABLED = os.getenv("STRATEGIST_PRODUCT_VISION_ENABLED", "false").lower() == "true"
-GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2")
+GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat-2-Pro")
 GIGACHAT_MODEL_PRIORITY = tuple(
     dict.fromkeys(
         model.strip()
@@ -147,7 +147,7 @@ GIGACHAT_MODEL_PRIORITY = tuple(
             GIGACHAT_MODEL,
             *os.getenv(
                 "GIGACHAT_MODEL_PRIORITY",
-                "GigaChat-2,GigaChat-3-Lightning,GigaChat-2-Pro,GigaChat-3-Pro,"
+                "GigaChat-2-Pro,GigaChat-2,GigaChat-3-Lightning,GigaChat-3-Pro,"
                 "GigaChat-2-Max,GigaChat-3-Ultra",
             ).split(","),
         )
@@ -160,6 +160,22 @@ GIGACHAT_AVAILABLE_MODELS_CACHE_SECONDS = int(
 GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
 GIGACHAT_BASE_URL = os.getenv("GIGACHAT_BASE_URL", "https://api.giga.chat/v1")
 GIGACHAT_EMBEDDING_MODEL = os.getenv("GIGACHAT_EMBEDDING_MODEL", "EmbeddingsGigaR")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_PROXY_URL = os.getenv("OPENROUTER_PROXY_URL", "")
+KNOWLEDGE_EMBEDDING_PROVIDER = os.getenv("KNOWLEDGE_EMBEDDING_PROVIDER", "gigachat")
+KNOWLEDGE_EMBEDDING_MODEL = os.getenv(
+    "KNOWLEDGE_EMBEDDING_MODEL",
+    "",
+) or (
+    "nvidia/nemotron-3-embed-1b:free"
+    if KNOWLEDGE_EMBEDDING_PROVIDER == "openrouter" else GIGACHAT_EMBEDDING_MODEL
+)
+KNOWLEDGE_MIN_SIMILARITY_SCORE = float(os.getenv(
+    "KNOWLEDGE_MIN_SIMILARITY_SCORE",
+    "0.25" if KNOWLEDGE_EMBEDDING_PROVIDER == "openrouter" else "0.55",
+))
+KNOWLEDGE_FALLBACK_EMBEDDING_MODEL = os.getenv("KNOWLEDGE_FALLBACK_EMBEDDING_MODEL", "")
+KNOWLEDGE_FALLBACK_MIN_SIMILARITY_SCORE = float(os.getenv("KNOWLEDGE_FALLBACK_MIN_SIMILARITY_SCORE", "0.25"))
 GIGACHAT_TIMEOUT_SECONDS = float(os.getenv("GIGACHAT_TIMEOUT_SECONDS", "45"))
 GIGACHAT_CA_BUNDLE_FILE = os.getenv(
     "GIGACHAT_CA_BUNDLE_FILE",

@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from apps.businesses.models import Business
-from apps.knowledge.services import format_knowledge_context, search_knowledge
+from apps.knowledge.embeddings import OpenRouterEmbeddingProvider, get_knowledge_embedder
+from apps.knowledge.services import format_knowledge_context, search_knowledge, search_knowledge_lexical
+from apps.knowledge.sources import load_source
 from apps.pinterest.models import PinterestAccount
 from apps.pinterest.strategist_tools import pinterest_read_function, read_pinterest_data
 from apps.pinterest.sync import fresh_snapshot_resource, sync_pinterest_account
@@ -23,7 +25,7 @@ from .advice import (
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
-from .providers import GigaChatCompletion, GigaChatProvider
+from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
 from .wb_products import ProductReadError, product_link, read_product, read_product_seller_id
 from .wb_store import WBStoreError, read_store, store_link, wb_store_function, read_wb_store_data
 from .wb_vision import VisionReadError, describe_product_images, prefer_model_photos
@@ -45,9 +47,13 @@ ORGANIC_METRIC_LABELS = {
 
 def _asks_for_pinterest_account_list(message: str) -> bool:
     normalized = message.casefold()
-    asks_for_list = re.search(r"\b(какие|сколько|список|перечисли|покажи|назови)\w*\b", normalized)
-    mentions_account = re.search(r"\b(аккаунт|профил|пинтерест|pinterest)\w*\b", normalized)
-    return bool(asks_for_list and mentions_account)
+    # The list request must refer to accounts, not Pins, orders or Pinterest rules.
+    return bool(re.search(
+        r"\b(?:какие|сколько|список|перечисли|покажи|назови)\b"
+        r"(?:\s+(?:у\s+меня|мои|моих|все|всех|список|подключ\w*|доступн\w*|pinterest|пинтерест))*"
+        r"[\s-]+(?:аккаунт|профил)\w*\b",
+        normalized,
+    ))
 
 
 def _pinterest_account_list_answer(accounts: list[PinterestAccount]) -> str:
@@ -860,29 +866,77 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         }
         for account in pinterest_accounts
     ]
-    try:
-        knowledge_hits = search_knowledge(query=user_message.content, embedder=provider)
-    except Exception as error:
-        logger.warning("Knowledge retrieval failed; continuing without RAG: %s", type(error).__name__)
-        knowledge_hits = []
-
-    knowledge_context = format_knowledge_context(knowledge_hits)
-    if not knowledge_context:
+    community_rules_question = bool(re.search(
+        r"правил\w*\s+сообществ\w*|community\s+guidelines",
+        user_message.content,
+        re.IGNORECASE,
+    ))
+    knowledge_context = ""
+    community_source_url = ""
+    if community_rules_question:
+        source_path = settings.BASE_DIR / "docs/ai-knowledge/knowledge/pinterest-community-guidelines.md"
         try:
-            knowledge_context = local_knowledge_context(
-                user_message.content, project_root=settings.BASE_DIR, today=timezone.now().date(),
-            )
+            source = load_source(source_path, project_root=settings.BASE_DIR)
+            today = timezone.now().date()
+            if (
+                source.status == "approved"
+                and source.scope == "global"
+                and source.language == "ru"
+                and source.source_checked
+                and source.source_checked <= today
+                and (not source.effective_until or source.effective_until >= today)
+            ):
+                knowledge_context = (
+                    f"Проверенный материал: {source.title}\n{source.content}\n"
+                    f"Источник: {', '.join(source.source_links)}"
+                )
+                community_source_url = source.source_links[0] if source.source_links else ""
         except (OSError, ValueError):
-            logger.warning("Approved local knowledge could not be read.")
+            logger.warning("Approved community guidelines could not be read.")
+    else:
+        try:
+            knowledge_hits = search_knowledge(query=user_message.content, embedder=get_knowledge_embedder())
+        except Exception as error:
+            logger.warning("Primary knowledge retrieval failed: %s", type(error).__name__)
+            knowledge_hits = []
+            if (isinstance(error, GigaChatProviderError)
+                    and settings.KNOWLEDGE_EMBEDDING_PROVIDER == "gigachat"
+                    and settings.KNOWLEDGE_FALLBACK_EMBEDDING_MODEL):
+                try:
+                    knowledge_hits = search_knowledge(
+                        query=user_message.content,
+                        embedder=OpenRouterEmbeddingProvider(),
+                        model=settings.KNOWLEDGE_FALLBACK_EMBEDDING_MODEL,
+                        provider="openrouter",
+                        fallback=True,
+                    )
+                except Exception as fallback_error:
+                    logger.warning("Fallback knowledge retrieval failed: %s", type(fallback_error).__name__)
+        if not knowledge_hits:
+            try:
+                knowledge_hits = search_knowledge_lexical(query=user_message.content)
+            except Exception as fallback_error:
+                logger.warning("Local knowledge retrieval failed: %s", type(fallback_error).__name__)
+                knowledge_hits = []
+
+        knowledge_context = format_knowledge_context(knowledge_hits)
+        if not knowledge_context:
+            try:
+                knowledge_context = local_knowledge_context(
+                    user_message.content, project_root=settings.BASE_DIR, today=timezone.now().date(),
+                )
+            except (OSError, ValueError):
+                logger.warning("Approved local knowledge could not be read.")
 
     system_prompt = build_strategist_system_prompt(
         conversation.business,
         knowledge_context=knowledge_context,
-        pinterest_accounts=pinterest_context,
+        pinterest_accounts=[] if community_rules_question else pinterest_context,
     )
-    if sum(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts) > 1:
+    if not community_rules_question and sum(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts) > 1:
         system_prompt += (
             "\n\nУ бизнеса несколько подключённых Pinterest-аккаунтов. Для конкретного пина "
+            "или статистики "
             "не выбирай аккаунт по порядку списка или по догадке. Используй только явно "
             "названный пользователем @аккаунт; если он не указан, уточни его в чате."
         )
@@ -942,7 +996,7 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         or re.search(r"@[A-Za-z0-9._-]{1,100}", user_message.content)
     )
     functions = []
-    if asks_for_pinterest_data and any(
+    if asks_for_pinterest_data and not community_rules_question and any(
         account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts
     ):
         functions.append(pinterest_read_function())
@@ -1025,10 +1079,16 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         prompt_tokens += completion.prompt_tokens
         completion_tokens += completion.completion_tokens
         total_tokens += completion.total_tokens
+    reply_content = enforce_advice_boundaries(
+        completion.content,
+        request_message=user_message.content,
+    )
+    if community_source_url and community_source_url not in reply_content:
+        reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
     return AIMessage.objects.create(
         conversation=conversation,
         role=AIMessage.Role.ASSISTANT,
-        content=enforce_advice_boundaries(completion.content),
+        content=reply_content,
         provider="gigachat",
         model=completion.model,
         prompt_tokens=prompt_tokens,

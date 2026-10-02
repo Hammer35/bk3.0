@@ -1,5 +1,7 @@
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date
+import logging
 import math
 from pathlib import Path
 import re
@@ -9,11 +11,12 @@ from django.db import transaction
 from django.utils import timezone
 
 from .chunking import chunk_markdown
+from .embeddings import OpenRouterEmbeddingError, OpenRouterEmbeddingProvider
 from .models import KnowledgeChunk, KnowledgeDocument
 from .sources import load_approved_sources
 
-MIN_SIMILARITY_SCORE = 0.55
 INDEXER_VERSION = 2
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -34,10 +37,14 @@ def index_knowledge(*, embedder, directory: Path | None = None, force: bool = Fa
 
     for source in sources:
         existing = KnowledgeDocument.objects.filter(source_id=source.source_id).first()
+        fallback_model = settings.KNOWLEDGE_FALLBACK_EMBEDDING_MODEL
         if (
             existing
             and existing.content_hash == source.content_hash
             and existing.indexer_version == INDEXER_VERSION
+            and existing.chunks.filter(embedding_model=settings.KNOWLEDGE_EMBEDDING_MODEL).exists()
+            and not existing.chunks.exclude(embedding_model=settings.KNOWLEDGE_EMBEDDING_MODEL).exists()
+            and (not fallback_model or not existing.chunks.exclude(fallback_embedding_model=fallback_model).exists())
             and not force
         ):
             stats["unchanged"] += 1
@@ -47,6 +54,32 @@ def index_knowledge(*, embedder, directory: Path | None = None, force: bool = Fa
         vectors, prompt_tokens = _embed_in_batches(embedder, [chunk.content for chunk in chunks])
         if len(vectors) != len(chunks):
             raise ValueError(f"Embedding count does not match chunk count for {source.source_id}")
+
+        old_chunks = {
+            (chunk.ordinal, chunk.content): chunk
+            for chunk in existing.chunks.all()
+        } if existing and existing.content_hash == source.content_hash else {}
+        fallback_vectors = []
+        if fallback_model:
+            for chunk in chunks:
+                old = old_chunks.get((chunk.ordinal, chunk.content))
+                if old and old.fallback_embedding_model == fallback_model and old.fallback_embedding:
+                    fallback_vectors.append(old.fallback_embedding)
+                elif old and old.embedding_model == fallback_model and old.embedding:
+                    fallback_vectors.append(old.embedding)
+                else:
+                    fallback_vectors = []
+                    break
+            if len(fallback_vectors) != len(chunks):
+                try:
+                    fallback_vectors, fallback_tokens = _embed_in_batches(
+                        OpenRouterEmbeddingProvider(), [chunk.content for chunk in chunks],
+                        model=fallback_model, provider="openrouter",
+                    )
+                    stats["prompt_tokens"] += fallback_tokens
+                except OpenRouterEmbeddingError as error:
+                    logger.warning("Fallback knowledge indexing failed: %s", type(error).__name__)
+                    fallback_vectors = []
 
         with transaction.atomic():
             document, _ = KnowledgeDocument.objects.update_or_create(
@@ -73,9 +106,11 @@ def index_knowledge(*, embedder, directory: Path | None = None, force: bool = Fa
                     heading=chunk.heading,
                     content=chunk.content,
                     embedding=vector,
-                    embedding_model=settings.GIGACHAT_EMBEDDING_MODEL,
+                    embedding_model=settings.KNOWLEDGE_EMBEDDING_MODEL,
+                    fallback_embedding=fallback_vectors[position] if fallback_vectors else [],
+                    fallback_embedding_model=fallback_model if fallback_vectors else "",
                 )
-                for chunk, vector in zip(chunks, vectors, strict=True)
+                for position, (chunk, vector) in enumerate(zip(chunks, vectors, strict=True))
             ])
         stats["indexed"] += 1
         stats["chunks"] += len(chunks)
@@ -83,36 +118,76 @@ def index_knowledge(*, embedder, directory: Path | None = None, force: bool = Fa
     return stats
 
 
-def search_knowledge(*, query: str, embedder, limit: int = 5, min_score: float = MIN_SIMILARITY_SCORE) -> list[KnowledgeHit]:
+def search_knowledge(*, query: str, embedder, limit: int = 5, min_score: float | None = None,
+                     model: str | None = None, provider: str | None = None, fallback: bool = False) -> list[KnowledgeHit]:
     if not query.strip() or limit <= 0:
         return []
+    if min_score is None:
+        min_score = (settings.KNOWLEDGE_FALLBACK_MIN_SIMILARITY_SCORE if fallback
+                     else settings.KNOWLEDGE_MIN_SIMILARITY_SCORE)
 
+    model = model or settings.KNOWLEDGE_EMBEDDING_MODEL
+    chunks = _searchable_chunks(require_embedding=True, model=model, fallback=fallback)
+    if not chunks:
+        return []
+
+    query_vectors, _ = _embed_in_batches(embedder, [query], query=True, model=model, provider=provider)
+    query_vector = query_vectors[0]
+    ranked = []
+    for chunk in chunks:
+        score = _cosine_similarity(query_vector, chunk.fallback_embedding if fallback else chunk.embedding)
+        if score >= min_score:
+            ranked.append((score, chunk))
+    ranked.sort(key=lambda row: row[0], reverse=True)
+    return _knowledge_hits(ranked, limit=limit)
+
+
+def search_knowledge_lexical(*, query: str, limit: int = 5) -> list[KnowledgeHit]:
+    """Retrieve approved indexed chunks without calling the embedding API."""
+    terms = _lexical_terms(query)
+    if not terms or limit <= 0:
+        return []
+
+    chunks = _searchable_chunks(require_embedding=False)
+    if not chunks:
+        return []
+    chunk_terms = [_lexical_terms(chunk.content) for chunk in chunks]
+    frequencies = Counter(term for words in chunk_terms for term in words)
+    weights = {term: math.log((len(chunks) + 1) / (frequencies[term] + 1)) + 1 for term in terms}
+    ranked = []
+    for chunk, words in zip(chunks, chunk_terms, strict=True):
+        matched = terms & words
+        if not matched:
+            continue
+        score = sum(weights[term] for term in matched)
+        score += 0.5 * sum(weights[term] for term in terms & _lexical_terms(chunk.heading))
+        ranked.append((score, chunk))
+    ranked.sort(key=lambda row: row[0], reverse=True)
+    return _knowledge_hits(ranked, limit=limit)
+
+
+def _searchable_chunks(*, require_embedding: bool, model: str = "", fallback: bool = False) -> list[KnowledgeChunk]:
     today = timezone.localdate()
-    chunks = list(
+    queryset = (
         KnowledgeChunk.objects.select_related("document")
         .filter(
             document__status="approved",
             document__scope="global",
             document__language="ru",
-            embedding_model=settings.GIGACHAT_EMBEDDING_MODEL,
         )
-        .exclude(embedding=[])
         .filter(document__source_checked__lte=today)
         .order_by("document_id", "ordinal")
     )
-    chunks = [chunk for chunk in chunks if not chunk.document.effective_until or chunk.document.effective_until >= today]
-    if not chunks:
-        return []
+    if require_embedding:
+        if fallback:
+            queryset = queryset.filter(fallback_embedding_model=model).exclude(fallback_embedding=[])
+        else:
+            queryset = queryset.filter(embedding_model=model).exclude(embedding=[])
+    chunks = list(queryset)
+    return [chunk for chunk in chunks if not chunk.document.effective_until or chunk.document.effective_until >= today]
 
-    query_vectors, _ = _embed_in_batches(embedder, [query])
-    query_vector = query_vectors[0]
-    ranked = []
-    for chunk in chunks:
-        score = _cosine_similarity(query_vector, chunk.embedding)
-        if score >= min_score:
-            ranked.append((score, chunk))
-    ranked.sort(key=lambda row: row[0], reverse=True)
 
+def _knowledge_hits(ranked: list[tuple[float, KnowledgeChunk]], *, limit: int) -> list[KnowledgeHit]:
     hits = []
     for score, chunk in ranked:
         if _is_overlap_duplicate(chunk, hits):
@@ -131,6 +206,10 @@ def search_knowledge(*, query: str, embedder, limit: int = 5, min_score: float =
     return hits
 
 
+def _lexical_terms(text: str) -> set[str]:
+    return {word[:5] for word in re.findall(r"[а-яёa-z]{3,}", text.casefold())}
+
+
 def format_knowledge_context(hits: list[KnowledgeHit]) -> str:
     if not hits:
         return ""
@@ -142,11 +221,24 @@ def format_knowledge_context(hits: list[KnowledgeHit]) -> str:
     return "Проверенные материалы для ответа:\n\n" + "\n\n---\n\n".join(sections)
 
 
-def _embed_in_batches(embedder, texts: list[str]) -> tuple[list[list[float]], int]:
+def _embed_in_batches(embedder, texts: list[str], *, query: bool = False,
+                      model: str | None = None, provider: str | None = None) -> tuple[list[list[float]], int]:
     vectors = []
     prompt_tokens = 0
+    model = model or settings.KNOWLEDGE_EMBEDDING_MODEL
+    provider = provider or settings.KNOWLEDGE_EMBEDDING_PROVIDER
+    if provider == "openrouter":
+        if model in {
+            "nvidia/nemotron-3-embed-1b:free",
+            "nvidia/llama-nemotron-embed-vl-1b-v2:free",
+        }:
+            prefix = "query: " if query else "passage: "
+            texts = [prefix + text for text in texts]
+        elif model == "liquid/lfm-2.5-embedding-350m:free":
+            prefix = "query: " if query else "document: "
+            texts = [prefix + text for text in texts]
     for start in range(0, len(texts), 16):
-        result = embedder.embed(texts[start:start + 16], model=settings.GIGACHAT_EMBEDDING_MODEL)
+        result = embedder.embed(texts[start:start + 16], model=model)
         vectors.extend(result.vectors)
         prompt_tokens += result.prompt_tokens
     return vectors, prompt_tokens

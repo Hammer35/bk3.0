@@ -26,6 +26,8 @@ def strategist_reply(value: str) -> str:
     paragraph = []
     list_items = []
     list_tag = ""
+    list_start_number = 1
+    next_ordered_number = None
 
     def flush_paragraph() -> None:
         if paragraph:
@@ -33,11 +35,23 @@ def strategist_reply(value: str) -> str:
             paragraph.clear()
 
     def flush_list() -> None:
-        nonlocal list_tag
+        nonlocal list_tag, list_start_number, next_ordered_number
         if list_items:
-            blocks.append(f"<{list_tag}>" + "".join(f"<li>{_inline(item)}</li>" for item in list_items) + f"</{list_tag}>")
+            start_attribute = (
+                f' start="{list_start_number}"'
+                if list_tag == "ol" and list_start_number > 1
+                else ""
+            )
+            blocks.append(
+                f"<{list_tag}{start_attribute}>"
+                + "".join(f"<li>{_inline(item)}</li>" for item in list_items)
+                + f"</{list_tag}>"
+            )
+            if list_tag == "ol":
+                next_ordered_number = list_start_number + len(list_items)
             list_items.clear()
             list_tag = ""
+            list_start_number = 1
 
     for raw_line in source.splitlines():
         line = raw_line.strip()
@@ -48,28 +62,36 @@ def strategist_reply(value: str) -> str:
         if line == "---":
             flush_paragraph()
             flush_list()
+            next_ordered_number = None
             blocks.append("<hr>")
             continue
         heading = re.match(r"^#{1,6}\s+(.+)$", line)
         if heading:
             flush_paragraph()
             flush_list()
+            next_ordered_number = None
             blocks.append(f"<h3>{_inline(heading.group(1))}</h3>")
             continue
         bullet = re.match(r"^[-*•]\s+(.+)$", line)
-        numbered = re.match(r"^\d+[.)]\s+(.+)$", line)
+        numbered = re.match(r"^(\d+)[.)]\s+(.+)$", line)
         if bullet or numbered:
             flush_paragraph()
             target_tag = "ul" if bullet else "ol"
             if list_tag and list_tag != target_tag:
                 flush_list()
-            list_tag = target_tag
-            list_items.append((bullet or numbered).group(1))
+            if not list_tag:
+                list_tag = target_tag
+                if numbered:
+                    list_start_number = int(numbered.group(1))
+                    if list_start_number == 1 and next_ordered_number is not None:
+                        list_start_number = next_ordered_number
+            list_items.append(bullet.group(1) if bullet else numbered.group(2))
             continue
         if list_items:
             list_items[-1] += " " + line
             continue
         flush_list()
+        next_ordered_number = None
         paragraph.append(line)
 
     flush_paragraph()

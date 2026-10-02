@@ -4,16 +4,17 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.knowledge.chunking import chunk_markdown
+from apps.knowledge.embeddings import OpenRouterEmbeddingError, get_knowledge_embedder
 from apps.knowledge.sources import load_approved_sources
 from apps.knowledge.services import index_knowledge
-from apps.strategist.providers import GigaChatProvider, GigaChatProviderError
+from apps.strategist.providers import GigaChatProviderError
 
 
 class Command(BaseCommand):
     help = "Index approved global knowledge documents; embedding calls require --embed."
 
     def add_arguments(self, parser):
-        parser.add_argument("--embed", action="store_true", help="Create and store GigaChat embeddings (billable API call).")
+        parser.add_argument("--embed", action="store_true", help="Create and store embeddings using the configured provider.")
         parser.add_argument("--force", action="store_true", help="Re-embed documents even when their source hash is unchanged.")
 
     def handle(self, *args, **options):
@@ -29,8 +30,8 @@ class Command(BaseCommand):
             return
 
         try:
-            stats = index_knowledge(embedder=GigaChatProvider(), force=options["force"])
-        except (GigaChatProviderError, ValueError) as error:
+            stats = index_knowledge(embedder=get_knowledge_embedder(), force=options["force"])
+        except (GigaChatProviderError, OpenRouterEmbeddingError, ValueError) as error:
             raise CommandError(str(error)) from error
         self.stdout.write(
             self.style.SUCCESS(

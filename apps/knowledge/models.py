@@ -36,6 +36,8 @@ class KnowledgeChunk(BaseModel):
     content = models.TextField(verbose_name="текст фрагмента")
     embedding = models.JSONField(default=list, blank=True, verbose_name="векторное представление")
     embedding_model = models.CharField(max_length=80, blank=True, verbose_name="модель эмбеддингов")
+    fallback_embedding = models.JSONField(default=list, blank=True, verbose_name="резервное векторное представление")
+    fallback_embedding_model = models.CharField(max_length=80, blank=True, verbose_name="резервная модель эмбеддингов")
 
     class Meta:
         ordering = ("document_id", "ordinal")

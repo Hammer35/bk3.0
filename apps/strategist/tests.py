@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.businesses.models import Business
+from apps.knowledge.services import KnowledgeHit
 from apps.pinterest.models import PinterestAccount
 from apps.strategist.models import AIConversation, AIMessage
 from apps.strategist.model_catalog import TaskCapability
@@ -16,6 +17,7 @@ from apps.strategist.model_routing import GigaChatModelRouter
 from apps.strategist.providers import (
     GigaChatCompletion,
     GigaChatProvider,
+    GigaChatProviderError,
     GigaChatRequestError,
 )
 from apps.strategist.services import _format_pinterest_analytics, respond_to_message
@@ -335,6 +337,29 @@ class AdviceEvidenceTests(SimpleTestCase):
 
 
 class AdviceFollowupIntegrationTests(TestCase):
+    @override_settings(KNOWLEDGE_EMBEDDING_PROVIDER="gigachat", KNOWLEDGE_FALLBACK_EMBEDDING_MODEL="nvidia/llama-nemotron-embed-vl-1b-v2:free")
+    @patch("apps.strategist.services.search_knowledge")
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_gigachat_embedding_failure_uses_nvidia_backup(self, complete, search):
+        user = get_user_model().objects.create_user("backup-owner")
+        workspace = Workspace.objects.create(name="Backup", slug="backup", created_by=user)
+        business = Business.objects.create(workspace=workspace, name="Backup", slug="backup")
+        conversation = AIConversation.objects.create(business=business, created_by=user)
+        message = AIMessage.objects.create(conversation=conversation, role="USER", content="Как считать заказы по кликам?")
+        search.side_effect = [
+            GigaChatProviderError("embedding unavailable"),
+            [KnowledgeHit(content="Клики не равны заказам.", score=0.5, source_id="analytics",
+                          title="Аналитика", source_links=("https://example.test/analytics",), heading="Заказы")],
+        ]
+        complete.return_value = GigaChatCompletion(content="По кликам число заказов неизвестно.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
+
+        respond_to_message(user_message=message)
+
+        self.assertEqual(search.call_count, 2)
+        self.assertTrue(search.call_args.kwargs["fallback"])
+        self.assertEqual(search.call_args.kwargs["model"], "nvidia/llama-nemotron-embed-vl-1b-v2:free")
+        self.assertIn("Клики не равны заказам", complete.call_args.args[0][0]["content"])
+
     @patch("apps.strategist.services.GigaChatProvider.complete")
     @patch("apps.strategist.services._pinterest_analytics_answer", return_value="Проверенные показатели")
     def test_followup_keeps_account_and_exact_dates_with_multiple_accounts(self, analytics, complete):

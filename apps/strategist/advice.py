@@ -95,28 +95,46 @@ def analytics_followup_context(message, history):
 
 
 ADVICE_RULES = (
-    "Проверка применимости: рекламный кабинет, его страна, оплата и доступ приложения "
-    "к рекламе в этом проекте не проверены. Рынок бизнеса не равен стране рекламодателя. "
-    "Отсутствие ads:read не доказывает отсутствие кабинета. Пока проверки нет, не предлагай "
-    "запуск рекламы, карусели, Quiz, опросы или мини-игры в пинах. Можно объяснить ограничения. "
+    "Ограничения рекламного кабинета относятся только к платному продвижению. "
+    "Не упоминай кабинет, страну, оплату, ads:read или ROI, если пользователь спрашивает "
+    "об органических Pins, CTA или правилах Pinterest. Не переключай такой ответ на тему рекламы. "
+    "Сам не предлагай платное продвижение. Если пользователь просит спланировать или запустить "
+    "платную рекламу, сначала проверь кабинет, страну, оплату и доступ приложения; без этих данных "
+    "не рекомендуй запуск. Не предлагай неподтверждённые рекламные форматы. "
     "Не рассчитывай ROI без расходов, выручки и правил атрибуции. Не утверждай, что сайт "
     "медленный или неудобный, без измерений. UTM — параметры целевых ссылок; они не измеряют "
     "продажи без настроенной аналитики. Не объявляй видео неэффективным по доле просмотров "
-    "среди показов всех форматов. Каждое предложение: наблюдение, гипотеза, одно действие, "
-    "метрика проверки. Укажи цель и недостающие сведения, если они влияют на выбор. "
+    "среди показов всех форматов. Для персональных рекомендаций по статистике укажи "
+    "наблюдение, гипотезу, одно действие и метрику проверки. "
     "Практический опыт подтверждай найденным кейсом со ссылкой и условиями; если такого "
     "источника нет, не выдавай общий совет за доказанную практику. Чужой рост не является "
     "нормой или обещанием. Сравнение органических пинов не называй рандомизированным A/B-тестом."
 )
 
 
-def enforce_advice_boundaries(content):
+def _asks_for_paid_ad_recommendation(message: str) -> bool:
+    normalized = str(message or "").casefold()
+    if re.search(r"правил|запрещ|разреш|cta|призыв|формулиров|политик|спам", normalized):
+        return False
+    action = r"(?:запуст|запуск|настрой|спланируй|составь|подготовь|создай|предложи|рекоменд|посовет|подбери|стратег|план|бюджет|стоит ли)\w*"
+    topic = r"(?:реклам\w*|\bads?\b|платн.{0,15}продвиж\w*)"
+    action_before_topic = re.search(rf"{action}[^.!?]{{0,60}}{topic}", normalized)
+    topic_before_action = re.search(rf"{topic}[^.!?]{{0,60}}{action}", normalized)
+    return bool(action_before_topic or topic_before_action)
+
+
+def enforce_advice_boundaries(content, *, request_message=None):
     """Conservative final gate until the product can verify advertising eligibility.
 
-    Applies to advertising paragraphs, including explanatory ones: we substitute a
-    known-safe explanation rather than attempt to infer intent from generated text.
-    This does not claim to validate every possible model assertion.
+    Paid-ad eligibility checks should not affect organic Pins or neutral policy questions.
     """
+    if request_message is not None and not _asks_for_paid_ad_recommendation(request_message):
+        unsupported_format = re.compile(r"карусел|carousel|\bquiz\b|мини[- ]?игр", re.I)
+        return "\n\n".join(
+            paragraph for paragraph in re.split(r"\n\s*\n", content)
+            if not unsupported_format.search(paragraph)
+        )
+
     restricted = re.compile(r"карусел|carousel|\bquiz\b|мини[- ]?игр|\bопрос|реклам|\bROI\b|\bROAS\b", re.I)
     replacement = (
         "Рекламный кабинет, его страна и доступ к рекламе не проверены. Поэтому рекомендовать "
