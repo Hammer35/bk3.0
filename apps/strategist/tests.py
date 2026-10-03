@@ -289,6 +289,64 @@ class StrategistChatTest(TestCase):
         self.assertNotIn("переходов", second.content)
         complete.assert_not_called()
 
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_traffic_question_with_number_from_user_stays_honest(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Вчера было 12 переходов. Почему больше? Сколько заказов?",
+        )
+        answer = respond_to_message(user_message=question)
+        self.assertEqual(answer.provider, "database")
+        self.assertIn("Причину роста переходов за вчера установить нельзя", answer.content)
+        self.assertIn("Сколько было заказов, тоже неизвестно", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_orders_followup_with_number_stays_honest(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Почему вчера было больше переходов из Pinterest?",
+        )
+        respond_to_message(user_message=question)
+        followup = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Сколько заказов было при 12 переходах?",
+        )
+        answer = respond_to_message(user_message=followup)
+        self.assertEqual(answer.provider, "database")
+        self.assertIn("неизвестно", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_followup_after_traffic_question_starting_with_number(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Вчера было 12 переходов. Почему больше?",
+        )
+        respond_to_message(user_message=question)
+        followup = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER, content="Сколько заказов?",
+        )
+        answer = respond_to_message(user_message=followup)
+        self.assertEqual(answer.provider, "database")
+        self.assertIn("неизвестно", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_clicks_and_orders_with_number_stays_grounded(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="По 12 исходящим кликам Pinterest можно понять, сколько было заказов?",
+        )
+        answer = respond_to_message(user_message=question)
+        self.assertEqual(answer.provider, "knowledge")
+        self.assertIn("неизвестно", answer.content)
+        complete.assert_not_called()
+
     def test_user_cannot_open_another_workspace_business(self):
         outsider = get_user_model().objects.create_user("outsider", password="test-password-123")
         self.client.force_login(outsider)

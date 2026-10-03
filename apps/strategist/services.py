@@ -87,6 +87,14 @@ def _asks_for_keyword_research(message: str) -> bool:
     return bool(re.search(r"ключев|ключи|ключик|запрос|хвост|подбор\s+ключ|seo|сео", message, re.I))
 
 
+def _asks_why_yesterday_traffic(message: str) -> bool:
+    return (
+        bool(re.search(r"почему", message, re.I))
+        and bool(re.search(r"вчера\w*", message, re.I))
+        and bool(re.search(r"переход\w*", message, re.I))
+    )
+
+
 def _keyword_research_answer(result: dict) -> str:
     if result.get("error"):
         return f"Подбор ключей не завершён: {result['error']}"
@@ -817,8 +825,8 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     previous_user_message = conversation.messages.filter(
         role=AIMessage.Role.USER,
     ).exclude(pk=user_message.pk).order_by("-created_at").values_list("content", flat=True).first() or ""
-    asks_yesterday_traffic = bool(re.search(r"почему.*вчера.*переход|почему.*переход.*вчера", user_message.content, re.I))
-    previous_traffic_question = bool(re.search(r"почему.*вчера.*переход|почему.*переход.*вчера", previous_user_message, re.I))
+    asks_yesterday_traffic = _asks_why_yesterday_traffic(user_message.content)
+    previous_traffic_question = _asks_why_yesterday_traffic(previous_user_message)
     traffic_followup = previous_traffic_question and bool(
         re.search(r"без\s+данн\w*|точн\w*\s+причин\w*", user_message.content, re.I)
     )
@@ -827,7 +835,6 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     )
     if (
         not any(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts)
-        and not re.search(r"\d", f"{previous_user_message} {user_message.content}")
         and (asks_yesterday_traffic and not previous_user_message or traffic_followup or orders_followup)
     ):
         if traffic_followup:
