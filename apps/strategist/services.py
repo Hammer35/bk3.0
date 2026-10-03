@@ -22,7 +22,10 @@ from .advice import (
     comparison_issues, analytics_followup_context, enforce_advice_boundaries,
     local_knowledge_context,
 )
+from .grounded_answers import grounded_pinterest_answer
+from .critic import review_answer, usable_replacement
 from .models import AIConversation, AIMessage
+from .model_routing import GigaChatModelRouter
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
@@ -813,6 +816,49 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             model="pinterest-account-inventory",
         )
 
+    previous_user_message = conversation.messages.filter(
+        role=AIMessage.Role.USER,
+    ).exclude(pk=user_message.pk).order_by("-created_at").values_list("content", flat=True).first() or ""
+    asks_yesterday_traffic = bool(re.search(r"почему.*вчера.*переход|почему.*переход.*вчера", user_message.content, re.I))
+    previous_traffic_question = bool(re.search(r"почему.*вчера.*переход|почему.*переход.*вчера", previous_user_message, re.I))
+    traffic_followup = previous_traffic_question and bool(
+        re.search(r"без\s+данн\w*|точн\w*\s+причин\w*", user_message.content, re.I)
+    )
+    orders_followup = previous_traffic_question and bool(re.search(r"заказ\w*", user_message.content, re.I)) and bool(
+        re.search(r"вчера|сколько", user_message.content, re.I)
+    )
+    if (
+        not any(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts)
+        and not re.search(r"\d", f"{previous_user_message} {user_message.content}")
+        and (asks_yesterday_traffic and not previous_user_message or traffic_followup or orders_followup)
+    ):
+        if traffic_followup:
+            content = "Нет, без данных за вчера и сравнимого периода точную причину назвать нельзя."
+        elif orders_followup:
+            content = "Число заказов за вчера неизвестно без данных сайта или маркетплейса."
+        elif re.search(r"заказ\w*", user_message.content, re.I):
+            content = (
+                "Причину роста переходов за вчера установить нельзя: у меня нет показателей за вчера "
+                "и периода сравнения. Сколько было заказов, тоже неизвестно без данных сайта или маркетплейса."
+            )
+        else:
+            content = "Причину роста переходов за вчера установить нельзя без показателей за вчера и периода сравнения."
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=content, provider="database", model="traffic-orders-unavailable",
+        )
+    grounded_answer = grounded_pinterest_answer(
+        user_message.content, previous_user_message=previous_user_message,
+    )
+    if grounded_answer:
+        return AIMessage.objects.create(
+            conversation=conversation,
+            role=AIMessage.Role.ASSISTANT,
+            content=grounded_answer,
+            provider="knowledge",
+            model="approved-source",
+        )
+
     latest_product = conversation.messages.filter(
         role=AIMessage.Role.ASSISTANT,
         assets__article__isnull=False,
@@ -1085,10 +1131,88 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     )
     if community_source_url and community_source_url not in reply_content:
         reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
+    critic_status = "approved"
+    critic_model = ""
+    critic_tokens = critic_reviews = critic_revisions = revision_tokens = 0
+    critic_provider = GigaChatProvider(router=GigaChatModelRouter(
+        model_priority=(settings.GIGACHAT_CRITIC_MODEL,),
+    ))
+    try:
+        decision = review_answer(
+            provider=critic_provider,
+            question=user_message.content,
+            answer=reply_content,
+            history=history,
+            knowledge_context=knowledge_context,
+            tool_results=[item["content"] for item in messages if item["role"] == "function"],
+            business_profile={
+                "name": conversation.business.name,
+                "niche": conversation.business.niche,
+                "audience": conversation.business.audience,
+                "goals": conversation.business.goals,
+            },
+            pinterest_accounts=pinterest_context,
+        )
+        critic_model = decision.completion.model
+        critic_reviews = 1
+        critic_tokens = decision.completion.total_tokens
+        prompt_tokens += decision.completion.prompt_tokens
+        completion_tokens += decision.completion.completion_tokens
+        total_tokens += decision.completion.total_tokens
+        if decision.verdict == "revise":
+            critic_status = "revised"
+            if usable_replacement(user_message.content, decision.replacement):
+                critic_revisions = 1
+                reply_content = decision.replacement
+            else:
+                original_content = reply_content
+                one_step_constraint = (
+                    " Ответь одним предложением до 20 слов с одним повелительным глаголом. "
+                    "Не используй союз «и», не добавляй второй шаг или объяснение."
+                    if re.search(r"перв\w*\s+шаг|один\s+(?:конкретн\w*\s+)?(?:шаг|действи\w*)", user_message.content, re.I)
+                    else ""
+                )
+                revision = provider.complete(
+                    [
+                        *messages,
+                        {"role": "assistant", "content": original_content},
+                        {"role": "user", "content": (
+                            "Внутренняя проверка черновика обнаружила ошибку: "
+                            f"{decision.issue}. Исправь ответ на последний вопрос. "
+                            "Используй только доступные выше данные, не добавляй факты без источника. "
+                            f"Ответь пользователю прямо и кратко.{one_step_constraint}"
+                        )},
+                    ],
+                    function_call="none",
+                )
+                critic_revisions = 1
+                revision_tokens = revision.total_tokens
+                prompt_tokens += revision.prompt_tokens
+                completion_tokens += revision.completion_tokens
+                total_tokens += revision.total_tokens
+                reply_content = revision.content
+            reply_content = re.sub(r"^(?:Правильный|Исправленный) ответ:\s*", "", reply_content.strip(), flags=re.I)
+            reply_content = enforce_advice_boundaries(reply_content, request_message=user_message.content)
+            if not usable_replacement(user_message.content, reply_content):
+                critic_status = "blocked"
+            if community_source_url and community_source_url not in reply_content:
+                reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
+        elif decision.verdict != "pass":
+            critic_status = "blocked"
+    except Exception as error:
+        logger.warning("Strategist critic unavailable: %s", type(error).__name__)
+        critic_status = "unavailable"
+    if critic_status in {"blocked", "unavailable"}:
+        reply_content = "Не удалось надёжно проверить ответ. Попробуйте повторить вопрос позже."
     return AIMessage.objects.create(
         conversation=conversation,
         role=AIMessage.Role.ASSISTANT,
         content=reply_content,
+        assets={"critic": {
+            "status": critic_status, "model": critic_model,
+            "reviews": critic_reviews, "revisions": critic_revisions,
+            "review_tokens": critic_tokens, "revision_tokens": revision_tokens,
+        }},
         provider="gigachat",
         model=completion.model,
         prompt_tokens=prompt_tokens,

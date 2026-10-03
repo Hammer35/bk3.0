@@ -14,6 +14,8 @@ from apps.pinterest.models import PinterestAccount
 from apps.strategist.models import AIConversation, AIMessage
 from apps.strategist.model_catalog import TaskCapability
 from apps.strategist.model_routing import GigaChatModelRouter
+from apps.strategist.grounded_answers import grounded_pinterest_answer
+from apps.strategist.critic import CriticDecision, review_answer
 from apps.strategist.providers import (
     GigaChatCompletion,
     GigaChatProvider,
@@ -23,6 +25,146 @@ from apps.strategist.providers import (
 from apps.strategist.services import _format_pinterest_analytics, respond_to_message
 from apps.strategist.advice import analytics_advice, comparison_issues, analytics_followup_context, enforce_advice_boundaries, metric_value, local_knowledge_context
 from apps.workspaces.models import Membership, Workspace
+
+
+class GroundedAnswerRoutingTest(SimpleTestCase):
+    def test_unrelated_requests_use_regular_chat(self):
+        for question in (
+            "Сколько дней можно планировать Pins заранее?",
+            "Какие темы запрещены правилами рекламы Pinterest?",
+            "Как продвигать запрещённые вещества?",
+            "Сколько дней хранить наши внутренние данные?",
+        ):
+            with self.subTest(question=question):
+                self.assertIsNone(grounded_pinterest_answer(question))
+
+    @patch("apps.strategist.grounded_answers._approved_source", return_value=None)
+    def test_unapproved_source_is_not_used(self, source):
+        self.assertIsNone(grounded_pinterest_answer("Сколько пинов публиковать каждый день?"))
+        self.assertIsNone(grounded_pinterest_answer("Какие темы запрещены Правилами сообщества Pinterest?"))
+        self.assertIsNone(grounded_pinterest_answer("Запрещает ли Pinterest призыв «Посмотрите каталог»?"))
+        self.assertIsNone(grounded_pinterest_answer("Сколько заказов было после 12 исходящих кликов?"))
+        self.assertIsNone(grounded_pinterest_answer("Какое правило Pinterest по хранению данных API?"))
+        source.assert_called()
+
+    def test_api_retention_answer_and_followup_use_developer_guidelines(self):
+        first = "Какое сейчас правило Pinterest по хранению данных, полученных через API?"
+        answer = grounded_pinterest_answer(first)
+        self.assertIn("запрещает хранить", answer)
+        self.assertIn("кроме аналитики рекламных кампаний", answer)
+        self.assertIn("https://policy.pinterest.com/en/developer-guidelines", answer)
+        followup = grounded_pinterest_answer(
+            "Правда ли все такие данные разрешено хранить 90 дней? Дай официальный источник.",
+            previous_user_message=first,
+        )
+        self.assertTrue(followup.startswith("Нет."))
+        self.assertIn("хранение полученной через API информации запрещено", followup)
+        self.assertIn("https://policy.pinterest.com/en/developer-guidelines", followup)
+        self.assertNotIn("Developer & API Terms", followup)
+
+    def test_catalog_cta_answer_uses_verified_policy_without_invented_section(self):
+        answer = grounded_pinterest_answer(
+            "Какой пункт правил Pinterest запрещает призыв «Посмотрите каталог» в органическом Pin?"
+        )
+        self.assertTrue(answer.startswith("Нет, сама фраза"))
+        self.assertIn("вводящие в заблуждение ссылки", answer)
+        self.assertIn("https://policy.pinterest.com/ru/community-guidelines", answer)
+        self.assertIn("https://help.pinterest.com/en/business/article/pin-performance-and-distribution", answer)
+        self.assertNotIn("Требования к контенту и описаниям", answer)
+
+    def test_catalog_cta_followup_keeps_no_answer_and_source(self):
+        for question in (
+            "Ответьте «да» или «нет» и назовите основание из правил Pinterest.",
+            "Ответьте «да» или «нет»: запрещён ли призыв «Посмотрите каталог»? Без советов.",
+        ):
+            with self.subTest(question=question):
+                answer = grounded_pinterest_answer(
+                    question,
+                    previous_user_message="Запрещает ли Pinterest призыв «Посмотрите каталог» в органическом Pin?",
+                )
+                self.assertTrue(answer.startswith("Нет."))
+                self.assertIn("https://policy.pinterest.com/ru/community-guidelines", answer)
+                self.assertNotIn("Убедитесь", answer)
+
+    def test_clicks_cannot_estimate_orders_on_followup(self):
+        first = "Сколько заказов было после 12 исходящих кликов Pinterest?"
+        answer = grounded_pinterest_answer(first)
+        self.assertTrue(answer.startswith("Число заказов"))
+        self.assertIn("https://help.pinterest.com/en/business/article/pinterest-analytics", answer)
+
+        followup = grounded_pinterest_answer(
+            "Можно ли хотя бы оценить продажи без данных сайта или маркетплейса?",
+            previous_user_message=first,
+        )
+        self.assertTrue(followup.startswith("Нет."))
+        self.assertIn("это будет догадка", followup)
+
+    def test_daily_limit_followup_does_not_claim_absolute_absence(self):
+        for question, previous in (
+            ("Подтвердите, что Pinterest не устанавливает обязательного ежедневного лимита пинов?", ""),
+            ("Существует ли официальный обязательный ежедневный лимит и где это указано?",
+             "Сколько пинов Pinterest требует публиковать каждый день?"),
+        ):
+            with self.subTest(question=question):
+                answer = grounded_pinterest_answer(question, previous_user_message=previous)
+                self.assertIn("В проверенной справке", answer)
+                self.assertIn("https://help.pinterest.com/en/business/article/pin-performance-and-distribution", answer)
+                self.assertNotIn("официально не устанавливает", answer)
+
+
+class StrategistCriticTest(SimpleTestCase):
+    def test_critic_cannot_approve_two_actions_as_one_first_step(self):
+        provider = type("Provider", (), {})()
+        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
+            content='{"verdict":"pass","issue":""}',
+            model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=2, total_tokens=7,
+        )
+        decision = review_answer(
+            provider=provider,
+            question="Какой первый шаг для продвижения керамики?",
+            answer="Создай фотографии изделий и добавь их в Pinterest.",
+            history=[], knowledge_context="", tool_results=[],
+        )
+        self.assertEqual(decision.verdict, "revise")
+        self.assertIn("несколько действий", decision.issue)
+
+    def test_critic_cannot_approve_multistep_paragraphs(self):
+        provider = type("Provider", (), {})()
+        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
+            content='{"verdict":"pass","issue":""}',
+            model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=2, total_tokens=7,
+        )
+        decision = review_answer(
+            provider=provider,
+            question="Какой первый шаг для продвижения керамики?",
+            answer="Первым шагом выбери товар.\n\nЗатем создай Pins и проверь аналитику.",
+            history=[], knowledge_context="", tool_results=[],
+        )
+        self.assertEqual(decision.verdict, "revise")
+
+    def test_critic_receives_draft_and_returns_structured_verdict(self):
+        provider = type("Provider", (), {})()
+        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
+            content='{"verdict":"revise","issue":"Не ответил на вопрос о заказах"}',
+            model="GigaChat-2-Pro", prompt_tokens=20, completion_tokens=8, total_tokens=28,
+        )
+        decision = review_answer(
+            provider=provider, question="Сколько заказов?", answer="Было 12 кликов.",
+            history=[], knowledge_context="Клики не равны заказам.", tool_results=[],
+        )
+        self.assertEqual(decision.verdict, "revise")
+        self.assertIn("заказах", decision.issue)
+
+    def test_malformed_critic_verdict_is_not_approval(self):
+        provider = type("Provider", (), {})()
+        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
+            content="Всё хорошо", model="GigaChat-2-Pro", prompt_tokens=1, completion_tokens=1, total_tokens=2,
+        )
+        decision = review_answer(
+            provider=provider, question="Вопрос", answer="Ответ",
+            history=[], knowledge_context="", tool_results=[],
+        )
+        self.assertEqual(decision.verdict, "invalid")
 
 
 class StrategistChatTest(TestCase):
@@ -66,14 +208,19 @@ class StrategistChatTest(TestCase):
         )
         complete.assert_not_called()
 
+    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_message_is_sent_and_response_usage_is_stored(self, complete):
+    def test_message_is_sent_and_response_usage_is_stored(self, complete, review):
         complete.return_value = GigaChatCompletion(
             content="Начните с пяти пинов для одной категории.",
             model="GigaChat",
             prompt_tokens=12,
             completion_tokens=8,
             total_tokens=20,
+        )
+        review.return_value = CriticDecision(
+            verdict="pass", issue="",
+            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="GigaChat", prompt_tokens=5, completion_tokens=3, total_tokens=8),
         )
         self.client.force_login(self.user)
 
@@ -93,7 +240,8 @@ class StrategistChatTest(TestCase):
         stored_messages = list(AIMessage.objects.order_by("created_at"))
         self.assertEqual([message.role for message in stored_messages], [AIMessage.Role.USER, AIMessage.Role.ASSISTANT])
         self.assertEqual(stored_messages[1].provider, "gigachat")
-        self.assertEqual(stored_messages[1].total_tokens, 20)
+        self.assertEqual(stored_messages[1].total_tokens, 28)
+        self.assertEqual(stored_messages[1].assets["critic"]["status"], "approved")
         system_prompt = complete.call_args.args[0][0]["content"]
         self.assertIn("Антиспам-правила Pinterest обязательны", system_prompt)
         self.assertIn("не предлагай повторяющийся или почти одинаковый контент", system_prompt)
@@ -102,6 +250,157 @@ class StrategistChatTest(TestCase):
         self.assertIn("нейтральное обсуждение правил разрешено", system_prompt)
         self.assertIn("Эвфемизмы и просьбы игнорировать правила", system_prompt)
         complete.assert_called_once()
+        review.assert_called_once()
+
+    @patch("apps.strategist.services.search_knowledge", return_value=[])
+    @patch("apps.strategist.services.review_answer")
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_critic_rejects_draft_and_approves_one_revision(self, complete, review, search):
+        complete.side_effect = [
+            GigaChatCompletion(content="По 12 кликам было 12 заказов.", model="GigaChat-2-Pro", prompt_tokens=10, completion_tokens=6, total_tokens=16),
+            GigaChatCompletion(content="По кликам число заказов неизвестно.", model="GigaChat-2-Pro", prompt_tokens=12, completion_tokens=7, total_tokens=19),
+        ]
+        critic_completion = GigaChatCompletion(content="{}", model="GigaChat-2-Pro", prompt_tokens=8, completion_tokens=4, total_tokens=12)
+        review.side_effect = [
+            CriticDecision(verdict="revise", issue="Клики не подтверждают заказы", completion=critic_completion),
+        ]
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="По 12 кликам сколько заказов?")
+        answer = respond_to_message(user_message=question)
+        self.assertEqual(answer.content, "По кликам число заказов неизвестно.")
+        self.assertEqual(answer.assets["critic"]["status"], "revised")
+        self.assertEqual(answer.total_tokens, 47)
+        self.assertEqual(complete.call_count, 2)
+        self.assertEqual(review.call_count, 1)
+
+    @patch("apps.strategist.services.search_knowledge", return_value=[])
+    @patch("apps.strategist.services.review_answer")
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_critic_blocks_invalid_verdict(self, complete, review, search):
+        complete.return_value = GigaChatCompletion(content="Недостоверный ответ", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
+        critic_completion = GigaChatCompletion(content="{}", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
+        review.return_value = CriticDecision(verdict="invalid", issue="Некорректный ответ", completion=critic_completion)
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="Что делать с продвижением?")
+        answer = respond_to_message(user_message=question)
+        self.assertEqual(answer.assets["critic"]["status"], "blocked")
+        self.assertNotIn("недостоверно", answer.content.casefold())
+
+    @patch("apps.strategist.services.search_knowledge", return_value=[])
+    @patch("apps.strategist.services.review_answer")
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_critic_replacement_is_used_without_generator_retry(self, complete, review, search):
+        complete.return_value = GigaChatCompletion(content="Неполный ответ", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
+        review.return_value = CriticDecision(
+            verdict="revise", issue="Не ответил на вопрос", replacement="Посмотрите кружку в каталоге.",
+            completion=GigaChatCompletion(content="{}", model="GigaChat-3-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10),
+        )
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="Предложи CTA для кружки")
+        answer = respond_to_message(user_message=question)
+        self.assertEqual(answer.content, "Посмотрите кружку в каталоге.")
+        self.assertEqual(answer.assets["critic"]["status"], "revised")
+        complete.assert_called_once()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_publication_frequency_uses_verified_knowledge(self, complete):
+        self.client.force_login(self.user)
+        for question in (
+            "Сколько пинов публиковать каждый день? Это правило Pinterest?",
+            "Pinterest требует публиковать 10 пинов ежедневно — это правда?",
+        ):
+            with self.subTest(question=question):
+                self.client.post(self.url, {"message": question})
+                answer = AIMessage.objects.filter(role=AIMessage.Role.ASSISTANT).order_by("-created_at").first()
+                self.assertEqual(answer.provider, "knowledge")
+                self.assertIn("нет обязательной нормы", answer.content)
+                if "10" in question:
+                    self.assertIn("не могу подтвердить как требование", answer.content)
+                self.assertNotIn("1–5", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_policy_questions_get_contextual_source_answer(self, complete):
+        self.client.force_login(self.user)
+        cases = (
+            ("Какие темы запрещены Правилами сообщества Pinterest?", "ограничить его распространение"),
+            ("Можно ли в образовательном Pin объяснить, почему Pinterest запрещает пропаганду наркотиков?", "само упоминание темы"),
+        )
+        for question, expected in cases:
+            with self.subTest(question=question):
+                self.client.post(self.url, {"message": question})
+                answer = AIMessage.objects.filter(role=AIMessage.Role.ASSISTANT).order_by("-created_at").first()
+                self.assertEqual(answer.provider, "knowledge")
+                self.assertIn(expected, answer.content)
+                self.assertIn("https://policy.pinterest.com/ru/community-guidelines", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_catalog_cta_followup_uses_previous_user_question(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Запрещает ли Pinterest призыв «Посмотрите каталог» в органическом Pin?",
+        )
+        AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content="Нет, сама фраза не запрещена.",
+        )
+        followup = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Ответьте «да» или «нет» и укажите основание из правил Pinterest.",
+        )
+
+        answer = respond_to_message(user_message=followup)
+
+        self.assertEqual(answer.provider, "knowledge")
+        self.assertTrue(answer.content.startswith("Нет."))
+        self.assertIn("https://policy.pinterest.com/ru/community-guidelines", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_traffic_and_orders_without_data_stay_short_on_followup(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Почему вчера было больше переходов из Pinterest и сколько было заказов?",
+        )
+        first = respond_to_message(user_message=question)
+        self.assertEqual(first.provider, "database")
+        self.assertIn("Причину роста переходов за вчера установить нельзя", first.content)
+        self.assertIn("Сколько было заказов, тоже неизвестно", first.content)
+
+        followup = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Можешь назвать точную причину без данных за вчера?",
+        )
+        second = respond_to_message(user_message=followup)
+        self.assertEqual(second.provider, "database")
+        self.assertTrue(second.content.startswith("Нет,"))
+        self.assertNotIn("рекомендую", second.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_traffic_question_then_orders_without_data_are_short(self, complete):
+        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
+        question = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Почему вчера было больше переходов из Pinterest?",
+        )
+        first = respond_to_message(user_message=question)
+        self.assertEqual(first.provider, "database")
+        self.assertIn("без показателей за вчера", first.content)
+        self.assertNotIn("Pinterest выделяет", first.content)
+
+        followup = AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.USER,
+            content="Сколько заказов было вчера?",
+        )
+        second = respond_to_message(user_message=followup)
+        self.assertEqual(second.provider, "database")
+        self.assertIn("неизвестно", second.content)
+        self.assertNotIn("переходов", second.content)
+        complete.assert_not_called()
 
     def test_user_cannot_open_another_workspace_business(self):
         outsider = get_user_model().objects.create_user("outsider", password="test-password-123")
@@ -221,6 +520,13 @@ class GigaChatModelRoutingTest(SimpleTestCase):
 
         self.assertEqual(candidates, ("GigaChat-2-Pro", "GigaChat-2-Max"))
 
+    def test_critic_router_keeps_its_own_model(self):
+        candidates = GigaChatModelRouter(model_priority=("GigaChat-3-Pro",)).candidates(
+            capability=TaskCapability.CHAT,
+            available_model_ids=("GigaChat-2-Pro", "GigaChat-3-Pro"),
+        )
+        self.assertEqual(candidates, ("GigaChat-3-Pro",))
+
     def test_provider_retries_next_eligible_model_after_model_limit(self):
         provider = GigaChatProvider()
         completion = GigaChatCompletion(
@@ -339,8 +645,9 @@ class AdviceEvidenceTests(SimpleTestCase):
 class AdviceFollowupIntegrationTests(TestCase):
     @override_settings(KNOWLEDGE_EMBEDDING_PROVIDER="gigachat", KNOWLEDGE_FALLBACK_EMBEDDING_MODEL="nvidia/llama-nemotron-embed-vl-1b-v2:free")
     @patch("apps.strategist.services.search_knowledge")
+    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_gigachat_embedding_failure_uses_nvidia_backup(self, complete, search):
+    def test_gigachat_embedding_failure_uses_nvidia_backup(self, complete, review, search):
         user = get_user_model().objects.create_user("backup-owner")
         workspace = Workspace.objects.create(name="Backup", slug="backup", created_by=user)
         business = Business.objects.create(workspace=workspace, name="Backup", slug="backup")
@@ -352,6 +659,10 @@ class AdviceFollowupIntegrationTests(TestCase):
                           title="Аналитика", source_links=("https://example.test/analytics",), heading="Заказы")],
         ]
         complete.return_value = GigaChatCompletion(content="По кликам число заказов неизвестно.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
+        review.return_value = CriticDecision(
+            verdict="pass", issue="",
+            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="mock", prompt_tokens=2, completion_tokens=1, total_tokens=3),
+        )
 
         respond_to_message(user_message=message)
 
@@ -382,18 +693,23 @@ class AdviceFollowupIntegrationTests(TestCase):
 
 
     @patch("apps.strategist.services.search_knowledge", side_effect=RuntimeError("embedding unavailable"))
+    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_embedding_failure_uses_local_case_and_gates_stored_answer(self, complete, search):
+    def test_embedding_failure_uses_local_case_and_gates_stored_answer(self, complete, review, search):
         user = get_user_model().objects.create_user("local-case-owner")
         workspace = Workspace.objects.create(name="Local case", slug="local-case", created_by=user)
         business = Business.objects.create(workspace=workspace, name="Case", slug="case")
         conversation = AIConversation.objects.create(business=business, created_by=user)
         message = AIMessage.objects.create(conversation=conversation, role="USER", content="Приведи практический кейс роста исходящих кликов")
         complete.return_value = GigaChatCompletion(content="Проверьте целевую ссылку.\n\nСоздайте карусель с опросом.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
+        review.return_value = CriticDecision(
+            verdict="pass", issue="",
+            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="mock", prompt_tokens=2, completion_tokens=1, total_tokens=3),
+        )
         answer = respond_to_message(user_message=message)
         system = complete.call_args.args[0][0]["content"]
         self.assertIn("pink-seed-marketing", system)
         self.assertIn("эффект отдельного действия не выделен", system)
         self.assertIn("Проверьте целевую ссылку", answer.content)
         self.assertNotIn("Создайте карусель", answer.content)
-        self.assertEqual(answer.total_tokens, 15)
+        self.assertEqual(answer.total_tokens, 18)
