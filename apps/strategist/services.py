@@ -20,6 +20,7 @@ from .advice import (
     metric_value as _metric_value,
     format_metric_number as _format_metric_number,
     comparison_issues, analytics_followup_context, enforce_advice_boundaries,
+    enforce_source_honesty,
     local_knowledge_context,
 )
 from .grounded_answers import grounded_pinterest_answer
@@ -1134,6 +1135,7 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         completion.content,
         request_message=user_message.content,
     )
+    reply_content = enforce_source_honesty(reply_content)
     if community_source_url and community_source_url not in reply_content:
         reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
     return AIMessage.objects.create(

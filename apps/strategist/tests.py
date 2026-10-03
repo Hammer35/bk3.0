@@ -22,7 +22,7 @@ from apps.strategist.providers import (
     GigaChatRequestError,
 )
 from apps.strategist.services import _format_pinterest_analytics, respond_to_message
-from apps.strategist.advice import analytics_advice, comparison_issues, analytics_followup_context, enforce_advice_boundaries, metric_value, local_knowledge_context
+from apps.strategist.advice import analytics_advice, comparison_issues, analytics_followup_context, enforce_advice_boundaries, enforce_source_honesty, metric_value, local_knowledge_context
 from apps.workspaces.models import Membership, Workspace
 
 
@@ -575,6 +575,30 @@ class AdviceEvidenceTests(SimpleTestCase):
         self.assertNotIn("Рассчитайте", answer)
         self.assertEqual(answer.count("Рекламный кабинет"), 1)
         self.assertIn("не проверены", answer)
+
+    def test_source_honesty_appends_missing_verdict_limit(self):
+        answer = enforce_source_honesty("Неправда. Pinterest разрешает использовать обычные призывы.")
+        self.assertIn("Pinterest разрешает", answer)
+        self.assertIn("не решение модерации Pinterest", answer)
+
+    def test_source_honesty_keeps_existing_limit_and_untouched_text(self):
+        with_limit = "Это вывод из опубликованных правил, а не решение модерации Pinterest."
+        self.assertEqual(enforce_source_honesty(with_limit), with_limit)
+        plain = "Сначала сделай одну доску и загрузи в неё пять фотографий."
+        self.assertEqual(enforce_source_honesty(plain), plain)
+
+    def test_source_honesty_removes_unsupported_uniqueness_claim(self):
+        answer = enforce_source_honesty("Пиши про конкретный товар.\n\nПродашь уникальную вещь, которой нет ни у кого на рынке.")
+        self.assertIn("Пиши про конкретный товар.", answer)
+        self.assertNotIn("нет ни у кого", answer)
+
+    def test_source_honesty_keeps_uniqueness_as_instruction(self):
+        advice = "Добавь уникальное описание и свои формулировки вместо копирования чужих текстов."
+        self.assertEqual(enforce_source_honesty(advice), advice)
+
+    def test_source_honesty_does_not_attach_wording_limit_to_other_verdicts(self):
+        about_spam = "Pinterest запрещает повторяющиеся и вводящие в заблуждение Pins."
+        self.assertEqual(enforce_source_honesty(about_spam), about_spam)
 
     def test_followup_uses_only_trusted_context_and_stops_at_topic_change(self):
         trusted = {"role": "ASSISTANT", "provider": "pinterest-api", "model": "direct-read",
