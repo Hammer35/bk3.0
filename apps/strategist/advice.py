@@ -152,6 +152,112 @@ def enforce_advice_boundaries(content, *, request_message=None):
             parts.append(paragraph)
     return "\n\n".join(parts)
 
+def enforce_creative_answer(content, *, request_message):
+    """Keep a single proposed caption when the model adds unsolicited commentary."""
+    if (not re.search(r"^(?:предложи|придумай|напиши|дай|составь)\b", request_message, re.I)
+            or not re.search(r"\bcta\b|подпис\w*", request_message, re.I)
+            or re.search(r"правил|запрещ|разреш|проверь|вариант|несколько|можно", request_message, re.I)
+            or re.search(r"не могу|нельзя|не рекомендую|не используй|запрещ", content, re.I)):
+        return content
+    # Only the familiar intro + quoted proposal shape; leave refusals and
+    # unstructured responses intact instead of extracting an arbitrary quote.
+    proposal = re.search(r"^(?:Вот|Предлагаю)[^\n]*\n\s*[«\"]([^»\"\n]{1,400})[»\"]", content)
+    return proposal.group(1) if proposal else content
+
+
+def enforce_source_honesty(content):
+    """Correct unsupported claims without deleting warnings or quoted examples.
+
+    This gate covers a bounded set of recurring errors, not factual verification
+    of arbitrary model answers. Official text limits use a fresh approved source.
+    """
+    from .grounded_answers import approved_pin_text_limits
+
+    limits = approved_pin_text_limits()
+    parts = []
+    for paragraph in re.split(r"\n\s*\n", content):
+        def replace_uniqueness(match):
+            sentence = match.group(0)
+            if re.search(r'не\s+(?:обещ|пиши|пишите|утвержд|использ)|избег|нельзя|без\s+доказ|[«"“]', sentence, re.I):
+                return sentence
+            return re.match(r"\s*", sentence).group(0) + "Уникальность товара без сравнения с аналогами не подтверждена."
+
+        paragraph = _UNSUPPORTED_UNIQUENESS.sub(replace_uniqueness, paragraph)
+        paragraph = re.sub(r"\bуникальн\w+\s+(товар\w*|продукт\w*|издели\w*)", r"\1", paragraph, flags=re.I)
+        sentences = re.split(r"(?<=[.!?])(\s+)", paragraph)
+        corrected = []
+        for sentence in sentences:
+            if _LENGTH_NORM.search(sentence) and _NORM_FRAMING.search(sentence) and not _NORM_CAVEAT_PRESENT.search(paragraph):
+                # A recommendation about an ideal length is never a maximum.
+                official_max = False
+                numbers = re.findall(r"\b\d+\b", sentence)
+                for field, maximum in limits.items():
+                    if (re.search(field, sentence, re.I) and numbers == [str(maximum)]
+                            and re.search(r"до\s+\d|максим|лимит", sentence, re.I)
+                            and not re.search(r"оптимальн|идеальн|рекоменду|лучшая", sentence, re.I)):
+                        official_max = True
+                if not official_max:
+                    if re.search(r"Pinterest|пинтерест|официальн|требован|правил", sentence, re.I):
+                        sentence = "Не могу подтвердить эту длину как официальное требование Pinterest."
+                    sentence = f"{sentence.rstrip()} {_LENGTH_NORM_CAVEAT}"
+            corrected.append(sentence)
+        paragraph = "".join(corrected)
+        if (_PERMISSION_VERDICT.search(paragraph) and _WORDING_TOPIC.search(paragraph)
+                and not _VERDICT_LIMIT.search(paragraph)
+                and not re.search(r"длин|лимит|символ|спам", paragraph, re.I)):
+            paragraph = f"{paragraph.rstrip()}\n\n{_CTA_VERDICT_LIMIT}"
+        parts.append(paragraph)
+    return "\n\n".join(parts)
+
+
+_CTA_VERDICT_LIMIT = (
+    "Это вывод из опубликованных правил, а не решение модерации Pinterest по конкретной "
+    "фразе: правила могут измениться, а текст до публикации никто не проверял."
+)
+
+_UNSUPPORTED_UNIQUENESS = re.compile(
+    r"[^.!?\n]*\b(?:нет ни у кого|не имеет аналогов|аналогов нет|"
+    r"единственн(?:ый|ая|ое|ые|ую)\s+в\s+(?:мире|стране|каталоге|сервисе))[^.!?\n]*[.!?]?",
+    re.I,
+)
+
+_PERMISSION_VERDICT = re.compile(
+    r"(?:Pinterest|пинтарест)\s+(?:разрешает|одобряет|не\s+запрещает|запрещает)|"
+    r"\bне\s+запрещ[её]н\b|\bможно\s+(?:использовать|писать|указывать)\b",
+    re.I,
+)
+
+_VERDICT_LIMIT = re.compile(
+    r"вывод из|не (?:решение|одобрение|одобрения)|не подтвержда[её]т одобрени|"
+    r"никто не проверял|может измениться",
+    re.I,
+)
+
+
+_LENGTH_NORM = re.compile(r"\b\d+\s*(?:символ\w*|слов\w*|знаков)", re.I)
+
+_NORM_FRAMING = re.compile(
+    r"рекоменду\w*|треб\w*|официальн\w*|лимит\w*|оптимальн\w*|идеальн\w*|лучшая\s+длина|"
+    r"следует\s+использовать|нужно\s+\d|полностью\s+отображал",
+    re.I,
+)
+
+_NORM_CAVEAT_PRESENT = re.compile(
+    r"эвристик|не (?:указан|закреплён|закреплен)|официальн\w*\s+(?:требован|норма|лимит)\s+не",
+    re.I,
+)
+
+_LENGTH_NORM_CAVEAT = (
+    "Это практическая эвристика, а не официальное требование Pinterest."
+)
+
+
+_WORDING_TOPIC = re.compile(
+    r"призыв|\bcta\b|фраз|слов|текст|описани|заголовок|подпись",
+    re.I,
+)
+
+
 def metric_value(summary: dict, name: str) -> int | float | None:
     value = summary.get(name)
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:

@@ -168,3 +168,50 @@ class PinterestOAuthFlowTest(TestCase):
 
         account.refresh_from_db()
         self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_resource_403_keeps_account_connected(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-403",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token") as refresh,
+            patch("apps.pinterest.strategist_tools._get", return_value=SimpleNamespace(status_code=403)) as get,
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "HTTP 403"):
+                _request(account, "/user_account/analytics", {})
+
+        refresh.assert_not_called()
+        self.assertEqual(get.call_count, 1)
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_resource_401_with_unconfirmed_profile_keeps_account_connected(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-401-profile-503",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token", return_value=True),
+            patch("apps.pinterest.strategist_tools._get", side_effect=[
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=401),
+                SimpleNamespace(status_code=503),
+            ]) as get,
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "не подтверждено"):
+                _request(account, "/user_account/analytics", {})
+
+        self.assertEqual(get.call_count, 3)
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
