@@ -104,3 +104,7 @@ OpenCode действительно исполнял TASK-010/011/012 через
 ## Pagination / dialogue profile switch завершены
 
 Real Giga pilot3cases/4answers финально принят. Два этапа8answers/30232chat tokens, syntheticPinterest, embeddings0. Backend regression подтвердил неподтверждённый total после первой страницы; pending_pages guard выдаёт pagination-incomplete, учитываетusage. 3новые регрессии: раннее завершение, complete2pages, six-readcap. Full128tests/44.236с OK, check/migrations/diffcheck OK. TASK016 отклонён (ложныйtotal), Cohere больше неиспользовать как семантического судью. DELEGATION/план/отчёт/статистика обновлены. Коммиты/пуш/main/.env не менялись.
+
+## Публикация и реальный Pinterest API
+
+Commit3862eb8 (61files) опубликован в feature/strategist-grounded-answers, remoteHEAD совпал. Real8GET profile/analytics обоихподключённыхпрофилей HTTP200. Realchat2responses pinterest-api/direct-read/tokens0; профиль, даты, equalperiod comparison и data limitations подтверждены, cachedanalytics обходился только в probe. Сырые ответы/метрики находятся только ignored runtime; созданы2 диагностические беседы локального существующего бизнеса. OpenCode TASK017/Qwen codeproposal принят,2regressions применены:403 сохраняетCONNECTED; profile503 после401 не объявляетOAuth invalid. Full130tests/48.137с OK; check/migrations/diffcheck OK. Отчёт real-pinterest-review и статистика обновлены; завершение публикации следующего commit записывается в LOG. Main не менялся, merge не выполнялся.

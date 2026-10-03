@@ -189,3 +189,10 @@ ArkSim с бесплатной NVIDIA-моделью играл только в�
 - Backend regression воспроизвёл ложный total после незавершённой первой страницы; pending-pages guard заменяет неподтверждённый ответ на pagination-incomplete, сохраняетusage, не делает дополнительных modelcalls. Тестированы completepages и 6-readcap.
 - OpenCode TASK016, cohere/north-mini-code:free:6688reportedtotal/cost0, результат отклонён из-за ложного total; этот маршрут больше не использовать как семантического судью. Продуктовую модель не меняем. Переоценка при новом дефекте cursor/completeness/истории. Отчёт strategist-pagination-review-2026-10-03.md.
 - Итоговый fullsuite128 OK/44,236с, check/migrations/diffcheck OK.
+
+## 2026-10-03 — реальный Pinterest API / публикация
+
+- Commit3862eb8 опубликован в feature/strategist-grounded-answers. Profile2GET + organic analytics2GET + chat analytics4GET: всеHTTP200. Два chat ответа pinterest-api/direct-read, tokens0, реальные периоды и ограничения полноты переданы. Model/Giga не вызывалась, billing0 modelcalls. Не смешивать с прошлым synthetic pilot. Сырые бизнес-данные только ignored runtime.
+- OpenCode/Qwen qwen3.8-27b:free дал пригодные два code regression метода;9targeted tests OK. Reported total28298/cost0. Это первая узкая проверка этого маршрута; универсальная пригодность и subscription savings не доказаны. ProductGigaChat-2-Pro не менялся.
+- Real OAuth отказов/записей/другихресурсов не проверялось. Report strategist-real-pinterest-review-2026-10-03.md.
+- Финальный offline suite130 OK/48,137с, check/migrations/diffcheck OK.
