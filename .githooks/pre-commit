@@ -1,0 +1,63 @@
+#!/bin/sh
+# Правило коммитов для нескольких агентов в одном репозитории.
+#
+# Отклоняет коммит, если:
+#   1) текущая ветка — main или master;
+#   2) в индекс попал файл, который занял другой агент;
+#   3) файл из индекса изменился на диске после добавления в индекс.
+#
+# Имя агента берётся из AGENT_NAME, иначе из `git config agent.name`,
+# иначе из `git config user.name`.
+
+fail() {
+	printf 'Коммит отклонён правилом репозитория.\n'
+	for line in "$@"; do
+		printf '  %s\n' "$line"
+	done
+	printf 'Обойти осознанно: git commit --no-verify — только после согласования с другим агентом.\n'
+	exit 1
+}
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+if [ -z "$branch" ]; then
+	fail "не удалось определить ветку"
+fi
+case "$branch" in
+	main|master)
+		fail "ветка $branch защищена: работа только в feature/*"
+		;;
+	HEAD)
+		fail "HEAD отделён от ветки, коммит потеряется" \
+			"сначала: git switch -c feature/<задача>"
+		;;
+esac
+
+agent=${AGENT_NAME:-$(git config --get agent.name || true)}
+[ -n "$agent" ] || agent=$(git config --get user.name || true)
+[ -n "$agent" ] || fail "агент не определён: выполните git config agent.name \"<ваше-имя>\""
+
+staged_file=$(mktemp)
+trap 'rm -f "$staged_file"' EXIT
+git -c core.quotePath=false diff --cached --name-only > "$staged_file"
+[ -s "$staged_file" ] || exit 0
+
+claims=".kilo/agent-state/claims"
+while IFS= read -r path; do
+	if [ -d "$claims" ]; then
+		claim_file="$claims/$(printf '%s' "$path" | tr '/' '_')"
+		if [ -f "$claim_file" ]; then
+			owner=$(sed -n 's/^agent=//p' "$claim_file" | head -n 1)
+			if [ -n "$owner" ] && [ "$owner" != "$agent" ]; then
+				fail "файл $path занят агентом $owner" \
+					"состояние работ: .kilo/agent-state/HANDOFF.md" \
+					"освободить: .kilo/agent-state/agent.sh release $owner \"$path\""
+			fi
+		fi
+	fi
+	if git -c core.quotePath=false diff --name-only -- "$path" | grep -q .; then
+		fail "файл $path изменён на диске после добавления в индекс: его правит кто-то ещё" \
+			"проверьте чужую правку и повторите git add \"$path\""
+	fi
+done < "$staged_file"
+
+exit 0

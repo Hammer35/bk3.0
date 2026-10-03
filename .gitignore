@@ -228,3 +228,6 @@ npm-debug.log*
 
 # Local browser profiles and diagnostics
 .yandex-localhost-*
+
+# Agent worktrees: полная вторая копия репозитория, коммитить её нельзя
+.kilo/worktrees/
