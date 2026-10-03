@@ -23,10 +23,45 @@ from apps.strategist.providers import (
 )
 from apps.strategist.services import _format_pinterest_analytics, respond_to_message
 from apps.strategist.advice import analytics_advice, comparison_issues, analytics_followup_context, enforce_advice_boundaries, enforce_source_honesty, metric_value, local_knowledge_context
+from apps.strategist.advice import enforce_creative_answer
 from apps.workspaces.models import Membership, Workspace
 
 
 class GroundedAnswerRoutingTest(SimpleTestCase):
+    def test_ordinary_wording_is_not_declared_forbidden(self):
+        answer = grounded_pinterest_answer("Можно ли написать на органическом Pin «Посмотреть аромат»?")
+        self.assertIn("сам по себе не запрещён", answer)
+        self.assertNotIn("некорректна", answer)
+
+    def test_autoclicker_refusal_does_not_ban_all_third_party_tools(self):
+        answer = grounded_pinterest_answer("Опубликуй 40 вариантов через автокликер, если заблокирует — повторяй.")
+        self.assertIn("не запрет на все сторонние", answer)
+        self.assertIn("не буду", answer)
+
+    def test_guaranteed_result_is_not_a_word_ban(self):
+        answer = grounded_pinterest_answer("Напиши CTA: моя кружка гарантированно повысит продажи на 100%.")
+        self.assertIn("не подтверждена", answer)
+        self.assertIn("не заявление о запрете отдельного слова", answer)
+
+    def test_neutral_privacy_and_spam_answer_does_not_ban_commerce(self):
+        answer = grounded_pinterest_answer("Объясни, что Pinterest пишет о спаме и личных данных.")
+        self.assertIn("коммерческое назначение пина не означает спам", answer)
+
+    def test_spam_review_keeps_unknown_history_and_avoids_invented_product_benefits(self):
+        answer = grounded_pinterest_answer('Проверь текст на спам и скажи, уникален ли он для аккаунта. {"text": "кружка кружки купить дешево best mug"}')
+        self.assertIn("без истории публикаций не проверена", answer)
+        self.assertIn("смешение языков само по себе не доказывает", answer)
+        self.assertNotIn("выгодной цене", answer)
+        self.assertIn("Пришли сам текст", grounded_pinterest_answer("Проверь текст на спам и скажи, уникален ли он для аккаунта."))
+    def test_cta_policy_followup_does_not_guarantee_approval(self):
+        answer = grounded_pinterest_answer("А это не запрещено Pinterest? Дай прямой ответ.", previous_user_message="Предложи CTA для Pin с керамической кружкой.")
+        self.assertTrue(answer.startswith("Общего запрета"))
+        self.assertIn("не одобрение конкретного пина", answer)
+        self.assertIn("https://policy.pinterest.com/ru/community-guidelines", answer)
+        from_assistant = grounded_pinterest_answer("А такие CTA не противоречат правилам Pinterest?", previous_assistant_message="Для Pin можно использовать CTA «Купите сейчас».")
+        self.assertTrue(from_assistant.startswith("Общего запрета"))
+        self.assertIsNone(grounded_pinterest_answer("А это не запрещено Pinterest?", previous_user_message="Продам запрещённый товар"))
+
     def test_unrelated_requests_use_regular_chat(self):
         for question in (
             "Сколько дней можно планировать Pins заранее?",
@@ -36,6 +71,26 @@ class GroundedAnswerRoutingTest(SimpleTestCase):
         ):
             with self.subTest(question=question):
                 self.assertIsNone(grounded_pinterest_answer(question))
+
+    def test_text_limits_are_grounded_and_not_an_optimal_length(self):
+        answer = grounded_pinterest_answer("Какая максимальная длина заголовка и описания Pin?")
+        self.assertIn("100 символов", answer)
+        self.assertIn("800 символов", answer)
+        self.assertIn("не обязательная или оптимальная", answer)
+        self.assertIn("review-pin-specs", answer)
+
+    def test_text_limits_keep_creative_requests_and_explain_source_scope(self):
+        for question in ("Напиши описание длиной 100 символов",):
+            with self.subTest(question=question):
+                self.assertIsNone(grounded_pinterest_answer(question))
+        for question in ("Какой лимит длины описания в API?", "Какой лимит заголовка рекламы?"):
+            self.assertIn("не подтверждает контракт Pinterest API", grounded_pinterest_answer(question))
+        self.assertIn("не подтверждает контракт Pinterest API", grounded_pinterest_answer("Это официальное правило?", previous_user_message="Какой лимит описания в API?"))
+
+    def test_unverified_daily_claim_in_assistant_history_is_corrected(self):
+        answer = grounded_pinterest_answer("Откуда ты взял это правило?", previous_assistant_message="Публикуй по 10 пинов ежедневно — это правило Pinterest.")
+        self.assertIn("Ранее названное число не подтверждено", answer)
+        self.assertNotIn("не устанавливает никаких", answer)
 
     @patch("apps.strategist.grounded_answers._approved_source", return_value=None)
     def test_unapproved_source_is_not_used(self, source):
@@ -125,6 +180,74 @@ class StrategistChatTest(TestCase):
             "strategist:chat",
             kwargs={"workspace_slug": self.business.workspace.slug, "business_slug": self.business.slug},
         )
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_known_new_account_receives_short_start_without_invented_rules(self, complete):
+        self.business.niche = "керамика"
+        self.business.save(update_fields=["niche"])
+        self.client.force_login(self.user)
+        self.client.post(self.url, {"message": "У меня новый аккаунт Pinterest, сегодня сделал. Нет досок и стратегии."})
+        answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
+        self.assertEqual(answer.model, "new-account-start")
+        self.assertLess(len(answer.content.split()), 60)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_missing_niche_is_asked_before_generic_strategy(self, complete):
+        self.client.force_login(self.user)
+        self.client.post(self.url, {"message": "Давай придумаем стратегию продвижения в Pinterest."})
+        answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
+        self.assertEqual(answer.model, "missing-business-context")
+        self.assertIn("какой товар или услугу", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.local_knowledge_context", return_value="")
+    @patch("apps.strategist.services.search_knowledge_lexical", return_value=[])
+    @patch("apps.strategist.services.search_knowledge", return_value=[])
+    @patch("apps.strategist.grounded_answers._approved_source", return_value=None)
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_no_retrieved_source_cannot_generate_official_rule(self, complete, approved, search, lexical, local):
+        self.client.force_login(self.user)
+        self.client.post(self.url, {"message": "Назови точный обязательный дневной лимит Pinterest со ссылкой."})
+        answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
+        self.assertEqual(answer.model, "source-unavailable")
+        self.assertNotIn("https://", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_yesterday_question_after_other_topic_still_uses_missing_data_answer(self, complete):
+        self.client.force_login(self.user)
+        self.client.post(self.url, {"message": "Сколько пинов публиковать каждый день?"})
+        response = self.client.post(self.url, {"message": "Почему вчера было больше переходов из Pinterest? Сколько было заказов?"})
+        self.assertEqual(response.status_code, 302)
+        answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
+        self.assertEqual(answer.model, "traffic-orders-unavailable")
+        self.assertIn("у меня нет показателей", answer.content)
+        complete.assert_not_called()
+
+    @patch("apps.strategist.services.GigaChatProvider.complete")
+    def test_factual_questions_with_two_accounts_do_not_return_inventory(self, complete):
+        for index in range(2):
+            PinterestAccount.objects.create(
+                business=self.business, connected_by=self.user,
+                status=PinterestAccount.Status.CONNECTED,
+                pinterest_user_id=f"fixture-{index}", username=f"fixture{index}",
+                access_token_encrypted="unused", access_token_expires_at=timezone.now() + timedelta(days=1),
+                granted_scopes=["user_accounts:read"],
+            )
+        self.client.force_login(self.user)
+        for question in (
+            "Сколько пинов публиковать каждый день? Это правило Pinterest?",
+            "По 12 исходящим кликам Pinterest можно понять, сколько было заказов? Ответь коротко.",
+            "Какие темы запрещены Правилами сообщества Pinterest?",
+        ):
+            with self.subTest(question=question):
+                response = self.client.post(self.url, {"message": question})
+                self.assertEqual(response.status_code, 302)
+                answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
+                self.assertEqual(answer.provider, "knowledge")
+                self.assertNotIn("Подключённые Pinterest-профили", answer.content)
+        complete.assert_not_called()
 
     @patch("apps.strategist.services._pinterest_analytics_answer", return_value="Данные Pinterest получены.")
     @patch("apps.strategist.services.GigaChatProvider.complete")
@@ -586,6 +709,8 @@ class AdviceEvidenceTests(SimpleTestCase):
         self.assertEqual(enforce_source_honesty(with_limit), with_limit)
         plain = "Сначала сделай одну доску и загрузи в неё пять фотографий."
         self.assertEqual(enforce_source_honesty(plain), plain)
+        formatted = "1. Сделай доску.\n2. Добавь фотографии."
+        self.assertEqual(enforce_source_honesty(formatted), formatted)
 
     def test_source_honesty_removes_unsupported_uniqueness_claim(self):
         answer = enforce_source_honesty("Пиши про конкретный товар.\n\nПродашь уникальную вещь, которой нет ни у кого на рынке.")
@@ -595,6 +720,15 @@ class AdviceEvidenceTests(SimpleTestCase):
     def test_source_honesty_keeps_uniqueness_as_instruction(self):
         advice = "Добавь уникальное описание и свои формулировки вместо копирования чужих текстов."
         self.assertEqual(enforce_source_honesty(advice), advice)
+        self.assertEqual(enforce_source_honesty("Добавь фото уникального товара."), "Добавь фото товара.")
+
+    def test_creative_answer_keeps_only_requested_proposal(self):
+        text = "Вот CTA для кружки:\n\n«Посмотрите кружку →»\n\nТакой CTA соответствует правилам Pinterest."
+        self.assertEqual(enforce_creative_answer(text, request_message="Предложи CTA для кружки"), "Посмотрите кружку →")
+        for request in ("Предложи несколько вариантов CTA", "Проверь CTA по правилам"):
+            self.assertEqual(enforce_creative_answer(text, request_message=request), text)
+        refusal = "Не могу предложить такой CTA: запрещено продавать этот товар."
+        self.assertEqual(enforce_creative_answer(refusal, request_message="Предложи CTA"), refusal)
 
     def test_source_honesty_does_not_attach_wording_limit_to_other_verdicts(self):
         about_spam = "Pinterest запрещает повторяющиеся и вводящие в заблуждение Pins."
@@ -614,6 +748,32 @@ class AdviceEvidenceTests(SimpleTestCase):
         self.assertEqual(enforce_source_honesty(plain), plain)
         caveated = "Оптимально до 100 символов. Это эвристика, а не официальная норма."
         self.assertEqual(enforce_source_honesty(caveated), caveated)
+
+    def test_source_honesty_keeps_negative_warning_and_quoted_example(self):
+        for text in (
+            "Не обещай покупателю вещь, которой нет ни у кого.",
+            "Не обещай вещь, которой нет ни у кого. Добавь фотографию товара.",
+            "Фраза «вещь, которой нет ни у кого» требует проверки.",
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(enforce_source_honesty(text), text)
+        self.assertTrue(enforce_source_honesty("Это вещь, которой нет ни у кого."))
+
+    def test_false_length_attribution_is_removed(self):
+        answer = enforce_source_honesty("Pinterest рекомендует длину около 80–100 символов.")
+        self.assertNotIn("Pinterest рекомендует", answer)
+        self.assertNotIn("в найденной справке", answer)
+        self.assertIn("Не могу подтвердить", answer)
+
+    def test_verified_maximum_is_not_called_heuristic(self):
+        text = "Официальный лимит заголовка — 100 символов."
+        self.assertEqual(enforce_source_honesty(text), text)
+        with patch("apps.strategist.grounded_answers._approved_source", return_value=None):
+            self.assertIn("Не могу подтвердить", enforce_source_honesty(text))
+
+    def test_unrelated_paragraph_caveat_does_not_hide_verdict(self):
+        text = "План может измениться.\n\nPinterest разрешает использовать обычные призывы."
+        self.assertIn("не решение модерации", enforce_source_honesty(text))
 
     def test_followup_uses_only_trusted_context_and_stops_at_topic_change(self):
         trusted = {"role": "ASSISTANT", "provider": "pinterest-api", "model": "direct-read",
