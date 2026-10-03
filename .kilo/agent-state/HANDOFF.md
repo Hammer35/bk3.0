@@ -108,3 +108,52 @@ Real Giga pilot3cases/4answers финально принят. Два этапа8
 ## Публикация и реальный Pinterest API
 
 Commit3862eb8 (61files) опубликован в feature/strategist-grounded-answers, remoteHEAD совпал. Real8GET profile/analytics обоихподключённыхпрофилей HTTP200. Realchat2responses pinterest-api/direct-read/tokens0; профиль, даты, equalperiod comparison и data limitations подтверждены, cachedanalytics обходился только в probe. Сырые ответы/метрики находятся только ignored runtime; созданы2 диагностические беседы локального существующего бизнеса. OpenCode TASK017/Qwen codeproposal принят,2regressions применены:403 сохраняетCONNECTED; profile503 после401 не объявляетOAuth invalid. Full130tests/48.137с OK; check/migrations/diffcheck OK. Отчёт real-pinterest-review и статистика обновлены; завершение публикации следующего commit записывается в LOG. Main не менялся, merge не выполнялся.
+
+## Реальные boards/followers и простой счётчик
+
+TASK018/OpenCode Qwen принят:2regressions429/JSON,reported27613/cost0.
+Codex:5board+7count tests,144full OK/51.552с,check/migrations/diffcheckOK.
+Real9GET200,обаCONNECTED:4списки+1первичный modeltool profile+
+2финальныхcounts+2chatboards. ПервичныйGiga2Pro 11241chat tokens,
+одинwrongaccountkeyguard остановил; второй ответ верный. Узкий прямой
+count маршрут использует официальный profile.follower_count,неLLM.
+Final4chat ответы pinterest-api/direct-read/tokens0. Boards malformedJSON
+500 воспроизведён и исправлен typeguard. Raw/private только ignoredruntime.
+Отчёт strategist-real-lists-review-2026-10-03.md. Изменения пока не
+опубликованы; main/.env не менялись. Далее pins/top_pins selective live
+и ограничения,OAuth lifecycle отдельно. Не повторять платные прогоны
+без новых дефектов. Освобождаем файлы, постоянного watcher нет.
+
+## Реальные pins/top_pins — завершено
+
+TASK019 OpenCode/Qwen33602reported/cost0:2testmethods приняты, третий
+исправлен Codex (ask_tool перезаписывал side_effect). Реальные /pins и
+/top_pins доступны обоимпрофилям.11GET:8HTTP200/3HTTP400 при диагностике
+pluralметрики. Giga7chat ответов24235reportedtokens, embeddingsнеизмерены;
+модель сначала путалаlimit/num_of_pins иOUTBOUND_CLICKS, затем верныечисла
+безссылок/availability. Уточнёнtooldescription, добавлен узкийdirecttop
+OUTBOUND_CLICK:5URL/metrics/datewarning каждого из2реальныхchat ответов
+проверены, tokens0. FormatterHTTP(S)links сescaping добавлен:2реальныхGET
+истории подтвердили10anchors.6top+3formatter+3OpenCode tests;
+full156OK/51.930с, check/migrations/diffcheckOK. Первыйфинальныйпрогон
+прерванrestart137, незасчитан;повторOK. Web8000readyOK. Report real-pins-review.
+Featureизмененияэтогоипрошлогоэтапа пока НЕ опубликованы; main/.envне менялись.
+Следующийэтап:реальные страницы каталога,OAuth/refresh lifecycle; причины
+и сравнения отдельно. Приватныеданные не передавалисьOpenCode/непопалиGit.
+Файлы освобождены, активногопроцессаOpenCodeнет; постоянноговотчеранет.
+
+## 4 октября — страницы и OAuth guards
+
+Real6GET200 /pins:3pagesнакаждыйиз2профилей,bookmarksбезизменений,
+uniqueIDs,обаCONNECTED. Полныйкаталогнеисчерпан. LiveGiga0.
+TASK020/Qwen26330reported/cost0:3методаsuccess/transient/permanent приняты.
+Codex8boundary/chat tests:staleDB/отключённый/invalidJSON/malformedtoken/
+ciphertext/ужеобновлённыйaccess/дваAJAXпути. Refresh проверяет lockedstate,
+responseвалидируется до credentialзамены,invaliddata неуводитCONNECTED
+вREAUTH.167fulltestsOK/57.133с,check/migrations/diffcheckOK.
+Реальный tokenPOST/принудительнаяротация не выполнялись; failedrefresh
+проверенmock-ами. Webперезапущенпослезавершениятестов. Main/.envнеизменялись,
+измененияfeature покаНЕопубликованы. Reportpagination-oauth-review2026-10-04.
+Далее:смысловые вопросыпричин/рекомендацийсреальнойаналитикой;
+каталогполностьювыгружатьтолькоприпродуктовойнеобходимости.
+Постоянногоисполнителянет,claimsосвобождаем;контекстOpenCode черезфайлы.

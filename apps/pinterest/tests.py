@@ -16,6 +16,7 @@ from apps.workspaces.models import Membership, Workspace
 from .crypto import decrypt_token, encrypt_token
 from .models import PinterestAccount
 from .strategist_tools import PinterestReadError, _request
+from .services import PinterestOAuthError, refresh_account_token
 
 
 @override_settings(
@@ -215,3 +216,137 @@ class PinterestOAuthFlowTest(TestCase):
         self.assertEqual(get.call_count, 3)
         account.refresh_from_db()
         self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_resource_429_reports_status_and_keeps_account_connected(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-429",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token") as refresh,
+            patch("apps.pinterest.strategist_tools._get", return_value=SimpleNamespace(status_code=429)) as get,
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "HTTP 429"):
+                _request(account, "/user_account/analytics", {})
+
+        refresh.assert_not_called()
+        self.assertEqual(get.call_count, 1)
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_invalid_json_error_does_not_leak_upstream_details(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-bad-json",
+            username="pin_user",
+            access_token_encrypted=encrypt_token("test-access-token"),
+            access_token_expires_at=timezone.now() + timedelta(days=1),
+            granted_scopes=["user_accounts:read"],
+        )
+
+        def broken_json():
+            raise ValueError("private-upstream-secret")
+
+        response = SimpleNamespace(status_code=200, json=broken_json)
+        with (
+            patch("apps.pinterest.strategist_tools.refresh_account_token") as refresh,
+            patch("apps.pinterest.strategist_tools._get", return_value=response) as get,
+        ):
+            with self.assertRaisesRegex(PinterestReadError, "некорректный JSON") as caught:
+                _request(account, "/user_account/analytics", {})
+
+        self.assertNotIn("private-upstream-secret", str(caught.exception))
+        refresh.assert_not_called()
+        self.assertEqual(get.call_count, 1)
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_refresh_success_replaces_encrypted_credentials(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-refresh-ok",
+            username="pin_user",
+            status=PinterestAccount.Status.CONNECTED,
+            access_token_encrypted=encrypt_token("old-plain-access-token"),
+            refresh_token_encrypted=encrypt_token("old-plain-refresh-token"),
+            access_token_expires_at=timezone.now() - timedelta(hours=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        before = timezone.now()
+        token_data = {
+            "access_token": "new-plain-access-token",
+            "refresh_token": "new-plain-refresh-token",
+            "expires_in": 3600,
+            "refresh_token_expires_in": 60 * 86400,
+            "scope": "user_accounts:read,pins:read",
+        }
+        with patch("apps.pinterest.services.refresh_tokens", return_value=token_data) as refresh:
+            self.assertTrue(refresh_account_token(account))
+
+        refresh.assert_called_once_with("old-plain-refresh-token")
+        account.refresh_from_db()
+        self.assertEqual(decrypt_token(account.access_token_encrypted), "new-plain-access-token")
+        self.assertEqual(decrypt_token(account.refresh_token_encrypted), "new-plain-refresh-token")
+        self.assertNotEqual(account.access_token_encrypted, "new-plain-access-token")
+        self.assertGreater(account.access_token_expires_at, before + timedelta(seconds=3595))
+        self.assertLessEqual(account.access_token_expires_at, before + timedelta(seconds=3605))
+        self.assertIsNotNone(account.refresh_token_expires_at)
+        self.assertEqual(account.granted_scopes, ["user_accounts:read", "pins:read"])
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+        self.assertEqual(account.last_auth_error, "")
+
+    def test_refresh_transient_error_keeps_credentials_connected(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-refresh-transient",
+            username="pin_user",
+            status=PinterestAccount.Status.CONNECTED,
+            access_token_encrypted=encrypt_token("old-plain-access-token"),
+            refresh_token_encrypted=encrypt_token("old-plain-refresh-token"),
+            access_token_expires_at=timezone.now() - timedelta(hours=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        old_access = account.access_token_encrypted
+        old_refresh = account.refresh_token_encrypted
+        with patch(
+            "apps.pinterest.services.refresh_tokens",
+            side_effect=PinterestOAuthError("Pinterest token endpoint is unavailable."),
+        ) as refresh:
+            self.assertFalse(refresh_account_token(account))
+
+        refresh.assert_called_once()
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.CONNECTED)
+        self.assertEqual(account.last_auth_error, "Pinterest token endpoint is unavailable.")
+        self.assertEqual(account.access_token_encrypted, old_access)
+        self.assertEqual(account.refresh_token_encrypted, old_refresh)
+
+    def test_refresh_permanent_error_requires_reconnect(self):
+        account = PinterestAccount.objects.create(
+            business=self.business,
+            connected_by=self.owner,
+            pinterest_user_id="pin-user-refresh-permanent",
+            username="pin_user",
+            status=PinterestAccount.Status.CONNECTED,
+            access_token_encrypted=encrypt_token("old-plain-access-token"),
+            refresh_token_encrypted=encrypt_token("old-plain-refresh-token"),
+            access_token_expires_at=timezone.now() - timedelta(hours=1),
+            granted_scopes=["user_accounts:read"],
+        )
+        with patch(
+            "apps.pinterest.services.refresh_tokens",
+            side_effect=PinterestOAuthError("Pinterest token exchange failed (HTTP 401).", permanent=True),
+        ):
+            self.assertFalse(refresh_account_token(account))
+
+        account.refresh_from_db()
+        self.assertEqual(account.status, PinterestAccount.Status.REAUTH_REQUIRED)
+        self.assertEqual(account.last_auth_error, "Pinterest token exchange failed (HTTP 401).")

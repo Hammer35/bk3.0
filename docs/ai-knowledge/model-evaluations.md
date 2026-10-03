@@ -196,3 +196,26 @@ ArkSim с бесплатной NVIDIA-моделью играл только в�
 - OpenCode/Qwen qwen3.8-27b:free дал пригодные два code regression метода;9targeted tests OK. Reported total28298/cost0. Это первая узкая проверка этого маршрута; универсальная пригодность и subscription savings не доказаны. ProductGigaChat-2-Pro не менялся.
 - Real OAuth отказов/записей/другихресурсов не проверялось. Report strategist-real-pinterest-review-2026-10-03.md.
 - Финальный offline suite130 OK/48,137с, check/migrations/diffcheck OK.
+
+## 2026-10-03 — реальные списки и прямой счётчик
+
+- Реальные9Pinterest GET200; финальные4chat ответа direct-read/tokens0.
+- Первичные2chat ответа GigaChat-2-Pro:11241reported tokens,1ошибка UUID перехвачена guard,1верный ответ. Простое число подписчиков переведено на официальный follower_count без LLM. Свободный tool loop и продуктовая модель не меняются; экономия подписки Codex не измерена.
+- OpenCode TASK018/Qwen qwen3.8-27b:free:27613reported total/cost0,2предложенных регрессии приняты и прошли. Не считать универсальной оценкой.
+- Детали: strategist-real-lists-review-2026-10-03.md; embeddings отдельно не измерены. Реальная многостраничность/429 не засчитываются: проверены mock-сценариями.
+- Полный offline suite144 OK/51,552с; check/migrations/diffcheck OK.
+
+## 2026-10-03 — реальные пины и топ кликов
+
+- GigaChat-2-Pro:7диагностических chat ответов/24235reported tokens. Ошибки limit/OUTBOUND_CLICKS устранены в tool description; успешные ответы всё ещё пропускали ссылки и dateavailability. Embeddings отдельно не измерены, billedрубли неизвестны.
+- Узкий числовой топ переведён на API напрямую;2живых AJAX ответа с верными ссылками/счётчиками/dateavailability, tokens0. Модель свободного чата остаётся Pro, выбор другого LLM не выполнялся.
+- Real11GET:8HTTP200/3HTTP400. Число пинов по первой странице не считается полным. Подробнее strategist-real-pins-review-2026-10-03.md.
+- OpenCode TASK019/Qwen33602reported total/cost0;2из3методов приняты сразу, третий исправлен Codex. Не приписывать этому результату неизвестную экономию подписки.
+- Финальный offline156tests OK/51,930с; check/migrations/diffcheckOK, web8000readinessOK.
+
+## 2026-10-04 — pagination / OAuth refresh
+
+- Real6GET /pins200,3pages каждого из2профилей, bookmarks/uniqueID проверены; полный каталог ещё не исчерпан. Giga/modelcalls0, embeddings0, productPro не менялся.
+- OpenCode TASK020/Qwen26330reportedtotal/cost0:3предложения приняты,20targetedPinteresttestsOK; ещё8boundary/chattestsOK. Счётчик рабочих задач и экономия подписки не измерены.
+- Найдены и исправлены stale-instance/JSON/malformed-token ошибки. OAuth grant/реальная ротация production credentials не проверены. Report strategist-pagination-oauth-review-2026-10-04.md.
+- Полный suite167OK/57,133с; check/migrations/diffcheckOK.

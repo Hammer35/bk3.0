@@ -13,6 +13,14 @@ register = template.Library()
 def _inline(value: str) -> str:
     safe = escape(value)
     safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
+    safe = re.sub(
+        r"\[([^\[\]\n]+)\]\((https?://[^\s<>()]+)\)",
+        lambda match: (
+            f'<a href="{match.group(2)}" target="_blank" rel="noopener noreferrer">'
+            f'{match.group(1)}</a>'
+        ),
+        safe,
+    )
     return safe.replace("**", "")
 
 

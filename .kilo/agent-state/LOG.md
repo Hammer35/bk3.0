@@ -93,3 +93,18 @@
 - `2026-10-03T10:42:48Z` **opencode-cli:** TASK-017: запускаю официальный CLI, модель openrouter/qwen/qwen3.8-27b:free; результат RESULT-017.md.
 - `2026-10-03T10:44:29Z` **opencode-cli:** TASK-017: фактический ответ CLI сохранён в RESULT-017.md; требуется проверка Codex.
 - `2026-10-03T10:48:36Z` **codex:** RealPinterest проверка выполнена:8GET HTTP200,2livechat ответа pinterest-api/direct-read/0tokens. TASK017/Qwen принят и2regressions применены;130fulltests OK/48.137с, check/migrations/diffcheck OK. Публикую regression и обезличенный отчёт отдельнымcommit. Сырые businessданные и .env остаются внеGit; активногоOpenCodeпроцесса нет.
+- `2026-10-03T13:00:52Z` **codex:** TASK018: OpenCode готовит две регрессии429/JSON; Codex проверяет реальные boards/followers. Занят TASK018, сырые ответы только ignored runtime.
+- `2026-10-03T13:00:52Z` **opencode-cli:** TASK-018: запускаю официальный CLI, модель openrouter/qwen/qwen3.8-27b:free; результат RESULT-018.md.
+- `2026-10-03T13:01:44Z` **opencode-cli:** TASK-018: фактический ответ CLI сохранён в RESULT-018.md; требуется проверка Codex.
+- `2026-10-03T13:08:26Z` **codex:** TASK018 принят,2метода применены. Реальные9GET200,4финальныхchat direct-read/0tokens. Найденные500boards и ошибкавыбораUUID дляcount исправлены.144fulltestsOK/51.552с;check/migrations/diffcheckOK. Отчёт real-lists-review готов; featureизменения пока не опубликованы.
+- `2026-10-03T13:08:55Z` **codex:** Web8000 послеrestart: checkOK, readiness200 Postgres/ValkeyOK. Этап завершён, активныхclaims/исполнителейнет.
+- `2026-10-03T13:28:21Z` **codex:** TASK019 передан OpenCode/Qwen:3 регрессии pins/top_pins. Codex проверяет официальный API и реальные чтения; приватные данные только ignored runtime.
+- `2026-10-03T13:28:22Z` **opencode-cli:** TASK-019: запускаю официальный CLI, модель openrouter/qwen/qwen3.8-27b:free; результат RESULT-019.md.
+- `2026-10-03T13:30:08Z` **opencode-cli:** TASK-019: фактический ответ CLI сохранён в RESULT-019.md; требуется проверка Codex.
+- `2026-10-03T13:42:29Z` **codex:** TASK019 принят частично:2метода безправок,3йисправлен Codex.22tooltestsOK;9top/linktestsOK; realfinal2top ответы правильные/0tokens,10anchorsпровереныGET. Full153 ранееOK; финальный156прогон прерван restart web (137), не засчитываем, выполняется повтор offline --noinput. Readiness8000OK.
+- `2026-10-03T13:43:52Z` **codex:** Этап pins/top завершён:11realGET/8HTTP200/3ошибки400diagnostics;final2directtop ответасо ссылками/точнымикликами/datewarning/0tokens.10anchorsпроверены GET.156fulltestsOK/51.930с,check/migrations/diffcheckOK,web8000readyOK. Report/plan/stats/HANDOFF обновлены; featureизменениянеопубликованы, освобождаюфайлы.
+- `2026-10-03T22:55:36Z` **codex:** TASK020 OpenCode:3 OAuth refresh регрессии. Codex проверяет реальные страницы каталога и защиту refresh; чужие незакоммиченные изменения сохранены.
+- `2026-10-03T22:55:36Z` **opencode-cli:** TASK-020: запускаю официальный CLI, модель openrouter/qwen/qwen3.8-27b:free; результат RESULT-020.md.
+- `2026-10-03T22:56:55Z` **opencode-cli:** TASK-020: фактический ответ CLI сохранён в RESULT-020.md; требуется проверка Codex.
+- `2026-10-03T23:02:13Z` **codex:** Этап4октября завершён:6realGET200/3pagesкаждого,неполныйcatalogчестноотмечен. TASK0203testsприняты;8Codex boundary/chat tests. Исправленыstale-state/JSON/token-shape сбои,167fullOK57.133с. LiveOAuthPOSTнепроверен,realcredentialsне менялисьпринудительно. Featureизменениянеопубликованы,отчёт/HANDOFFготовы.
+- `2026-10-03T23:03:56Z` **codex:** Публикация трёх завершённых этапов:167тестовOK, feature-ветка; env/runtime/claims исключены. Аудит точных файлов, затем commit/push.

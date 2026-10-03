@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from datetime import date, timedelta
+from datetime import UTC, date, timedelta
 
 from django.conf import settings
 from django.utils import timezone
@@ -165,6 +165,8 @@ def _read_all_pinterest_pages(*, business: Business, account: PinterestAccount, 
         if bookmark:
             arguments["bookmark"] = bookmark
         response = read_pinterest_data(business=business, arguments=arguments)
+        if not isinstance(response, dict):
+            return {"error": "Pinterest API вернул некорректный формат ответа."}
         if response.get("error"):
             return response
         page_items = response.get("items")
@@ -195,6 +197,44 @@ def _pinterest_board_answer(*, business: Business, account: PinterestAccount) ->
     lines.extend(f"• {name}" for name in names)
     if response.get("truncated"):
         lines.append("Список неполный: достигнут предел чтения страниц за один запрос.")
+    return "\n".join(lines)
+
+
+
+def _pinterest_top_pins_answer(*, business, account, start_date, end_date, count):
+    if not 1 <= count <= 50:
+        return "Для топа Pinterest укажи количество пинов от 1 до 50."
+    response = _read_pinterest_resource(business=business, account=account, resource="top_pins", options={
+        "start_date": start_date.isoformat(), "end_date": end_date.isoformat(),
+        "sort_by": "OUTBOUND_CLICK", "content_type": "ORGANIC", "num_of_pins": count,
+    })
+    if isinstance(response, dict) and response.get("error"):
+        return f"Не удалось получить лучшие пины @{account.username}: {response['error']}"
+    if not isinstance(response, dict) or not isinstance(response.get("pins"), list):
+        return "Pinterest API вернул топ пинов в неподдерживаемом формате."
+    pins = response["pins"][:count]
+    lines = [f"Органика @{account.username}: лучшие пины по исходящим кликам за {start_date} — {end_date}."]
+    if not pins:
+        lines.append("Pinterest API не вернул пины для этого периода и фильтров.")
+    for index, pin in enumerate(pins, 1):
+        if not isinstance(pin, dict) or not re.fullmatch(r"\d{1,30}", str(pin.get("pin_id", ""))):
+            return "Pinterest API вернул топ пинов без корректных идентификаторов."
+        metrics = pin.get("metrics")
+        statuses = pin.get("data_status")
+        clicks = metrics.get("OUTBOUND_CLICK") if isinstance(metrics, dict) else None
+        ready = isinstance(statuses, dict) and statuses.get("OUTBOUND_CLICK") == "READY"
+        value = str(clicks) if ready and type(clicks) is int and clicks >= 0 else "нет готовых данных"
+        url = f"https://www.pinterest.com/pin/{pin['pin_id']}/"
+        lines.append(f"{index}. [Пин {index}]({url}) — исходящие клики: {value}.")
+    availability = response.get("date_availability")
+    latest = availability.get("latest_available_timestamp") if isinstance(availability, dict) else None
+    if type(latest) in (int, float):
+        try:
+            available_until = timezone.datetime.fromtimestamp(latest / 1000, tz=UTC).date()
+        except (ValueError, OverflowError, OSError):
+            available_until = None
+        if available_until and available_until < end_date:
+            lines.append(f"Данные доступны только по {available_until}; топ за запрошенный период предварительный.")
     return "\n".join(lines)
 
 
@@ -556,8 +596,21 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             "минимум",
         )
     )
+    # Only a single current count: lists, comparisons and explanations stay in the tool loop.
+    is_follower_count_question = bool(re.fullmatch(
+        r"\s*(?:сколько(?:\s+всего)?|какое\s+количество)\s+подписчик\w*"
+        r"(?:\s+(?:у\s+)?@[a-z0-9._-]{1,100})?\s*[?.!]*\s*"
+        r"(?:ответь\s+(?:коротко|только\s+количеством(?:\s+и\s+укажи\s+профиль)?)\.?)?\s*",
+        normalized,
+    ))
+    is_top_pins_question = bool(
+        re.search(r"(?:лучш\w*\s+пин|топ\s*(?:\d+\s*)?пин)", normalized)
+        and "исходящ" in normalized and "клик" in normalized
+        and len(re.findall(r"@[A-Za-z0-9._-]{1,100}", effective_message.content)) <= 1
+        and not re.search(r"почему|причин|объясн|сравни", normalized)
+    )
     is_board_question = not is_analytics_question and ("доск" in normalized or "board" in normalized)
-    if not is_board_question and not is_analytics_question:
+    if not is_board_question and not is_analytics_question and not is_follower_count_question and not is_top_pins_question:
         return None
     if is_analytics_question and period is None and len(connected_accounts) == 1:
         recent_user_messages = user_message.conversation.messages.filter(
@@ -591,6 +644,25 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             names = ", ".join(f"@{item.username}" for item in connected)
             answer = f"Уточни профиль: {names}."
         content = answer
+    elif is_top_pins_question and period is not None:
+        count_match = re.search(r"\b(\d+)\s+(?:лучш\w*\s+)?пин|топ\s*(\d+)", normalized)
+        count = int(next(group for group in count_match.groups() if group)) if count_match else 5
+        content = _pinterest_top_pins_answer(
+            business=user_message.conversation.business, account=account,
+            start_date=period[0], end_date=period[1], count=count,
+        )
+    elif is_follower_count_question:
+        profile = _read_pinterest_resource(
+            business=user_message.conversation.business, account=account, resource="profile",
+        )
+        if isinstance(profile, dict) and profile.get("error"):
+            content = f"Не удалось прочитать число подписчиков @{account.username}: {profile['error']}"
+        else:
+            count = profile.get("follower_count") if isinstance(profile, dict) else None
+            if type(count) is int and count >= 0:
+                content = f"У профиля @{account.username} подписчиков: {count}."
+            else:
+                content = f"Pinterest API не вернул число подписчиков @{account.username}; точное количество неизвестно."
     elif is_board_question:
         content = _pinterest_board_answer(business=user_message.conversation.business, account=account)
     else:

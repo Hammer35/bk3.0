@@ -206,3 +206,61 @@ class ToolAcceptanceTest(TestCase):
         self.assertEqual(self.complete.call_count, 7)
         self.assertEqual(self.request.call_count, 6)
         self.assertEqual(self.complete.call_args.kwargs["function_call"], "none")
+
+    def test_top_pins_requires_pins_read_scope(self):
+        now = timezone.now()
+        options = json.dumps({
+            "start_date": (now - timedelta(days=7)).date().isoformat(),
+            "end_date": (now - timedelta(days=1)).date().isoformat(),
+            "sort_by": "OUTBOUND_CLICK",
+        })
+        self.assert_read_error(self.ask_tool(self.arguments(resource="top_pins", options=options)))
+        self.request.assert_not_called()
+
+    def test_top_pins_http_403_keeps_account_connected(self):
+        from apps.pinterest.strategist_tools import PinterestReadError
+
+        now = timezone.now()
+        options = json.dumps({
+            "start_date": (now - timedelta(days=7)).date().isoformat(),
+            "end_date": (now - timedelta(days=1)).date().isoformat(),
+            "sort_by": "OUTBOUND_CLICK",
+        })
+        self.account.granted_scopes = ["user_accounts:read", "pins:read"]
+        self.account.save(update_fields=["granted_scopes"])
+        self.request.side_effect = PinterestReadError("Pinterest API вернул HTTP 403 для чтения данных.")
+        answer = self.ask_tool(self.arguments(resource="top_pins", options=options))
+        self.assert_read_error(answer)
+        self.assertIn("HTTP 403", answer.content)
+        self.request.assert_called_once()
+        self.account.refresh_from_db()
+        self.assertEqual(self.account.status, PinterestAccount.Status.CONNECTED)
+
+    def test_pins_followup_page_error_is_reported_not_total(self):
+        from apps.pinterest.strategist_tools import PinterestReadError
+
+        self.account.granted_scopes = ["boards:read", "pins:read"]
+        self.account.save(update_fields=["granted_scopes"])
+        first = self.arguments(resource="pins")
+        second = {**first, "bookmark": "next"}
+        self.complete.side_effect = [
+            GigaChatCompletion(content="", model="mock", prompt_tokens=10, completion_tokens=2,
+                total_tokens=12, function_call={"name": "read_pinterest_data", "arguments": first}),
+            GigaChatCompletion(content="", model="mock", prompt_tokens=10, completion_tokens=2,
+                total_tokens=12, function_call={"name": "read_pinterest_data", "arguments": second}),
+        ]
+        self.request.side_effect = [
+            {"items": [{"id": 1}, {"id": 2}], "bookmark": "next"},
+            PinterestReadError("Pinterest API вернул HTTP 403 для чтения данных."),
+        ]
+        response = self.client.post(self.url, {"message": "Прочитай все пины @alpha. Сколько всего?"},
+                                    HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        answer = self.conversation.messages.filter(role="ASSISTANT").latest("created_at")
+        self.assertEqual((answer.provider, answer.model), ("data-read", "read-error"))
+        self.assertIn("Не буду делать выводы без источника", answer.content)
+        self.assertNotIn("Всего 2", answer.content)
+        self.assertEqual(self.complete.call_count, 2)
+        self.assertEqual(self.request.call_count, 2)
+        self.account.refresh_from_db()
+        self.assertEqual(self.account.status, PinterestAccount.Status.CONNECTED)
