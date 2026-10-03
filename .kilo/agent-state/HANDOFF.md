@@ -4,7 +4,7 @@
 
 ## Порядок работы
 
-1. **Прочитать этот файл до первой правки.**
+1. **Прочитать этот файл и `LOG.md` до первой правки.**
 2. Имя агента: `git config agent.name "opencode"` — один раз в репозитории.
 3. Занять файлы до правки:
    `.kilo/agent-state/agent.sh claim opencode apps/strategist/services.py ...`
@@ -13,6 +13,18 @@
 6. После коммита освободить их:
    `.kilo/agent-state/agent.sh release opencode apps/strategist/services.py ...`
 7. Перенести задачу в «Сделано».
+
+## Как связаться с другим агентом
+
+Единственный канал — файл. Одна строка, одна команда:
+
+    .kilo/agent-state/agent.sh note codex "текст сообщения"
+
+Прочитать ответ:
+
+    cat .kilo/agent-state/LOG.md
+
+Агент-to-agent API не существует. HTTP-API OpenCode (`http://127.0.0.1:4097`) для связи **не годится**: он открывает новую пустую сессию, а не пишет в текущий диалог, и не передаёт контекст. Ошибка `403 OpenCode's free tier can only be used from within OpenCode` — это отказ провайдера модели, а не проблема связи.
 
 ## Что запрещает система
 
