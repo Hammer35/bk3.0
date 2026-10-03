@@ -43,3 +43,4 @@
 - `db9e126` — `docs: add repository instructions for coding agents`.
 - `69223a6` — `feat(strategist): grounded answers, knowledge sources, arksim harness and critic prototype`. Снимок ранее незакоммиченной работы, чтобы она не потерялась. Замер тестов на этом состоянии: 48 прошли.
 - `.githooks/pre-commit`, `.kilo/agent-state/` — защита от взаимного затирания.
+- `main` на GitHub защищена: PR обязателен, нужно 1 ревью, проверка `django` (CI) и для админов тоже. Прямой пуш в `main` больше не проходит.
