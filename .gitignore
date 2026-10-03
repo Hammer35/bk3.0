@@ -231,3 +231,6 @@ npm-debug.log*
 
 # Agent worktrees: полная вторая копия репозитория, коммитить её нельзя
 .kilo/worktrees/
+
+# Временные lock-файлы занятости, создаются скриптом agent.sh
+.kilo/agent-state/claims/

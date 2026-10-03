@@ -114,15 +114,6 @@ def main() -> None:
         tokens = AIMessage.objects.filter(role=AIMessage.Role.ASSISTANT).aggregate(
             total=Sum("total_tokens")
         )["total"] or 0
-        critic_stats = {"statuses": {}, "reviews": 0, "revisions": 0, "review_tokens": 0, "revision_tokens": 0}
-        for assets in AIMessage.objects.filter(role=AIMessage.Role.ASSISTANT).values_list("assets", flat=True):
-            critic = (assets or {}).get("critic") or {}
-            if not critic:
-                continue
-            status = critic.get("status", "unknown")
-            critic_stats["statuses"][status] = critic_stats["statuses"].get(status, 0) + 1
-            for field in ("reviews", "revisions", "review_tokens", "revision_tokens"):
-                critic_stats[field] += critic.get(field, 0)
         report = {
             "run_id": run_id,
             "simulator_model": MODEL,
@@ -133,7 +124,6 @@ def main() -> None:
                 for message in conversation.conversation_history
             ),
             "strategist_reported_tokens": tokens,
-            "critic": critic_stats,
             "note": "Synthetic users, isolated test DB; model judging and factual review not yet performed.",
         }
         (output_dir / "summary.json").write_text(

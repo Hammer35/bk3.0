@@ -6,8 +6,16 @@
 #   2) в индекс попал файл, который занял другой агент;
 #   3) файл из индекса изменился на диске после добавления в индекс.
 #
-# Имя агента берётся из AGENT_NAME, иначе из `git config agent.name`,
-# иначе из `git config user.name`.
+# Имя агента берётся только из переменной окружения AGENT_NAME.
+#
+# `git config agent.name` использовать нельзя: это один общий ключ на весь
+# репозиторий, в нём физически помещается только одно имя. Второй агент,
+# выполнивший `git config agent.name <имя>`, молча переписывает личность первого,
+# и первый начинает получать отказ на собственных же файлах. Это уже происходило.
+#
+# Если AGENT_NAME не задан, хук не знает, кто коммитит. В таком случае он
+# пропускает коммит только если ни один файл в индексе не занят. Иначе —
+# отказ: нельзя доказать, что коммит не затирает чужую работу.
 
 fail() {
 	printf 'Коммит отклонён правилом репозитория.\n'
@@ -32,9 +40,7 @@ case "$branch" in
 		;;
 esac
 
-agent=${AGENT_NAME:-$(git config --get agent.name || true)}
-[ -n "$agent" ] || agent=$(git config --get user.name || true)
-[ -n "$agent" ] || fail "агент не определён: выполните git config agent.name \"<ваше-имя>\""
+agent=${AGENT_NAME:-}
 
 staged_file=$(mktemp)
 trap 'rm -f "$staged_file"' EXIT
@@ -42,6 +48,20 @@ git -c core.quotePath=false diff --cached --name-only > "$staged_file"
 [ -s "$staged_file" ] || exit 0
 
 claims=".kilo/agent-state/claims"
+
+if [ -z "$agent" ]; then
+	while IFS= read -r path; do
+		claim_file="$claims/$(printf '%s' "$path" | tr '/' '_')"
+		if [ -d "$claims" ] && [ -f "$claim_file" ]; then
+			fail "AGENT_NAME не задан, а файл $path занят другим агентом" \
+				"невозможно доказать, что коммит не затирает чужую работу" \
+				"экспортируйте своё имя и повторите:" \
+				"  AGENT_NAME=<ваше-имя> git commit"
+		fi
+	done < "$staged_file"
+	exit 0
+fi
+
 while IFS= read -r path; do
 	if [ -d "$claims" ]; then
 		claim_file="$claims/$(printf '%s' "$path" | tr '/' '_')"

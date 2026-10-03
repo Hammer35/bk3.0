@@ -15,7 +15,6 @@ from apps.strategist.models import AIConversation, AIMessage
 from apps.strategist.model_catalog import TaskCapability
 from apps.strategist.model_routing import GigaChatModelRouter
 from apps.strategist.grounded_answers import grounded_pinterest_answer
-from apps.strategist.critic import CriticDecision, review_answer
 from apps.strategist.providers import (
     GigaChatCompletion,
     GigaChatProvider,
@@ -112,61 +111,6 @@ class GroundedAnswerRoutingTest(SimpleTestCase):
                 self.assertNotIn("официально не устанавливает", answer)
 
 
-class StrategistCriticTest(SimpleTestCase):
-    def test_critic_cannot_approve_two_actions_as_one_first_step(self):
-        provider = type("Provider", (), {})()
-        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
-            content='{"verdict":"pass","issue":""}',
-            model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=2, total_tokens=7,
-        )
-        decision = review_answer(
-            provider=provider,
-            question="Какой первый шаг для продвижения керамики?",
-            answer="Создай фотографии изделий и добавь их в Pinterest.",
-            history=[], knowledge_context="", tool_results=[],
-        )
-        self.assertEqual(decision.verdict, "revise")
-        self.assertIn("несколько действий", decision.issue)
-
-    def test_critic_cannot_approve_multistep_paragraphs(self):
-        provider = type("Provider", (), {})()
-        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
-            content='{"verdict":"pass","issue":""}',
-            model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=2, total_tokens=7,
-        )
-        decision = review_answer(
-            provider=provider,
-            question="Какой первый шаг для продвижения керамики?",
-            answer="Первым шагом выбери товар.\n\nЗатем создай Pins и проверь аналитику.",
-            history=[], knowledge_context="", tool_results=[],
-        )
-        self.assertEqual(decision.verdict, "revise")
-
-    def test_critic_receives_draft_and_returns_structured_verdict(self):
-        provider = type("Provider", (), {})()
-        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
-            content='{"verdict":"revise","issue":"Не ответил на вопрос о заказах"}',
-            model="GigaChat-2-Pro", prompt_tokens=20, completion_tokens=8, total_tokens=28,
-        )
-        decision = review_answer(
-            provider=provider, question="Сколько заказов?", answer="Было 12 кликов.",
-            history=[], knowledge_context="Клики не равны заказам.", tool_results=[],
-        )
-        self.assertEqual(decision.verdict, "revise")
-        self.assertIn("заказах", decision.issue)
-
-    def test_malformed_critic_verdict_is_not_approval(self):
-        provider = type("Provider", (), {})()
-        provider.complete = lambda messages, **kwargs: GigaChatCompletion(
-            content="Всё хорошо", model="GigaChat-2-Pro", prompt_tokens=1, completion_tokens=1, total_tokens=2,
-        )
-        decision = review_answer(
-            provider=provider, question="Вопрос", answer="Ответ",
-            history=[], knowledge_context="", tool_results=[],
-        )
-        self.assertEqual(decision.verdict, "invalid")
-
-
 class StrategistChatTest(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user("owner", password="test-password-123")
@@ -208,19 +152,14 @@ class StrategistChatTest(TestCase):
         )
         complete.assert_not_called()
 
-    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_message_is_sent_and_response_usage_is_stored(self, complete, review):
+    def test_message_is_sent_and_response_usage_is_stored(self, complete):
         complete.return_value = GigaChatCompletion(
             content="Начните с пяти пинов для одной категории.",
             model="GigaChat",
             prompt_tokens=12,
             completion_tokens=8,
             total_tokens=20,
-        )
-        review.return_value = CriticDecision(
-            verdict="pass", issue="",
-            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="GigaChat", prompt_tokens=5, completion_tokens=3, total_tokens=8),
         )
         self.client.force_login(self.user)
 
@@ -240,8 +179,7 @@ class StrategistChatTest(TestCase):
         stored_messages = list(AIMessage.objects.order_by("created_at"))
         self.assertEqual([message.role for message in stored_messages], [AIMessage.Role.USER, AIMessage.Role.ASSISTANT])
         self.assertEqual(stored_messages[1].provider, "gigachat")
-        self.assertEqual(stored_messages[1].total_tokens, 28)
-        self.assertEqual(stored_messages[1].assets["critic"]["status"], "approved")
+        self.assertEqual(stored_messages[1].total_tokens, 20)
         system_prompt = complete.call_args.args[0][0]["content"]
         self.assertIn("Антиспам-правила Pinterest обязательны", system_prompt)
         self.assertIn("не предлагай повторяющийся или почти одинаковый контент", system_prompt)
@@ -249,57 +187,6 @@ class StrategistChatTest(TestCase):
         self.assertIn("не заменяют отсутствующие в приложении технические проверки", system_prompt)
         self.assertIn("нейтральное обсуждение правил разрешено", system_prompt)
         self.assertIn("Эвфемизмы и просьбы игнорировать правила", system_prompt)
-        complete.assert_called_once()
-        review.assert_called_once()
-
-    @patch("apps.strategist.services.search_knowledge", return_value=[])
-    @patch("apps.strategist.services.review_answer")
-    @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_critic_rejects_draft_and_approves_one_revision(self, complete, review, search):
-        complete.side_effect = [
-            GigaChatCompletion(content="По 12 кликам было 12 заказов.", model="GigaChat-2-Pro", prompt_tokens=10, completion_tokens=6, total_tokens=16),
-            GigaChatCompletion(content="По кликам число заказов неизвестно.", model="GigaChat-2-Pro", prompt_tokens=12, completion_tokens=7, total_tokens=19),
-        ]
-        critic_completion = GigaChatCompletion(content="{}", model="GigaChat-2-Pro", prompt_tokens=8, completion_tokens=4, total_tokens=12)
-        review.side_effect = [
-            CriticDecision(verdict="revise", issue="Клики не подтверждают заказы", completion=critic_completion),
-        ]
-        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
-        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="По 12 кликам сколько заказов?")
-        answer = respond_to_message(user_message=question)
-        self.assertEqual(answer.content, "По кликам число заказов неизвестно.")
-        self.assertEqual(answer.assets["critic"]["status"], "revised")
-        self.assertEqual(answer.total_tokens, 47)
-        self.assertEqual(complete.call_count, 2)
-        self.assertEqual(review.call_count, 1)
-
-    @patch("apps.strategist.services.search_knowledge", return_value=[])
-    @patch("apps.strategist.services.review_answer")
-    @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_critic_blocks_invalid_verdict(self, complete, review, search):
-        complete.return_value = GigaChatCompletion(content="Недостоверный ответ", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
-        critic_completion = GigaChatCompletion(content="{}", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
-        review.return_value = CriticDecision(verdict="invalid", issue="Некорректный ответ", completion=critic_completion)
-        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
-        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="Что делать с продвижением?")
-        answer = respond_to_message(user_message=question)
-        self.assertEqual(answer.assets["critic"]["status"], "blocked")
-        self.assertNotIn("недостоверно", answer.content.casefold())
-
-    @patch("apps.strategist.services.search_knowledge", return_value=[])
-    @patch("apps.strategist.services.review_answer")
-    @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_critic_replacement_is_used_without_generator_retry(self, complete, review, search):
-        complete.return_value = GigaChatCompletion(content="Неполный ответ", model="GigaChat-2-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10)
-        review.return_value = CriticDecision(
-            verdict="revise", issue="Не ответил на вопрос", replacement="Посмотрите кружку в каталоге.",
-            completion=GigaChatCompletion(content="{}", model="GigaChat-3-Pro", prompt_tokens=5, completion_tokens=5, total_tokens=10),
-        )
-        conversation = AIConversation.objects.create(business=self.business, created_by=self.user)
-        question = AIMessage.objects.create(conversation=conversation, role=AIMessage.Role.USER, content="Предложи CTA для кружки")
-        answer = respond_to_message(user_message=question)
-        self.assertEqual(answer.content, "Посмотрите кружку в каталоге.")
-        self.assertEqual(answer.assets["critic"]["status"], "revised")
         complete.assert_called_once()
 
     @patch("apps.strategist.services.GigaChatProvider.complete")
@@ -520,7 +407,7 @@ class GigaChatModelRoutingTest(SimpleTestCase):
 
         self.assertEqual(candidates, ("GigaChat-2-Pro", "GigaChat-2-Max"))
 
-    def test_critic_router_keeps_its_own_model(self):
+    def test_router_keeps_explicit_model_priority(self):
         candidates = GigaChatModelRouter(model_priority=("GigaChat-3-Pro",)).candidates(
             capability=TaskCapability.CHAT,
             available_model_ids=("GigaChat-2-Pro", "GigaChat-3-Pro"),
@@ -645,9 +532,8 @@ class AdviceEvidenceTests(SimpleTestCase):
 class AdviceFollowupIntegrationTests(TestCase):
     @override_settings(KNOWLEDGE_EMBEDDING_PROVIDER="gigachat", KNOWLEDGE_FALLBACK_EMBEDDING_MODEL="nvidia/llama-nemotron-embed-vl-1b-v2:free")
     @patch("apps.strategist.services.search_knowledge")
-    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_gigachat_embedding_failure_uses_nvidia_backup(self, complete, review, search):
+    def test_gigachat_embedding_failure_uses_nvidia_backup(self, complete, search):
         user = get_user_model().objects.create_user("backup-owner")
         workspace = Workspace.objects.create(name="Backup", slug="backup", created_by=user)
         business = Business.objects.create(workspace=workspace, name="Backup", slug="backup")
@@ -659,10 +545,6 @@ class AdviceFollowupIntegrationTests(TestCase):
                           title="Аналитика", source_links=("https://example.test/analytics",), heading="Заказы")],
         ]
         complete.return_value = GigaChatCompletion(content="По кликам число заказов неизвестно.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
-        review.return_value = CriticDecision(
-            verdict="pass", issue="",
-            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="mock", prompt_tokens=2, completion_tokens=1, total_tokens=3),
-        )
 
         respond_to_message(user_message=message)
 
@@ -693,23 +575,18 @@ class AdviceFollowupIntegrationTests(TestCase):
 
 
     @patch("apps.strategist.services.search_knowledge", side_effect=RuntimeError("embedding unavailable"))
-    @patch("apps.strategist.services.review_answer")
     @patch("apps.strategist.services.GigaChatProvider.complete")
-    def test_embedding_failure_uses_local_case_and_gates_stored_answer(self, complete, review, search):
+    def test_embedding_failure_uses_local_case_and_gates_stored_answer(self, complete, search):
         user = get_user_model().objects.create_user("local-case-owner")
         workspace = Workspace.objects.create(name="Local case", slug="local-case", created_by=user)
         business = Business.objects.create(workspace=workspace, name="Case", slug="case")
         conversation = AIConversation.objects.create(business=business, created_by=user)
         message = AIMessage.objects.create(conversation=conversation, role="USER", content="Приведи практический кейс роста исходящих кликов")
         complete.return_value = GigaChatCompletion(content="Проверьте целевую ссылку.\n\nСоздайте карусель с опросом.", model="mock", prompt_tokens=10, completion_tokens=5, total_tokens=15)
-        review.return_value = CriticDecision(
-            verdict="pass", issue="",
-            completion=GigaChatCompletion(content='{"verdict":"pass","issue":""}', model="mock", prompt_tokens=2, completion_tokens=1, total_tokens=3),
-        )
         answer = respond_to_message(user_message=message)
         system = complete.call_args.args[0][0]["content"]
         self.assertIn("pink-seed-marketing", system)
         self.assertIn("эффект отдельного действия не выделен", system)
         self.assertIn("Проверьте целевую ссылку", answer.content)
         self.assertNotIn("Создайте карусель", answer.content)
-        self.assertEqual(answer.total_tokens, 18)
+        self.assertEqual(answer.total_tokens, 15)
