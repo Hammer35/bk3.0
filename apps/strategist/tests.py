@@ -600,6 +600,21 @@ class AdviceEvidenceTests(SimpleTestCase):
         about_spam = "Pinterest запрещает повторяющиеся и вводящие в заблуждение Pins."
         self.assertEqual(enforce_source_honesty(about_spam), about_spam)
 
+    def test_source_honesty_flags_length_norm_as_heuristic(self):
+        answer = enforce_source_honesty("Оптимально использовать до 100 символов в заголовке.")
+        self.assertIn("до 100 символов", answer)
+        self.assertIn("эвристика", answer)
+
+    def test_source_honesty_flags_norm_attributed_to_pinterest(self):
+        answer = enforce_source_honesty("Pinterest рекомендует длину около 80–100 символов.")
+        self.assertIn("официальное требование Pinterest", answer)
+
+    def test_source_honesty_keeps_length_numbers_without_norm_framing(self):
+        plain = "В ответе на первый вопрос было 12 кликов, а второго ответа пока нет."
+        self.assertEqual(enforce_source_honesty(plain), plain)
+        caveated = "Оптимально до 100 символов. Это эвристика, а не официальная норма."
+        self.assertEqual(enforce_source_honesty(caveated), caveated)
+
     def test_followup_uses_only_trusted_context_and_stops_at_topic_change(self):
         trusted = {"role": "ASSISTANT", "provider": "pinterest-api", "model": "direct-read",
             "content": "Органика @first\nПериод: 2026-09-01 — 2026-09-07 · Pinterest API"}

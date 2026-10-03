@@ -177,6 +177,10 @@ def enforce_source_honesty(content):
     if _PERMISSION_VERDICT.search(text) and _WORDING_TOPIC.search(text) and not _VERDICT_LIMIT.search(text):
         text = f"{text.rstrip()}\n\n{_CTA_VERDICT_LIMIT}"
         changed = True
+
+    if _LENGTH_NORM.search(text) and _NORM_FRAMING.search(text) and not _NORM_CAVEAT_PRESENT.search(text):
+        text = f"{text.rstrip()}\n\n{_LENGTH_NORM_CAVEAT}"
+        changed = True
     return text if changed else content
 
 
@@ -203,6 +207,25 @@ _VERDICT_LIMIT = re.compile(
     re.I,
 )
 
+
+_LENGTH_NORM = re.compile(r"\b\d+\s*(?:символ\w*|слов\w*|знаков)", re.I)
+
+_NORM_FRAMING = re.compile(
+    r"рекоменду\w*|треб\w*|оптимальн\w*|идеальн\w*|лучшая\s+длина|"
+    r"следует\s+использовать|нужно\s+\d|полностью\s+отображал",
+    re.I,
+)
+
+_NORM_CAVEAT_PRESENT = re.compile(
+    r"эвристик|не (?:указан|закреплён|закреплен)|официальн\w*\s+(?:требован|норма|лимит)\s+не",
+    re.I,
+)
+
+_LENGTH_NORM_CAVEAT = (
+    "Точный лимит длины в найденной справке не указан: это практическая эвристика, "
+    "а не официальное требование Pinterest. Ограничения лучше проверить в самом "
+    "редакторе Pin."
+)
 
 _WORDING_TOPIC = re.compile(
     r"призыв|\bcta\b|фраз|слов|текст|описани|заголовок|подпись",
