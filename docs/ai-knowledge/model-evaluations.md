@@ -219,3 +219,30 @@ ArkSim с бесплатной NVIDIA-моделью играл только в�
 - OpenCode TASK020/Qwen26330reportedtotal/cost0:3предложения приняты,20targetedPinteresttestsOK; ещё8boundary/chattestsOK. Счётчик рабочих задач и экономия подписки не измерены.
 - Найдены и исправлены stale-instance/JSON/malformed-token ошибки. OAuth grant/реальная ротация production credentials не проверены. Report strategist-pagination-oauth-review-2026-10-04.md.
 - Полный suite167OK/57,133с; check/migrations/diffcheckOK.
+
+## 2026-10-04 — объяснения аналитики
+
+38 живых synthetic chat answers /39925 reportedchat tokens, embeddings0.
+GigaChat-2-Pro:26ответов/15334tokens;3-Pro:6/11147;3-Ultra:6/13444.
+Ни один prompt/model не прошёл все6cases; настройки не меняем.
+Короткий mock prompt — диагностический вариант, не production доказательство.
+Принятый путь короткого объяснения реальных APIметрик детерминированный,
+LLMcalls0: сопоставимость, доли, неизвестная причина, одна проверка.
+OpenCode TASK021/022 freeQwen:19741+24987reported/cost0,
+код и семантику принимает Codex; экономия подписки неизвестна.
+Рубли/частота рабочих задач не измерены. Отчёт:
+[explanation review](examples/strategist-explanation-review-2026-10-04.md).
+Свободный ввод чисел остаётся открытым; следующий пересмотр после
+появления проверяемого контекста/контракта, а не по размерам модели.
+
+## 2026-10-04 — пользовательские числа, расчёт кодом
+
+Предыдущие6проваленных numeric scenarios повторены через реальныйAJAXchat:
+6/6приняты Codex, providercalculation/modeluser-metrics, токены0,
+Giga/embeddings/Pinterest вызовов0. Это не оценка качества генеративноймодели.
+Неоднозначность уточняется, числа из текста не объявлены официальнымиAPI.
+OpenCode TASK023/Qwen12соседнихcase proposals:41770reported/cost0;
+критерии приняты частично. Экономия подписки неизвестна. Новых платных
+Giga запросов в этом этапе не понадобилось. Произвольный формат ввода
+и свободные ответы вне семейства не объявлены закрытыми.
+[Отчёт](examples/strategist-user-metrics-review-2026-10-04.md).

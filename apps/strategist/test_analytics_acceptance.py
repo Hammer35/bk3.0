@@ -138,3 +138,77 @@ class AnalyticsAcceptanceTest(TestCase):
         answer = self.ask("Сколько было заказов по 12 исходящим кликам Pinterest?")
         self.assertIn("неизвестно", answer.content)
         self.read.assert_not_called()
+
+
+    def ready_report(self, start, end, impressions=32000, clicks=480):
+        return {"all": {"summary_metrics": {"IMPRESSION": impressions, "OUTBOUND_CLICK": clicks},
+                        "daily_metrics": [{"date": str(start + timedelta(days=i)), "data_status": "READY", "metrics": {}}
+                                          for i in range((end - start).days + 1)]}}
+
+    def explanation_fixture(self, *, complete=True):
+        end = timezone.now().date() - timedelta(days=1)
+        start = end - timedelta(days=6)
+        previous_end = start - timedelta(days=1)
+        previous_start = previous_end - timedelta(days=6)
+        current = self.ready_report(start, end)
+        previous = self.ready_report(previous_start, previous_end, impressions=16000)
+        if not complete:
+            previous["all"]["daily_metrics"] = []
+        self.read.side_effect = [current, previous]
+        return f"{start} — {end}"
+
+    def test_short_explanation_calculates_click_share_without_cause(self):
+        period = self.explanation_fixture()
+        answer = self.ask(f"Статистика @beta {period}. Коротко про переходы: один следующий шаг")
+        self.assertIn("Исходящие клики: 480 → 480", answer.content)
+        self.assertIn("3% → 1,5%", answer.content)
+        self.assertIn("Причина изменения", answer.content)
+        self.assertEqual(answer.content.count("Одна проверка:"), 1)
+        self.assertNotIn("Что сделать", answer.content)
+        self.assertNotIn("качество", answer.content)
+        self.assertEqual(answer.total_tokens, 0)
+
+    def test_why_followup_preserves_profile_and_period(self):
+        period = self.explanation_fixture()
+        self.ask(f"Статистика @beta {period}")
+        self.explanation_fixture()
+        answer = self.ask("Почему выросли показы? Что проверить первым?")
+        self.assertIn("@beta", answer.content)
+        self.assertIn("Показы: 16000 → 32000", answer.content)
+        self.assertNotIn("Уточни профиль", answer.content)
+        self.assertEqual(answer.content.count("Одна проверка:"), 1)
+        for call in self.read.call_args_list:
+            self.assertEqual(call.kwargs["arguments"]["account_key"], str(self.accounts[1].public_id))
+
+    def test_short_explanation_does_not_compare_incomplete_data(self):
+        period = self.explanation_fixture(complete=False)
+        answer = self.ask(f"Статистика @alpha {period}. Коротко про переходы")
+        self.assertIn("Сопоставимая динамика не подтверждена", answer.content)
+        self.assertIn("полные данные", answer.content)
+        self.assertNotIn("3% →", answer.content)
+
+    def test_short_explanation_zero_denominator_is_not_zero_rate(self):
+        period = self.explanation_fixture()
+        responses = list(self.read.side_effect)
+        responses[0]["all"]["summary_metrics"]["IMPRESSION"] = 0
+        self.read.side_effect = responses
+        answer = self.ask(f"Статистика @alpha {period}. Коротко про переходы")
+        self.assertNotIn("На 100 показов", answer.content)
+        self.assertIn("Исходящие клики", answer.content)
+
+
+    def test_explanation_with_missing_metric_does_not_invent_zero(self):
+        period = self.explanation_fixture()
+        responses = list(self.read.side_effect)
+        del responses[0]["all"]["summary_metrics"]["OUTBOUND_CLICK"]
+        self.read.side_effect = responses
+        answer = self.ask(f"Статистика @alpha {period}. Коротко про переходы")
+        self.assertIn("значение недоступно; это не ноль", answer.content)
+        self.assertNotIn("480 → 0", answer.content)
+
+    def test_unrelated_cause_does_not_inherit_analytics(self):
+        from apps.strategist.advice import analytics_followup_context
+        history = [{"role": "ASSISTANT", "provider": "pinterest-api", "model": "direct-read",
+                    "content": "Органика @beta\nПериод: 2026-09-10 — 2026-09-16"}]
+        self.assertIsNone(analytics_followup_context("Почему выросла цена товара?", history))
+        self.assertIsNone(analytics_followup_context("Какова причина ошибки в коде?", history))

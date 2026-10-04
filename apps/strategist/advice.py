@@ -66,7 +66,7 @@ def comparison_issues(current, previous, period, previous_period, *, today):
     return issues
 
 
-FOLLOWUP = re.compile(r"вывод|что\s+(?:делать|хорошо|плохо|с\s+этим)|как\s+улучш|где\s+(?:ответ|статист)|рекомендац", re.I)
+FOLLOWUP = re.compile(r"вывод|что\s+(?:делать|хорошо|плохо|с\s+этим)|как\s+улучш|где\s+(?:ответ|статист)|рекомендац|что\s+проверить|почему\s+(?:вырос|упал|сниз|стало|больше|меньше)\w*\s+(?:показ|клик|переход|сохран)|причин\w*[^.!?]{0,30}(?:показ|клик|переход|сохран)", re.I)
 
 
 def analytics_followup_context(message, history):
@@ -370,3 +370,33 @@ def analytics_advice(summary: dict, previous: dict | None) -> tuple[list[str], l
             )
 
     return improvements[:4], observations[:4], actions[:4]
+
+
+def analytics_explanation(summary, previous, *, metric="OUTBOUND_CLICK", comparable=False):
+    """Explain trusted numeric data without making causal or significance claims."""
+    labels = {"IMPRESSION": "Показы", "OUTBOUND_CLICK": "Исходящие клики", "SAVE": "Сохранения"}
+    label = labels[metric]
+    current = metric_value(summary, metric)
+    old = metric_value(previous or {}, metric) if comparable else None
+    if current is None:
+        fact = f"{label}: значение недоступно; это не ноль."
+    elif old is None:
+        fact = f"{label}: {format_metric_number(current)}. Сопоставимая динамика не подтверждена."
+    else:
+        fact = f"{label}: {format_metric_number(old)} → {format_metric_number(current)}."
+    if comparable and metric != "IMPRESSION":
+        current_impressions = metric_value(summary, "IMPRESSION")
+        old_impressions = metric_value(previous or {}, "IMPRESSION")
+        if current is not None and old is not None and current_impressions and old_impressions:
+            fact += (
+                f" На 100 показов: {format_metric_number(old / old_impressions * 100)}% → "
+                f"{format_metric_number(current / current_impressions * 100)}%."
+            )
+    limit = "Причина изменения по общей статистике не установлена."
+    if not comparable:
+        action = "Сначала получите полные данные за два равных завершённых периода."
+    elif metric == "IMPRESSION":
+        action = "Одна проверка: сравните показы отдельных пинов одной темы, формата и возраста за эти периоды."
+    else:
+        action = f"Одна проверка: сравните {label.lower()} на 100 показов у отдельных пинов одной темы, формата и возраста."
+    return f"{fact}\n{limit}\n{action}"

@@ -19,7 +19,7 @@ from .advice import (
     analytics_advice as _analytics_advice,
     metric_value as _metric_value,
     format_metric_number as _format_metric_number,
-    comparison_issues, analytics_followup_context, enforce_advice_boundaries,
+    comparison_issues, analytics_followup_context, analytics_explanation, enforce_advice_boundaries,
     enforce_source_honesty,
     enforce_creative_answer,
     local_knowledge_context,
@@ -28,6 +28,7 @@ from .grounded_answers import grounded_pinterest_answer
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
+from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
 from .wb_products import ProductReadError, product_link, read_product, read_product_seller_id
 from .wb_store import WBStoreError, read_store, store_link, wb_store_function, read_wb_store_data
@@ -307,7 +308,7 @@ def _analytics_has_unavailable_days(result: dict | None) -> bool:
 def _format_pinterest_analytics(
     *, account: PinterestAccount, result: dict, start_date: date, end_date: date,
     previous_result: dict | None = None, previous_period: tuple[date, date] | None = None,
-    synced_at: str = "", business_goal: str = "",
+    synced_at: str = "", business_goal: str = "", explanation_question: str = "",
 ) -> str:
     groups = [
         value for value in result.values()
@@ -348,6 +349,16 @@ def _format_pinterest_analytics(
 
     previous = _analytics_summary(previous_result) if previous_result else {}
     issues = comparison_issues(result, previous_result, (start_date, end_date), previous_period, today=timezone.now().date())
+    if explanation_question:
+        metric = "OUTBOUND_CLICK" if re.search(r"переход|клик", explanation_question, re.I) else (
+            "SAVE" if re.search(r"сохран", explanation_question, re.I) else (
+                "IMPRESSION" if re.search(r"показ", explanation_question, re.I) else "OUTBOUND_CLICK"
+            )
+        )
+        explanation = analytics_explanation(summary, previous, metric=metric, comparable=not issues)
+        if re.search(r"заказ|продаж", explanation_question, re.I):
+            explanation += "\nЧисло заказов неизвестно: клики не подтверждают покупки."
+        return heading + "\n\n" + explanation
     if previous_period:
         comparison = []
         for name in main_metrics:
@@ -438,7 +449,7 @@ def _format_pinterest_analytics(
     return "\n\n".join(sections)
 
 
-def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date) -> str:
+def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date, explanation_question: str = "") -> str:
     period_error = _pinterest_period_error(start_date, end_date)
     if period_error:
         return period_error
@@ -495,6 +506,7 @@ def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount
         previous_period=previous_period,
         synced_at=synced_at,
         business_goal=business.goals or "",
+        explanation_question=explanation_question,
     )
 
 
@@ -683,6 +695,9 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             account=account,
             start_date=period[0],
             end_date=period[1],
+            explanation_question=user_message.content if re.search(
+                r"почему|причин|что\s+проверить|один\s+(?:шаг|следующий)|коротко", user_message.content, re.I,
+            ) else "",
         )
     return AIMessage.objects.create(
         conversation=user_message.conversation,
@@ -880,6 +895,12 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             provider="wildberries-cdn",
             model="product-card",
             total_tokens=keyword_result.get("gigachat_total_tokens", 0),
+        )
+    numeric_answer = user_metrics_answer(user_message.content)
+    if numeric_answer:
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=numeric_answer, provider="calculation", model="user-metrics",
         )
     direct_pinterest_answer = _direct_pinterest_answer(
         user_message=user_message,

@@ -157,3 +157,43 @@ responseвалидируется до credentialзамены,invaliddata неу�
 Далее:смысловые вопросыпричин/рекомендацийсреальнойаналитикой;
 каталогполностьювыгружатьтолькоприпродуктовойнеобходимости.
 Постоянногоисполнителянет,claimsосвобождаем;контекстOpenCode черезфайлы.
+
+## Публикация завершённых этапов
+
+Commitd3ccc192502503d6fa7e0f422262c1d69a02ef69 опубликован в
+feature/strategist-grounded-answers; git ls-remote совпал сHEAD,
+дерево было чистым.27files,env/runtime/claims исключены,mainне менялся.
+Следом разрешён новыйэтап explanations;TASK021 передан OpenCode.
+
+## Объяснения — 4 октября
+
+TASK021/022 OpenCode/Qwen выполнены, приняты после Codex проверки частично.
+38paid synthetic Giga answers/39925tokens: все три кандидата имеют ошибки,
+модель не переключена; неудачные prompt правки удалены.
+Принят отдельный путь краткого объяснения реальной APIаналитики:
+analytics_explanation(advice.py), explanation_question(formatter),
+профиль/период причины followup только изtrustedAPI. Доли считаются кодом,
+неполные периоды не сравниваются, причина unknown, одна проверка.
+Шесть новых regression,173fulltestsOK57.340с;check/migrations/diffcheckOK.
+Web8000readiness200 после завершения tests/restart. РеальныйAPIэтотэтап
+не вызывался, transportfixtures synthetic. Новые измененияНЕопубликованы;
+ранее pushd3ccc19 подтверждён. Свободные объяснения чисел пользователя
+остаются открытыми; отчёт strategist-explanation-review2026-10-04.md.
+АктивныхOpenCodeпроцессовнет;claimsосвобождаем. Main/.envне менялись.
+
+## Пользовательские числа — 4 октября, принято
+
+user_metrics.py + early services route: только текущие данные пользователя,
+короткий расчёт кодом/providercalculation/modeluser-metrics. Все6старых
+сценариев вновь прошли через fresh AJAXchat,0tokens/embeddings/PinterestGET.
+15новыхtest methods,188fullOK57.443с;check/migrations/diffcheckOK.
+Проверка с2CONNECTEDsyntheticпрофилями: чужиеAPI/модельневызываются.
+Сохранены прежние knowledge/database unknown-orders/traffic ответы.
+Нользнаменателя, процентовые/дробные/отрицательныесчётчики, reversedperiod,
+mixedprofiles уточняются; creative/price/policy продолжают обычныймаршрут.
+TASK023/Qwen12caseproposals,41770reported/cost0, принятчастично REVIEW023.
+Web8000readiness200послезавершениятестов/restart. НовыхpaidGigaвызовов0.
+Изменениялокальны,commit/push/main/.envне менялись. Всеclaimsосвобождены,
+активныхOpenCodeпроцессовнет. Неуниверсальныйпарсер: следующиеэтапы
+многоходовыессылкинацифры/произвольныеформаты; необещатьвесьчатбезошибочным.
+Отчёт strategist-user-metrics-review-2026-10-04.md.
