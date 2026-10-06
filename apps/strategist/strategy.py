@@ -5,6 +5,8 @@ rationale item must cite a source that really exists in the manifest, numbers
 about cadence are never accepted as facts unless the user stated them, and
 exclusions the user asked for are enforced here, not left to the prompt.
 """
+import re
+
 from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
@@ -23,6 +25,7 @@ LIST_SECTIONS = {
     "hypotheses": 10, "missing_data": 10, "recommended_boards": 10, "keyword_clusters": 10,
 }
 TEXT_LIMIT = 300
+DEMAND_WORDS = r"спрос|интерес|популярн|тренд|растёт|растет|рост[а-я]*\s+(?:запрос|поиск)|ищут|востребован"
 KEYWORDS_PER_CLUSTER = 15
 
 
@@ -44,9 +47,15 @@ def missing_profile_fields(business: Business) -> list[str]:
     return [FIELD_LABELS[f] for f in REQUIRED_PROFILE_FIELDS if not (getattr(business, f) or "").strip()]
 
 
-def build_sources(facts: dict[str, str], *, user_message_ids=()) -> list[dict]:
+def research_ref(snapshot) -> str:
+    return f"research:{snapshot.public_id}"
+
+
+def build_sources(facts: dict[str, str], *, user_message_ids=(), snapshots=()) -> list[dict]:
     sources = [{"ref": ref, "type": "business_profile", "value": value[:TEXT_LIMIT]} for ref, value in facts.items()]
     sources += [{"ref": f"user_message:{pk}", "type": "user_message"} for pk in user_message_ids]
+    sources += [{"ref": research_ref(s), "type": "research_snapshot", "researched_at": s.researched_at.isoformat()}
+                for s in snapshots]
     return sources
 
 
@@ -89,8 +98,12 @@ def _seasons(value) -> list[dict]:
     return result[: LIST_SECTIONS["seasonal_plans"]]
 
 
-def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str = "") -> dict:
-    """Return a storable payload or raise StrategyError; never trust model output."""
+def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str = "", allowed_keywords=None) -> dict:
+    """Return a storable payload or raise StrategyError; never trust model output.
+
+    allowed_keywords: phrases actually found by research. When given, keyword
+    clusters keep only those phrases; None disables the filter (tests/legacy).
+    """
     if not isinstance(raw, dict):
         raise StrategyError("Не удалось разобрать черновик стратегии.")
     allowed = set(allowed_refs)
@@ -104,7 +117,10 @@ def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str 
                 if isinstance(r, str) and r in allowed]
         if not claim:
             continue
-        if refs:
+        demand_claim = re.search(DEMAND_WORDS, claim, re.I)
+        if refs and demand_claim and all(r.startswith("research:") for r in refs):
+            hypotheses.append(claim)  # a found phrase does not prove audience interest or demand
+        elif refs:
             rationale.append({"claim": claim, "basis": sorted(set(refs))})
         else:  # no real source: it is a hypothesis, not an established reason
             hypotheses.append(claim)
@@ -126,6 +142,14 @@ def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str 
         "missing_data": _text_items(raw.get("missing_data"), LIST_SECTIONS["missing_data"]),
         "exclusions": [e for e in (_text(x) for x in exclusions) if e],
     }
+    if allowed_keywords is not None:
+        known = {k.casefold() for k in allowed_keywords}
+        clusters = [{"name": c["name"], "keywords": [k for k in c["keywords"] if k.casefold() in known]}
+                    for c in payload["keyword_clusters"]]
+        payload["keyword_clusters"] = [c for c in clusters if c["keywords"]]
+        if not payload["keyword_clusters"]:
+            note = "Ключевые слова не подтверждены исследованием: напиши «Исследуй нишу»."
+            payload["missing_data"] = [m for m in payload["missing_data"] if m != note][:LIST_SECTIONS["missing_data"] - 1] + [note]
     payload = apply_exclusions(payload, payload["exclusions"])
     if not payload["goals"] and not payload["content_directions"]:
         raise StrategyError("В черновике нет целей и контентных направлений.")
@@ -157,7 +181,7 @@ def apply_exclusions(payload: dict, exclusions) -> dict:
 
 
 @transaction.atomic
-def create_draft(business: Business, user, payload: dict, *, sources: list[dict], change_note: str = "") -> StrategyVersion:
+def create_draft(business: Business, user, payload: dict, *, sources: list[dict], change_note: str = "", snapshots=()) -> StrategyVersion:
     strategy = (Strategy.objects.select_for_update()
                 .filter(business=business).exclude(status=Strategy.Status.ARCHIVED)
                 .order_by("-created_at").first())
@@ -165,10 +189,12 @@ def create_draft(business: Business, user, payload: dict, *, sources: list[dict]
         strategy = Strategy.objects.create(business=business)
     number = (strategy.versions.aggregate(m=Max("number"))["m"] or 0) + 1
     strategy.versions.filter(status=StrategyVersion.Status.DRAFT).update(status=StrategyVersion.Status.SUPERSEDED)
-    return StrategyVersion.objects.create(
+    version = StrategyVersion.objects.create(
         strategy=strategy, number=number, created_by=user, sources=sources,
         change_note=_text(change_note)[:500], **payload,
     )
+    version.research_snapshots.set(snapshots)
+    return version
 
 
 @transaction.atomic

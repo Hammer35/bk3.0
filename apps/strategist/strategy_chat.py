@@ -2,12 +2,14 @@
 import json
 import logging
 import re
+from types import SimpleNamespace
 
 from apps.workspaces.models import Membership
 
 from . import strategy as st
 from .models import AIMessage, StrategyVersion
 from .providers import GigaChatProvider
+from .research import ResearchError, fresh_snapshot, render_snapshot, research_niche, snapshot_phrases
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,8 @@ _CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(подтверждаю|утвер�
 _EXCLUDE = re.compile(r"\bне\s+(?:продвигай|включай|предлагай)\s+(.+)|"
                       r"\b(?:исключи|убери)\s+(.+?)\s+из\s+стратеги\w*", re.I)
 _REVISE = re.compile(r"\b(измени|поменяй|скорректируй|обнови|добавь|дополни)\w*[\s,:]+(?:[^\s,:]+[\s,:]+){0,3}стратеги", re.I)
+_RESEARCH = re.compile(r"\b(исследуй|проанализируй|изучи)\w*[\s,]+(?:[^\s,]+[\s,]+){0,2}ниш|"
+                       r"\bподбери\w*\s+ключев\w+\s+слов\w*\s+для\s+стратеги", re.I)
 _GENERIC_WORDS = {"товары", "товар", "продукция", "категория", "категорию", "вещи", "коллекция", "коллекцию"}
 _STOP = {"для", "или", "при", "про", "из", "в", "на", "и"}
 
@@ -30,6 +34,9 @@ SCHEMA = (
 SYSTEM = (
     "Ты стратег органического роста в Pinterest. Составь проект стратегии строго по данным ниже. "
     "Верни ТОЛЬКО JSON по схеме: " + SCHEMA + ". Правила: опирайся только на факты профиля; "
+    "ключевые слова бери ТОЛЬКО из research.keywords, не придумывай свои; "
+    "утверждение со ссылкой на research может говорить только о том, что фразы найдены источниками, "
+    "но не об интересе аудитории или спросе; "
     "каждое утверждение в rationale сопровождай basis — списком ref из поля allowed_refs, иначе "
     "помести его в hypotheses; не выдумывай спрос, тренды, сезонность, конкурентов и числа; "
     "частоту публикаций называй только если её назвал пользователь, иначе оставь пустой; "
@@ -80,7 +87,8 @@ def render_version(version: StrategyVersion) -> str:
 
     section("Цели", version.goals)
     section("Приоритеты", version.priorities)
-    section("Ключевые слова", [f"{c['name']}: {', '.join(c['keywords'])}" for c in version.keyword_clusters])
+    snapshot = version.research_snapshots.order_by("-researched_at").first()
+    section(f"Ключевые слова (из исследования от {snapshot.researched_at:%d.%m.%Y})" if snapshot else "Ключевые слова", [f"{c['name']}: {', '.join(c['keywords'])}" for c in version.keyword_clusters])
     section("Доски", [b["name"] + (f" — {b['purpose']}" if b.get("purpose") else "") for b in version.recommended_boards])
     section("Контентные направления", version.content_directions)
     section("Сезонные идеи", [f"{s['period']}: {s['idea']}" for s in version.seasonal_plans])
@@ -106,10 +114,14 @@ def _reply(conversation, content, *, model="strategy-draft", completion=None) ->
     )
 
 
-def _generate(*, facts, user_texts, base=None, instruction="", provider):
-    allowed = sorted(set(facts) | {ref for ref in user_texts})
-    request = {"profile": facts, "allowed_refs": allowed,
-               "user_messages": {ref: text for ref, text in user_texts.items()}}
+def _generate(*, facts, user_texts, base=None, instruction="", provider, snapshot=None):
+    refs = set(facts) | set(user_texts)
+    request = {"profile": facts, "user_messages": {ref: text for ref, text in user_texts.items()}}
+    if snapshot is not None:
+        refs.add(st.research_ref(snapshot))
+        request["research"] = {"ref": st.research_ref(snapshot), "keywords": snapshot_phrases(snapshot)}
+    allowed = sorted(refs)
+    request["allowed_refs"] = allowed
     if base:
         request["current_strategy"] = base
         request["requested_change"] = instruction
@@ -132,12 +144,21 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     text = user_message.content
     pending = st.pending_draft(business)
     exclusion = _exclusion_stem(text) if (pending or st.active_version(business)) else None
+    researches = bool(_RESEARCH.search(text))
     builds, confirms = _asks_for_strategy(text), pending is not None and _is_confirmation(text)
     revises = bool(_REVISE.search(text)) and bool(pending or st.active_version(business))
-    if not (builds or confirms or exclusion or revises):
+    if not (builds or confirms or exclusion or revises or researches):
         return None
     if not _actor_can_edit(business, actor):
         return _reply(conversation, "Менять и подтверждать стратегию могут владелец, администратор и редактор рабочего пространства.", model="strategy-denied")
+    if researches and not (builds or confirms):
+        try:
+            snapshot = research_niche(business, provider=provider)
+        except ResearchError as error:
+            return _reply(conversation, str(error), model="research-refused")
+        return _reply(conversation, render_snapshot(snapshot), model="niche-research",
+                      completion=SimpleNamespace(model="niche-research", prompt_tokens=0, completion_tokens=0,
+                                                 total_tokens=snapshot.total_tokens))
     if confirms:
         try:
             version = st.confirm_version(pending, actor)
@@ -156,7 +177,8 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
         if not payload["goals"] and not payload["content_directions"]:
             return _reply(conversation, "После такого исключения в стратегии не останется целей и направлений. Уточни, что именно убрать.", model="strategy-refused")
         version = st.create_draft(business, actor, payload, sources=base_version.sources,
-                                  change_note=f"Исключено по просьбе пользователя: {exclusion}")
+                                  change_note=f"Исключено по просьбе пользователя: {exclusion}",
+                                  snapshots=list(base_version.research_snapshots.all()))
         return _reply(conversation, "Убрал из стратегии всё, что связано с этим.\n\n" + render_version(version), model="strategy-revision")
     missing = st.missing_profile_fields(business)
     if missing and not base_version:
@@ -168,15 +190,19 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     base = None
     if base_version:
         base = {f: getattr(base_version, f) for f in ("goals", "priorities", "content_directions", "recommended_boards", "keyword_clusters")}
+    snapshot = fresh_snapshot(business)
     raw, completion, allowed = _generate(
-        facts=facts, user_texts=user_texts, base=base,
+        facts=facts, user_texts=user_texts, base=base, snapshot=snapshot,
         instruction=text if revises else "", provider=provider)
     exclusions = base_version.exclusions if base_version else []
     try:
-        payload = st.clean_payload(raw, allowed_refs=allowed, exclusions=exclusions)
+        payload = st.clean_payload(raw, allowed_refs=allowed, exclusions=exclusions,
+                                   allowed_keywords=snapshot_phrases(snapshot))
     except st.StrategyError:
         logger.warning("Strategy draft rejected by validation for business %s", business.pk)
         return _reply(conversation, "Не получилось собрать надёжный черновик стратегии. Попробуй ещё раз или уточни данные о бизнесе.", model="strategy-invalid", completion=completion)
-    version = st.create_draft(business, actor, payload, sources=st.build_sources(facts, user_message_ids=[
-        int(r.split(":")[1]) for r in user_texts]), change_note=text[:500] if revises else "Первичный черновик")
+    snapshots = [snapshot] if snapshot else []
+    version = st.create_draft(business, actor, payload, sources=st.build_sources(
+        facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots),
+        change_note=text[:500] if revises else "Первичный черновик", snapshots=snapshots)
     return _reply(conversation, render_version(version), completion=completion)

@@ -111,6 +111,9 @@ class StrategyVersion(BaseModel):
         related_name="+", verbose_name="подтвердил",
     )
     confirmed_at = models.DateTimeField(null=True, blank=True, verbose_name="дата подтверждения")
+    research_snapshots = models.ManyToManyField(
+        "ResearchSnapshot", blank=True, related_name="strategy_versions", verbose_name="снимки исследований",
+    )
 
     class Meta:
         ordering = ("strategy", "number")
@@ -119,3 +122,28 @@ class StrategyVersion(BaseModel):
         constraints = [
             models.UniqueConstraint(fields=["strategy", "number"], name="unique_strategy_version_number"),
         ]
+
+
+class ResearchSnapshot(BaseModel):
+    """Stored result of a niche research run; strategy versions cite it as a source."""
+
+    class Kind(models.TextChoices):
+        NICHE_KEYWORDS = "NICHE_KEYWORDS", "Ключевые слова ниши"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="research_snapshots", verbose_name="бизнес")
+    account = models.ForeignKey(
+        "pinterest.PinterestAccount", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", verbose_name="аккаунт Pinterest",
+    )
+    kind = models.CharField(max_length=24, choices=Kind.choices, default=Kind.NICHE_KEYWORDS, verbose_name="тип")
+    seeds = models.JSONField(default=list, blank=True, verbose_name="поисковые корни")
+    region = models.CharField(max_length=40, blank=True, verbose_name="регион")
+    candidates = models.JSONField(default=list, blank=True, verbose_name="найденные фразы")
+    notices = models.JSONField(default=list, blank=True, verbose_name="замечания источников")
+    total_tokens = models.PositiveIntegerField(default=0, verbose_name="токены")
+    researched_at = models.DateTimeField(verbose_name="дата исследования")
+
+    class Meta:
+        ordering = ("-researched_at",)
+        verbose_name = "снимок исследования"
+        verbose_name_plural = "снимки исследований"
