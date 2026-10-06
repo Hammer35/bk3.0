@@ -722,6 +722,15 @@ def conversation_slug(*, title: str, conversation: AIConversation) -> str:
 
 def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     conversation = user_message.conversation
+    numeric_history = conversation.messages.filter(
+        role=AIMessage.Role.USER, created_at__lt=user_message.created_at,
+    ).order_by("created_at", "pk").values("role", "content")
+    numeric_answer = user_metrics_answer(user_message.content, history=numeric_history)
+    if numeric_answer:
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=numeric_answer, provider="calculation", model="user-metrics",
+        )
     pinterest_accounts = list(
         PinterestAccount.objects.filter(
             business=conversation.business,
@@ -895,12 +904,6 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             provider="wildberries-cdn",
             model="product-card",
             total_tokens=keyword_result.get("gigachat_total_tokens", 0),
-        )
-    numeric_answer = user_metrics_answer(user_message.content)
-    if numeric_answer:
-        return AIMessage.objects.create(
-            conversation=conversation, role=AIMessage.Role.ASSISTANT,
-            content=numeric_answer, provider="calculation", model="user-metrics",
         )
     direct_pinterest_answer = _direct_pinterest_answer(
         user_message=user_message,

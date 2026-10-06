@@ -197,3 +197,17 @@ Web8000readiness200послезавершениятестов/restart. Новы�
 активныхOpenCodeпроцессовнет. Неуниверсальныйпарсер: следующиеэтапы
 многоходовыессылкинацифры/произвольныеформаты; необещатьвесьчатбезошибочным.
 Отчёт strategist-user-metrics-review-2026-10-04.md.
+
+## Форматы пользовательских чисел — 6 октября, принято
+
+Codex: reverse labelled periods, markdown списки/таблицы, English metric
+labels, тыс./Unicode spaces, явные доли переходов в процентах/словом.
+Процентные пункты отдельно от относительного изменения, counters из долей
+не выводятся. Даты, неоднозначность, неполные периоды уточняются.
+20 parser/chat test methods,193 full tests OK/55.180с,check/migrations/diff OK.
+9fresh AJAX + clarification/reply dialogue, mocked Giga/Pinterest; paid0.
+TASK024 OpenCode/Qwenfree APIError без ответа, повтора нет, usage неизвестен;
+Codex завершил сам. REVIEW024 и message-formats-review описывают границы.
+Ссылки на прошлые числа без значений, JSON/произвольные таблицы остаются
+отдельными задачами. Новые изменения локальны feature, env/main/модель
+не изменены; предыдущая публикация96ac22d, новогоcommit/pushне было.
