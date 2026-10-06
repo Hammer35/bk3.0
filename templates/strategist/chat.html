@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load static assets i18n %}
 {% block title %}{% trans "ИИ-стратег — BOOSTKLIENT®" %}{% endblock %}
 {% block content %}
 <section class="form-shell strategist-shell">
@@ -42,5 +42,5 @@
         {% endif %}
     </div>
 </section>
-<script src="{% static 'js/strategist/chat.js' %}" defer></script>
+<script src="{% asset 'js/strategist/chat.js' %}" defer></script>
 {% endblock %}

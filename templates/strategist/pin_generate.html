@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static strategist_format %}
+{% load i18n static assets strategist_format %}
 {% block title %}{% trans "Создание пинов — BOOSTKLIENT®" %}{% endblock %}
 {% block content %}
 <header class="workbench-page-header">
@@ -110,6 +110,6 @@
         </div>
     </aside>
 </form>
-<script src="{% static 'js/strategist/pin-generate.js' %}" defer></script>
+<script src="{% asset 'js/strategist/pin-generate.js' %}" defer></script>
 {% endif %}
 {% endblock %}

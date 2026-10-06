@@ -1,4 +1,4 @@
-{% load static i18n strategist_format %}
+{% load static i18n assets strategist_format %}
 {% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}BOOSTKLIENT® 3.0{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
-    <script src="{% static 'js/core/theme.js' %}"></script>
-    <script src="{% static 'js/core/sidebar.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <script src="{% asset 'js/core/theme.js' %}"></script>
+    <script src="{% asset 'js/core/sidebar.js' %}"></script>
+    <link rel="stylesheet" href="{% asset 'css/app.css' %}">
 </head>
 <body>
     {% if request.user.is_authenticated %}
@@ -125,7 +125,7 @@
             </div>
         </div>
     {% endif %}
-    <script src="{% static 'js/core/interface-scale.js' %}" defer></script>
+    <script src="{% asset 'js/core/interface-scale.js' %}" defer></script>
     <dialog class="confirmation-dialog" data-form-confirmation data-confirmation-action="{% trans 'Продолжить' %}" data-confirmation-delete="{% trans 'Удалить аккаунт' %}" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
         <div class="confirmation-dialog-content">
             <span class="confirmation-dialog-kicker" data-confirmation-kicker>{% trans "Подтверждение действия" %}</span>
@@ -137,6 +137,6 @@
             </div>
         </div>
     </dialog>
-    <script src="{% static 'js/core/form-confirmation.js' %}" defer></script>
+    <script src="{% asset 'js/core/form-confirmation.js' %}" defer></script>
 </body>
 </html>
