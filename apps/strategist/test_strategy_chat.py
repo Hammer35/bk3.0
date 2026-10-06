@@ -113,9 +113,13 @@ class StrategyChatTest(TestCase):
         self.assertEqual((self.complete.call_count, Strategy.objects.count()), (0, 0))
 
     def test_confirmation_without_draft_and_ordinary_messages_do_not_touch_strategy(self):
-        self.assertIsNone(sc.strategy_reply(
+        nothing = sc.strategy_reply(
             user_message=AIMessage.objects.create(conversation=self.conversation, role=AIMessage.Role.USER, content="Подтверждаю стратегию"),
-            actor=self.owner))
+            actor=self.owner)
+        self.assertIn("нет черновика стратегии", nothing.content)  # a short answer, not a trip to the general chat model
+        self.assertIsNone(sc.strategy_reply(
+            user_message=AIMessage.objects.create(conversation=self.conversation, role=AIMessage.Role.USER, content="Согласен."),
+            actor=self.owner))  # a bare "agreed" in ordinary talk is left alone
         self.assertIsNone(sc.strategy_reply(
             user_message=AIMessage.objects.create(conversation=self.conversation, role=AIMessage.Role.USER, content="Не продвигай свадебные товары"),
             actor=self.owner))

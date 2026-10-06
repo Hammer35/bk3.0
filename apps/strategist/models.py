@@ -222,3 +222,59 @@ class ContentPlanItem(BaseModel):
         verbose_name = "пункт контент-плана"
         verbose_name_plural = "пункты контент-плана"
         constraints = [models.UniqueConstraint(fields=["plan", "position"], name="unique_plan_item_position")]
+
+
+class Pin(BaseModel):
+    """Logical pin; text and check results live in immutable PinVersion rows."""
+
+    class Status(models.TextChoices):
+        IDEA = "IDEA", "Идея"
+        GENERATING = "GENERATING", "Генерируется"
+        VALIDATING = "VALIDATING", "Проверяется"
+        WAITING_APPROVAL = "WAITING_APPROVAL", "Ждёт одобрения"
+        APPROVED = "APPROVED", "Одобрен"
+        QUEUED = "QUEUED", "В очереди"
+        PUBLISHING = "PUBLISHING", "Отправляется"
+        PUBLISHED = "PUBLISHED", "Опубликован"
+        REJECTED = "REJECTED", "Отклонён"
+        REWORK = "REWORK", "Требуется переделка"
+        FAILED = "FAILED", "Ошибка"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="pins", verbose_name="бизнес")
+    plan_item = models.OneToOneField(ContentPlanItem, on_delete=models.CASCADE, related_name="pin", verbose_name="пункт контент-плана")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.IDEA, verbose_name="статус")
+    current_version = models.ForeignKey(
+        "PinVersion", null=True, blank=True, on_delete=models.SET_NULL, related_name="+", verbose_name="текущая версия",
+    )
+    archived_at = models.DateTimeField(null=True, blank=True, verbose_name="дата архивации")
+
+    class Meta:
+        verbose_name = "пин"
+        verbose_name_plural = "пины"
+
+
+class PinVersion(BaseModel):
+    class Verdict(models.TextChoices):
+        PASS = "PASS", "Проверки пройдены"
+        REVIEW = "REVIEW", "Нужна оценка человека"
+        BLOCK = "BLOCK", "Заблокирован проверкой"
+
+    pin = models.ForeignKey(Pin, on_delete=models.CASCADE, related_name="versions", verbose_name="пин")
+    number = models.PositiveIntegerField(verbose_name="номер версии")
+    title = models.CharField(max_length=300, verbose_name="заголовок")
+    description = models.TextField(blank=True, verbose_name="описание")
+    alt_text = models.CharField(max_length=500, blank=True, verbose_name="альтернативный текст")
+    destination_url = models.URLField(max_length=500, blank=True, verbose_name="ссылка назначения")
+    keyword = models.CharField(max_length=300, blank=True, verbose_name="ключевая фраза")
+    board = models.CharField(max_length=300, blank=True, verbose_name="доска")
+    checks = models.JSONField(default=list, blank=True, verbose_name="результаты проверок")
+    verdict = models.CharField(max_length=8, choices=Verdict.choices, verbose_name="вердикт")
+    open_checks = models.JSONField(default=list, blank=True, verbose_name="невыполненные проверки")
+    generation = models.JSONField(default=dict, blank=True, verbose_name="происхождение текста")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="создатель")
+
+    class Meta:
+        ordering = ("pin", "number")
+        verbose_name = "версия пина"
+        verbose_name_plural = "версии пинов"
+        constraints = [models.UniqueConstraint(fields=["pin", "number"], name="unique_pin_version_number")]

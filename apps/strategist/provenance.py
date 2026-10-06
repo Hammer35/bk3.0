@@ -11,14 +11,16 @@ from django.utils.translation import gettext as _
 
 CHAT_PROMPT_VERSION = "chat-2026-10-06.1"
 STRATEGY_PROMPT_VERSION = "strategy-2026-10-06.1"
-PLAN_PROMPT_VERSION = "content-plan-2026-10-06.1"
+PLAN_PROMPT_VERSION = "content-plan-2026-10-06.2"
 RESEARCH_PROMPT_VERSION = "research-2026-10-06.1"
+PIN_PROMPT_VERSION = "pin-2026-10-06.2"
 
 FINGERPRINTS = {
     "chat-2026-10-06.1": "d4e0b7726f6b",
     "strategy-2026-10-06.1": "5cfb5ea333b3",
-    "content-plan-2026-10-06.1": "a1e7a2926c2a",
+    "content-plan-2026-10-06.2": "8cd5c05c0a5d",
     "research-2026-10-06.1": "be53792a2b51",
+    "pin-2026-10-06.2": "39bfbcfe06cb",
 }
 
 
@@ -33,7 +35,7 @@ def stamp(version: str, text: str = "") -> str:
 
 def template_fingerprints() -> dict[str, str]:
     """Hashes of the current templates, with fixed dummy data for the chat prompt."""
-    from . import content_plan, research, strategy_chat
+    from . import content_plan, pin_generation, research, strategy_chat
     from .prompts import build_strategist_system_prompt
 
     business = SimpleNamespace(name="B", website="https://example.com", niche="N", subniche="S", market="M",
@@ -45,8 +47,9 @@ def template_fingerprints() -> dict[str, str]:
     return {
         CHAT_PROMPT_VERSION: fingerprint(chat),
         STRATEGY_PROMPT_VERSION: fingerprint(strategy_chat.SYSTEM),
-        PLAN_PROMPT_VERSION: fingerprint(content_plan.SYSTEM),
+        PLAN_PROMPT_VERSION: fingerprint(content_plan.SYSTEM + content_plan.RETRY_NOTE),
         RESEARCH_PROMPT_VERSION: fingerprint(research.SEED_SYSTEM + research.FILTER_SYSTEM),
+        PIN_PROMPT_VERSION: fingerprint(pin_generation.SYSTEM),
     }
 
 

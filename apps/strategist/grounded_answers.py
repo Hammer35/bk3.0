@@ -35,6 +35,18 @@ def _approved_source(filename: str):
     return source
 
 
+def pin_text_limits() -> dict[str, int]:
+    """{"title": n, "description": n} from the approved official spec source, or {} when unavailable."""
+    source = _approved_source("pinterest-pin-text-specs.md")
+    if not source or PIN_SPECS_URL not in source.source_links:
+        return {}
+    title = source.metadata.get("pin_title_max_characters")
+    description = source.metadata.get("pin_description_max_characters")
+    if type(title) is not int or type(description) is not int or title <= 0 or description <= 0:
+        return {}
+    return {"title": title, "description": description}
+
+
 def approved_pin_text_limits() -> dict[str, int]:
     source = _approved_source("pinterest-pin-text-specs.md")
     if not source or PIN_SPECS_URL not in source.source_links:

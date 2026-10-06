@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 _BUILD = re.compile(r"\b(построй|составь|сделай|создай|разработай|подготовь|предложи)\w*[\s,]+(?:[^\s,]+[\s,]+){0,3}стратеги", re.I)
 _CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(подтверждаю|утверждаю|принимаю|согласен|согласна|согласовано)"
                       r"(?:\s+(?:эту\s+)?(?:стратегию|версию))?[\s.!]*$", re.I)
+_EXPLICIT_CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(?:подтверждаю|утверждаю|принимаю)\s+(?:эту\s+)?(?:стратегию|версию)[\s.!]*$", re.I)
 _EXCLUDE = re.compile(r"\bне\s+(?:продвигай|включай|предлагай)\s+(.+)|"
                       r"\b(?:исключи|убери)\s+(.+?)\s+из\s+стратеги\w*", re.I)
 _REVISE = re.compile(r"\b(измени|поменяй|скорректируй|обнови|добавь|дополни)\w*[\s,:]+(?:[^\s,:]+[\s,:]+){0,3}стратеги", re.I)
@@ -149,6 +150,10 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     exclusion = _exclusion_stem(text) if (pending or st.active_version(business)) else None
     researches = bool(_RESEARCH.search(text))
     builds, confirms = _asks_for_strategy(text), pending is not None and _is_confirmation(text)
+    if pending is None and _EXPLICIT_CONFIRM.match(text) and not builds:  # explicit confirmation with nothing to confirm
+        if not mem.actor_can_edit(business, actor):
+            return _reply(conversation, "Менять и подтверждать стратегию могут владелец, администратор и редактор рабочего пространства.", model="strategy-denied")
+        return _reply(conversation, "Сейчас нет черновика стратегии для подтверждения. Напиши «Построй стратегию».", model="strategy-nothing-to-confirm")
     revises = bool(_REVISE.search(text)) and bool(pending or st.active_version(business))
     if not (builds or confirms or exclusion or revises or researches):
         return None

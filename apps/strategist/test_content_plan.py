@@ -124,6 +124,27 @@ class ContentPlanChatTest(TestCase):
         self.assertIn("уже заменена", self.say("Подтверждаю контент-план").content)
         self.assertEqual(ContentPlan.objects.get(status="DRAFT").strategy_version, version)
 
+    def test_rejected_answer_is_retried_once_with_a_note_and_tokens_are_summed(self):
+        self.confirmed_version()
+        bad = completion({"items": [{"target_week": 1, "direction": "нет такого", "idea": "x"}]})
+        self.complete.side_effect = [bad, completion(ITEMS)]
+        answer = self.say("Составь контент-план")
+        self.assertEqual((answer.provider, answer.total_tokens), ("content-plan", 14))
+        self.assertEqual(self.complete.call_count, 2)
+        second_messages = self.complete.call_args.args[0]
+        self.assertEqual(second_messages[-1]["content"], cp.RETRY_NOTE)
+        self.assertEqual(ContentPlan.objects.count(), 1)
+        self.complete.side_effect = [bad, bad]
+        self.assertIn("Не получилось собрать надёжный контент-план", self.say("Составь контент-план").content)
+        self.assertEqual(self.complete.call_count, 4)  # never more than two attempts per request
+
+    def test_confirmation_with_nothing_to_confirm_gets_a_short_answer_without_a_model(self):
+        self.confirmed_version()
+        self.assertIn("нет черновика контент-плана", self.say("Подтверждаю контент-план").content)
+        self.assertIn("нет черновика стратегии", self.say("Подтверждаю стратегию").content)
+        self.complete.assert_not_called()
+        self.assertEqual(AIMessage.objects.filter(role="ASSISTANT", provider="gigachat").count(), 0)
+
     def test_invalid_model_output_and_viewer(self):
         self.confirmed_version()
         self.complete.return_value = completion({"items": [{"target_week": 1, "direction": "нет такого", "idea": "x"}]})

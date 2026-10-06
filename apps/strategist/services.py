@@ -33,6 +33,7 @@ from .provenance import CHAT_PROMPT_VERSION, stamp
 from . import memory
 from .content_plan import content_plan_reply
 from .coverage import coverage_reply
+from .pin_generation import pin_reply
 from .strategy import profile_facts
 from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
@@ -809,6 +810,9 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     memory_answer = memory.memory_reply(user_message=user_message, actor=actor)
     if memory_answer:
         return memory_answer
+    pin_answer = pin_reply(user_message=user_message, actor=actor)
+    if pin_answer:
+        return pin_answer
     plan_answer = content_plan_reply(user_message=user_message, actor=actor)
     if plan_answer:
         return plan_answer
