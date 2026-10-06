@@ -4,7 +4,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from apps.businesses.models import Business
 
@@ -237,7 +237,7 @@ def strategy_confirm(request, workspace_slug, business_slug, number):
     try:
         strategies.confirm_with_decision(version, request.user)
     except strategies.StrategyError as error:
-        messages.error(request, str(error))
+        messages.error(request, gettext(str(error)))
     else:
         messages.success(request, _("Стратегия подтверждена."))
     return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)
@@ -252,7 +252,7 @@ def plan_confirm(request, workspace_slug, business_slug):
     try:
         plans.confirm_with_decision(plan, request.user)
     except plans.PlanError as error:
-        messages.error(request, str(error))
+        messages.error(request, gettext(str(error)))
     else:
         messages.success(request, _("Контент-план подтверждён."))
     return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)

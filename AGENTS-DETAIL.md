@@ -55,6 +55,18 @@
 
 `scripts/run_strategist_arksim.py` — dry run без `--run`; с `--run` делает реальные платные вызовы API и создаёт и уничтожает временную БД. Зависимость `arksim` лежит в `requirements/eval.txt`, а не в `base.txt`.
 
+## Локализация (ru + en)
+
+Язык-источник — русский: msgid — это русская строка, английский перевод лежит в `locale/en/LC_MESSAGES/django.po`. Ни `xgettext`, ни `msgfmt` в среде нет, поэтому каталог ведёт `scripts/i18n.py` (чистый Python, работает на хосте):
+
+    python3 scripts/i18n.py extract   # пересобрать .po из шаблонов и Python, переводы сохраняются
+    python3 scripts/i18n.py compile   # собрать django.mo
+    python3 scripts/i18n.py check     # код возврата ≠ 0, если каталог устарел/неполон/сломан
+
+Новая пользовательская строка: обернуть в `{% trans %}` / `{% blocktrans %}` (в Python — `gettext` / `gettext_lazy`, для сообщений, которые только передаются дальше, — `gettext_noop`), затем `extract`, вписать `msgstr`, `compile`. `blocktrans` с `plural`/`count` скриптом не поддерживается. `django.mo` коммитится (исключение в `.gitignore`); `apps.strategist.test_i18n` падает, если .po и .mo разошлись, строка не переведена или в переводе потерян `%(плейсхолдер)s`, поэтому CI это ловит. Переключатель языка — `templates/includes/language_switch.html` (POST на `set_language`).
+
+Не переводится: ответы самого Стратега и тексты из `services.py`, `strategy_chat.py`, `memory.py`, `content_plan.py` (язык диалога задан его системным prompt и правилами ответа, это не интерфейс); картинка на лендинге с подписями «подходит / не подходит»; названия полей моделей в админке.
+
 ## Версии
 
 Запинены намеренно. Смена зависимости требует прохода по матрице совместимости; если после смены версии что-то сломалось, сначала откатывайтесь, а не обновляйте всё подряд. Полный список версий и их назначение — в `BOOSTKLIENT_3_STACK_VERSIONS.md`.

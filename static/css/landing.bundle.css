@@ -78,6 +78,14 @@
 .landing-nav-actions .interface-scale-control { color: var(--landing-text); }
 .landing-nav-actions .interface-scale-trigger { width: 36px; height: 36px; }
 
+/* components/language-switch.css */
+.language-switch { display: inline-flex; margin: 0; border: var(--line-width, 1px) solid currentColor; border-radius: var(--radius-control, 4px); opacity: .9; }
+.language-switch-option { min-width: 34px; min-height: 32px; padding: 0 var(--space-2, 8px); border: 0; background: transparent; color: inherit; font: inherit; font-size: calc(12px * var(--interface-font-scale, 1)); cursor: pointer; }
+.language-switch-option + .language-switch-option { border-left: var(--line-width, 1px) solid currentColor; }
+.language-switch-option:hover { text-decoration: underline; text-underline-offset: 4px; }
+.language-switch-option:focus-visible { outline: 2px solid var(--focus, currentColor); outline-offset: 2px; }
+.language-switch-option.is-current { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
 /* landing.css */
 @font-face { font-family: "BK Landing Manrope"; src: url("../fonts/app/manrope-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "BK Landing Oswald"; src: url("../fonts/app/oswald-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }

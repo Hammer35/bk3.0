@@ -4,7 +4,7 @@
 {% block content %}
 <section class="form-shell strategist-shell">
     <div class="panel form-card">
-        <p class="eyebrow">Активный бизнес: {{ business.workspace.name }} / {{ business.name }}</p>
+        <p class="eyebrow">{% blocktrans with workspace=business.workspace.name name=business.name %}Активный бизнес: {{ workspace }} / {{ name }}{% endblocktrans %}</p>
         <h1>{% trans "ИИ-стратег" %}</h1>
         <p>{% trans "Планируйте Pinterest-контент и следующий шаг для этого бизнеса." %}</p>
         <div class="chat-history" aria-live="polite">

@@ -83,6 +83,7 @@
                 <header class="topbar">
                     <span class="topbar-context">{% trans "Рабочая среда" %}</span>
                     <div class="topbar-actions">
+                        {% include "includes/language_switch.html" %}
                         <button type="button" class="button button-secondary button-small theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
                         {% include "includes/interface_scale_control.html" %}
                         <form method="post" action="{% url 'accounts:logout' %}">
@@ -96,6 +97,7 @@
         <header class="auth-header">
             <a href="{% url 'core:landing' %}" class="brand">BOOSTKLIENT®</a>
             <div class="auth-actions">
+                {% include "includes/language_switch.html" %}
                 <button type="button" class="button button-secondary button-small theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
                 <a href="{% url 'login' %}" class="button button-secondary button-small">{% trans "Войти" %}</a>
             </div>

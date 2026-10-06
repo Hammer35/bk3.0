@@ -16,9 +16,10 @@ APP_SOURCES = (
     "components/interface-scale.css",
     "components/workbench.css",
     "components/strategy.css",
+    "components/language-switch.css",
     "shell.css",
 )
-LANDING_SOURCES = ("components/interface-scale.css", "landing.css")
+LANDING_SOURCES = ("components/interface-scale.css", "components/language-switch.css", "landing.css")
 
 
 def build(output: str, sources: tuple[str, ...]) -> None:

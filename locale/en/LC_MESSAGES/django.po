@@ -1,0 +1,927 @@
+# English interface strings. Source language: Russian.
+# Regenerate with: python scripts/i18n.py extract
+
+msgid ""
+msgstr "Project-Id-Version: BOOSTKLIENT 3.0\nLanguage: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/strategist/_chat_messages.html
+msgid "(неполный)"
+msgstr "(incomplete)"
+
+#: templates/strategist/_chat_messages.html
+msgid "(описание модели, не проверено)"
+msgstr "(model description, not verified)"
+
+#: templates/core/landing.html
+msgid "BOOSTKLIENT® | Pinterest для товаров"
+msgstr "BOOSTKLIENT® | Pinterest for products"
+
+#: templates/landing_base.html
+msgid "BoostKlient превращает каталог маркетплейса в Pinterest-контент и органический трафик к товарам."
+msgstr "BoostKlient turns a marketplace catalog into Pinterest content and organic traffic to your products."
+
+#: templates/core/landing.html
+msgid "BoostKlient собирает контекст бизнеса до работы со стратегией, чтобы ИИ не был отдельным общим чатом."
+msgstr "BoostKlient collects business context before strategy work, so the AI is not just another generic chat."
+
+#: apps/accounts/forms.py:8
+msgid "Email"
+msgstr "Email"
+
+#: apps/strategist/views.py:81
+msgid "GigaChat временно недоступен. Повторите запрос."
+msgstr "GigaChat is temporarily unavailable. Please try again."
+
+#: templates/core/home.html
+#: templates/core/landing.html
+msgid "Pinterest"
+msgstr "Pinterest"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Pinterest · подтверждение"
+msgstr "Pinterest · confirmation"
+
+#: apps/pinterest/views.py:199
+#, python-format
+msgid "Pinterest аккаунт @%(name)s подключён."
+msgstr "Pinterest account @%(name)s connected."
+
+#: apps/pinterest/views.py:120
+msgid "Pinterest аккаунт отключён. OAuth-токены удалены."
+msgstr "Pinterest account disconnected. OAuth tokens deleted."
+
+#: templates/core/home.html
+msgid "Pinterest аккаунты"
+msgstr "Pinterest accounts"
+
+#: templates/core/landing.html
+msgid "Pinterest для Wildberries, Ozon и Etsy"
+msgstr "Pinterest for Wildberries, Ozon and Etsy"
+
+#: apps/pinterest/views.py:148
+msgid "Pinterest не вернул данные. Проверь разрешения аккаунта и повтори попытку позже."
+msgstr "Pinterest returned no data. Check the account permissions and try again later."
+
+#: apps/pinterest/views.py:184
+msgid "Pinterest не вернул код авторизации."
+msgstr "Pinterest did not return an authorization code."
+
+#: apps/pinterest/views.py:179
+msgid "Pinterest отменил или отклонил авторизацию."
+msgstr "Pinterest canceled or rejected the authorization."
+
+#: templates/core/landing.html
+msgid "Wildberries, Ozon и Etsy"
+msgstr "Wildberries, Ozon and Etsy"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Аккаунт будет удалён из BOOSTKLIENT, а его OAuth-токены — очищены. Это действие нельзя отменить."
+msgstr "The account will be removed from BOOSTKLIENT and its OAuth tokens will be cleared. This action cannot be undone."
+
+#: templates/core/home.html
+msgid "Аккаунт не подключён"
+msgstr "Account not connected"
+
+#: templates/core/home.html
+msgid "Активен"
+msgstr "Active"
+
+#: templates/strategist/chat.html
+#, python-format
+msgid "Активный бизнес: %(workspace)s / %(name)s"
+msgstr "Active business: %(workspace)s / %(name)s"
+
+#: templates/core/home.html
+#: templates/strategist/strategy.html
+msgid "Аудитория"
+msgstr "Audience"
+
+#: apps/businesses/views.py:23
+msgid "Бизнес добавлен."
+msgstr "Business added."
+
+#: templates/core/home.html
+msgid "Бизнесы"
+msgstr "Businesses"
+
+#: apps/workspaces/forms.py:29
+msgid "Более точное направление внутри ниши. Например: «льняные платья», «аромасвечи ручной работы»."
+msgstr "A more specific direction within the niche. For example: \"linen dresses\", \"handmade scented candles\"."
+
+#: templates/core/home.html
+msgid "В архиве"
+msgstr "Archived"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Версия %(number)s"
+msgstr "Version %(number)s"
+
+#: templates/accounts/login.html
+#: templates/accounts/register.html
+#: templates/base.html
+msgid "Войти"
+msgstr "Sign in"
+
+#: templates/base.html
+msgid "Вопросы появятся здесь"
+msgstr "Questions will appear here"
+
+#: templates/base.html
+msgid "Вопросы этой сессии"
+msgstr "Questions in this session"
+
+#: templates/accounts/login.html
+msgid "Вход — BOOSTKLIENT®"
+msgstr "Sign in — BOOSTKLIENT®"
+
+#: templates/strategist/_chat_messages.html
+#: templates/strategist/chat.html
+msgid "Вы"
+msgstr "You"
+
+#: templates/strategist/chat.html
+msgid "Выберите сессию слева или создайте новую."
+msgstr "Choose a session on the left or create a new one."
+
+#: templates/base.html
+msgid "Выйти"
+msgstr "Sign out"
+
+#: templates/strategist/_strategy_version.html
+msgid "Гипотезы (не подтверждены)"
+msgstr "Hypotheses (not confirmed)"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Да, удалить аккаунт"
+msgstr "Yes, delete the account"
+
+#: apps/pinterest/views.py:146
+#, python-format
+msgid "Данные @%(name)s синхронизированы."
+msgstr "Data for @%(name)s synchronized."
+
+#: templates/strategist/strategy.html
+msgid "Действует"
+msgstr "Active"
+
+#: templates/core/home.html
+msgid "Диагностика и план"
+msgstr "Diagnosis and plan"
+
+#: templates/core/landing.html
+msgid "Для продавцов"
+msgstr "For sellers"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Для стратегии не хватает: %(fields)s."
+msgstr "Not enough data for the strategy: %(fields)s."
+
+#: templates/businesses/create.html
+msgid "Добавить"
+msgstr "Add"
+
+#: templates/core/home.html
+msgid "Добавить Pinterest аккаунт"
+msgstr "Add a Pinterest account"
+
+#: templates/businesses/create.html
+#: templates/core/home.html
+msgid "Добавить бизнес"
+msgstr "Add a business"
+
+#: templates/core/home.html
+msgid "Добавьте первый бизнес"
+msgstr "Add your first business"
+
+#: templates/strategist/_strategy_version.html
+msgid "Доски"
+msgstr "Boards"
+
+#: templates/strategist/strategy.html
+msgid "Ждёт подтверждения"
+msgstr "Awaiting confirmation"
+
+#: templates/strategist/chat.html
+msgid "Задайте первый вопрос о контенте или стратегии."
+msgstr "Ask your first question about content or strategy."
+
+#: templates/strategist/_chat_messages.html
+#: templates/strategist/chat.html
+msgid "ИИ-стратег"
+msgstr "AI strategist"
+
+#: templates/core/landing.html
+msgid "ИИ-стратег помогает собрать темы, ключевые слова и содержание пинов."
+msgstr "The AI strategist helps you put together topics, keywords and pin content."
+
+#: templates/strategist/chat.html
+msgid "ИИ-стратег — BOOSTKLIENT®"
+msgstr "AI strategist — BOOSTKLIENT®"
+
+#: templates/strategist/strategy.html
+msgid "Идеи для производства, а не расписание публикаций: даты и частоту вы задаёте сами."
+msgstr "These are ideas for production, not a publishing schedule: you set the dates and frequency yourself."
+
+#: templates/strategist/_strategy_version.html
+#, python-format
+msgid "Из исследования ниши от %(date)s"
+msgstr "From niche research dated %(date)s"
+
+#: templates/includes/interface_scale_control.html
+msgid "Изменить размер текста"
+msgstr "Change text size"
+
+#: templates/strategist/_strategy_version.html
+msgid "Исключено по вашей просьбе"
+msgstr "Excluded at your request"
+
+#: templates/strategist/strategy.html
+msgid "История версий"
+msgstr "Version history"
+
+#: templates/strategist/strategy.html
+msgid "История версий стратегии"
+msgstr "Strategy version history"
+
+#: templates/core/home.html
+msgid "Исходные данные для работы ИИ-стратега"
+msgstr "Source data for the AI strategist"
+
+#: templates/core/landing.html
+msgid "Как это работает"
+msgstr "How it works"
+
+#: templates/core/landing.html
+msgid "Карточки товаров, фото и видео становятся исходными материалами."
+msgstr "Product cards, photos and videos become the source material."
+
+#: templates/core/landing.html
+msgid "Каталог"
+msgstr "Catalog"
+
+#: templates/strategist/_chat_messages.html
+#, python-format
+msgid "Каталог бренда: %(total)s товаров"
+msgstr "Brand catalog: %(total)s products"
+
+#: templates/strategist/_chat_messages.html
+#, python-format
+msgid "Каталог продавца: %(total)s товаров"
+msgstr "Seller catalog: %(total)s products"
+
+#: templates/core/landing.html
+msgid "Каталог → Pinterest"
+msgstr "Catalog → Pinterest"
+
+#: templates/base.html
+msgid "Каталог → стратегия → органический трафик"
+msgstr "Catalog → strategy → organic traffic"
+
+#: apps/strategist/views.py:79
+msgid "Ключ GigaChat не настроен."
+msgstr "The GigaChat key is not configured."
+
+#: templates/strategist/_strategy_version.html
+msgid "Ключевые слова"
+msgstr "Keywords"
+
+#: apps/workspaces/forms.py:41
+msgid "Кому вы продаёте: возраст, интересы, задача или ситуация покупки. Например: «женщины 25–40, ищут базовую одежду для офиса»."
+msgstr "Who you sell to: age, interests, the task or situation behind the purchase. For example: \"women 25–40 looking for basic office clothing\"."
+
+#: templates/core/home.html
+msgid "Контекст бизнеса"
+msgstr "Business context"
+
+#: templates/core/home.html
+msgid "Контент"
+msgstr "Content"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Контент-план по версии %(number)s"
+msgstr "Content plan for version %(number)s"
+
+#: apps/strategist/views.py:257
+msgid "Контент-план подтверждён."
+msgstr "Content plan confirmed."
+
+#: templates/strategist/_strategy_version.html
+msgid "Контентные направления"
+msgstr "Content directions"
+
+#: templates/base.html
+msgid "МБ"
+msgstr "MB"
+
+#: templates/base.html
+#: templates/core/home.html
+msgid "Мой бизнес"
+msgstr "My business"
+
+#: templates/base.html
+msgid "Навигация приложения"
+msgstr "App navigation"
+
+#: apps/businesses/forms.py:12
+#: apps/workspaces/forms.py:12
+msgid "Название бизнеса"
+msgstr "Business name"
+
+#: apps/workspaces/forms.py:13
+msgid "Название бренда, магазина или отдельного направления, для которого будете создавать контент."
+msgstr "The name of the brand, store or separate line you will create content for."
+
+#: apps/workspaces/forms.py:7
+msgid "Название рабочего пространства"
+msgstr "Workspace name"
+
+#: templates/strategist/strategy.html
+msgid "Напишите ИИ-стратегу «Построй стратегию»: он соберёт черновик по профилю бизнеса."
+msgstr "Ask the AI strategist: \"Build a strategy\". It will assemble a draft from the business profile."
+
+#: apps/strategist/forms.py:12
+msgid "Напишите стратегу или вставьте ссылку на товар Wildberries"
+msgstr "Write to the strategist or paste a Wildberries product link"
+
+#: templates/core/landing.html
+msgid "Начинаем с товарных визуалов, которые можно превратить в понятный Pinterest-контент."
+msgstr "We start with product visuals that can be turned into clear Pinterest content."
+
+#: templates/core/landing.html
+msgid "Не новый контент с нуля, а новая точка входа к вашему ассортименту."
+msgstr "Not new content from scratch, but a new entry point to your range."
+
+#: templates/strategist/chat.html
+msgid "Не удалось отправить сообщение. Проверьте соединение и повторите попытку."
+msgstr "Could not send the message. Check your connection and try again."
+
+#: apps/pinterest/views.py:195
+msgid "Не удалось подключить Pinterest. Проверьте настройки и попробуйте снова."
+msgstr "Could not connect Pinterest. Check the settings and try again."
+
+#: templates/includes/interface_scale_control.html
+msgid "Не удалось сохранить размер текста. Попробуйте ещё раз."
+msgstr "Could not save the text size. Please try again."
+
+#: templates/strategist/_strategy_version.html
+msgid "Не хватает данных"
+msgstr "Missing data"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Неделя %(week)s"
+msgstr "Week %(week)s"
+
+#: templates/accounts/login.html
+msgid "Нет аккаунта?"
+msgstr "No account yet?"
+
+#: apps/businesses/forms.py:14
+#: apps/workspaces/forms.py:22
+#: templates/strategist/strategy.html
+msgid "Ниша"
+msgstr "Niche"
+
+#: templates/base.html
+#: templates/strategist/chat.html
+msgid "Новая сессия"
+msgstr "New session"
+
+#: templates/businesses/create.html
+msgid "Новый бизнес — BOOSTKLIENT®"
+msgstr "New business — BOOSTKLIENT®"
+
+#: apps/workspaces/forms.py:8
+msgid "Общее имя для ваших проектов. Например: «Мой магазин» или «Studio North»."
+msgstr "A shared name for your projects. For example: \"My store\" or \"Studio North\"."
+
+#: templates/core/landing.html
+msgid "Основная навигация"
+msgstr "Main navigation"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Оставить аккаунт"
+msgstr "Keep the account"
+
+#: templates/core/home.html
+msgid "Открыть ИИ-стратега"
+msgstr "Open the AI strategist"
+
+#: templates/strategist/_chat_messages.html
+msgid "Открыть карточку товара"
+msgstr "Open product card"
+
+#: templates/core/landing.html
+msgid "Открыть рабочую среду"
+msgstr "Open the workspace"
+
+#: templates/strategist/strategy.html
+msgid "Открыть чат с ИИ-стратегом"
+msgstr "Open chat with the AI strategist"
+
+#: templates/base.html
+msgid "Отмена"
+msgstr "Cancel"
+
+#: templates/strategist/chat.html
+msgid "Отправить сообщение"
+msgstr "Send message"
+
+#: templates/workspaces/onboarding.html
+msgid "Первый шаг"
+msgstr "First step"
+
+#: templates/core/home.html
+msgid "Переподключить"
+msgstr "Reconnect"
+
+#: templates/core/home.html
+msgid "Переподключить Pinterest? Вы будете перенаправлены на Pinterest для повторного подтверждения доступа."
+msgstr "Reconnect Pinterest? You will be redirected to Pinterest to confirm access again."
+
+#: templates/strategist/chat.html
+msgid "Планируйте Pinterest-контент и следующий шаг для этого бизнеса."
+msgstr "Plan Pinterest content and the next step for this business."
+
+#: templates/core/landing.html
+msgid "Подготовьте пины, ключевые слова и план публикаций из готовых карточек, фото и видео."
+msgstr "Prepare pins, keywords and a publishing plan from ready-made cards, photos and videos."
+
+#: apps/pinterest/views.py:42
+#: apps/pinterest/views.py:75
+msgid "Подключение Pinterest пока не настроено администратором."
+msgstr "Pinterest connection has not been set up by the administrator yet."
+
+#: templates/core/home.html
+msgid "Подключить Pinterest"
+msgstr "Connect Pinterest"
+
+#: templates/core/home.html
+msgid "Подключить Pinterest к этому бизнесу? Вы будете перенаправлены на Pinterest для подтверждения доступа."
+msgstr "Connect Pinterest to this business? You will be redirected to Pinterest to confirm access."
+
+#: templates/core/home.html
+msgid "Подключить ещё один Pinterest аккаунт к этому бизнесу? Вы будете перенаправлены на Pinterest для подтверждения доступа."
+msgstr "Connect another Pinterest account to this business? You will be redirected to Pinterest to confirm access."
+
+#: apps/businesses/forms.py:15
+#: apps/workspaces/forms.py:28
+msgid "Подниша"
+msgstr "Subniche"
+
+#: templates/strategist/strategy.html
+msgid "Подтвердить контент-план"
+msgstr "Confirm content plan"
+
+#: apps/strategist/content_plan.py:91
+msgid "Подтвердить можно только актуальный черновик плана."
+msgstr "Only the current draft of the plan can be confirmed."
+
+#: apps/strategist/strategy.py:254
+msgid "Подтвердить можно только актуальный черновик."
+msgstr "Only the current draft can be confirmed."
+
+#: templates/strategist/strategy.html
+msgid "Подтвердить стратегию"
+msgstr "Confirm strategy"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Подтверждена %(date)s"
+msgstr "Confirmed on %(date)s"
+
+#: templates/base.html
+msgid "Подтверждение действия"
+msgstr "Confirm action"
+
+#: apps/pinterest/views.py:114
+msgid "Подтверждение отключения Pinterest недействительно."
+msgstr "Pinterest disconnection confirmation is invalid."
+
+#: templates/strategist/strategy.html
+msgid "Пока пусто. Напишите в чате «Запомни: …», чтобы сохранить факт о бизнесе."
+msgstr "Nothing here yet. Write \"Remember: …\" in the chat to save a fact about the business."
+
+#: templates/core/landing.html
+msgid "Попробовать бесплатно"
+msgstr "Try for free"
+
+#: templates/accounts/register.html
+msgid "После регистрации создадим рабочее пространство и профиль первого бизнеса."
+msgstr "After sign-up we will create a workspace and the profile of your first business."
+
+#: templates/core/home.html
+msgid "После этого ИИ-стратег сможет работать с его контекстом."
+msgstr "After that the AI strategist can work with its context."
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Последнее исследование ниши: %(date)s."
+msgstr "Latest niche research: %(date)s."
+
+#: templates/core/landing.html
+msgid "Посмотреть путь"
+msgstr "See the path"
+
+#: templates/strategist/_strategy_version.html
+msgid "Почему так"
+msgstr "Why this way"
+
+#: templates/core/landing.html
+msgid "Пример визуалов товара для Pinterest: подходящие и неподходящие изображения"
+msgstr "Example of product visuals for Pinterest: suitable and unsuitable images"
+
+#: templates/strategist/_strategy_version.html
+msgid "Приоритеты"
+msgstr "Priorities"
+
+#: templates/accounts/register.html
+#: templates/base.html
+msgid "Продолжить"
+msgstr "Continue"
+
+#: templates/base.html
+msgid "Продолжить?"
+msgstr "Continue?"
+
+#: templates/core/home.html
+msgid "Профиль"
+msgstr "Profile"
+
+#: templates/strategist/strategy.html
+msgid "Профиль бизнеса"
+msgstr "Business profile"
+
+#: templates/core/landing.html
+msgid "Профиль бизнеса, стратегия и контент в одной рабочей среде"
+msgstr "Business profile, strategy and content in one workspace"
+
+#: templates/core/landing.html
+msgid "Публикации ведут к товарам там, где уже оформлена покупка."
+msgstr "Posts lead to products where the purchase is already set up."
+
+#: templates/base.html
+#: templates/core/landing.html
+msgid "Рабочая среда"
+msgstr "Workspace"
+
+#: apps/workspaces/views.py:19
+msgid "Рабочее пространство и первый бизнес созданы."
+msgstr "The workspace and the first business have been created."
+
+#: templates/core/home.html
+msgid "Рабочие пространства"
+msgstr "Workspaces"
+
+#: templates/core/landing.html
+msgid "Рабочий маршрут"
+msgstr "Work route"
+
+#: templates/core/home.html
+msgid "Рабочий путь"
+msgstr "Work path"
+
+#: templates/core/home.html
+msgid "Рабочих пространств пока нет."
+msgstr "No workspaces yet."
+
+#: templates/base.html
+msgid "Развернуть боковую панель"
+msgstr "Expand sidebar"
+
+#: templates/base.html
+msgid "Разделы приложения"
+msgstr "App sections"
+
+#: templates/includes/interface_scale_control.html
+msgid "Размер текста"
+msgstr "Text size"
+
+#: templates/workspaces/onboarding.html
+msgid "Расскажите о первом бизнесе"
+msgstr "Tell us about your first business"
+
+#: apps/businesses/forms.py:16
+#: apps/workspaces/forms.py:34
+#: templates/core/home.html
+msgid "Рынок"
+msgstr "Market"
+
+#: templates/base.html
+msgid "СТ"
+msgstr "ST"
+
+#: apps/businesses/forms.py:13
+#: apps/workspaces/forms.py:17
+#: templates/core/home.html
+msgid "Сайт"
+msgstr "Website"
+
+#: templates/includes/interface_scale_control.html
+msgid "Сбросить"
+msgstr "Reset"
+
+#: templates/base.html
+msgid "Свернуть боковую панель"
+msgstr "Collapse sidebar"
+
+#: templates/base.html
+#: templates/core/landing.html
+msgid "Светлая тема"
+msgstr "Light theme"
+
+#: templates/strategist/_strategy_version.html
+msgid "Сезонные идеи"
+msgstr "Seasonal ideas"
+
+#: templates/base.html
+msgid "Сессии"
+msgstr "Sessions"
+
+#: templates/base.html
+msgid "Сессии ИИ-стратега"
+msgstr "AI strategist sessions"
+
+#: apps/pinterest/views.py:139
+msgid "Синхронизация уже выполняется. Подожди немного и обнови страницу."
+msgstr "A sync is already in progress. Wait a moment and refresh the page."
+
+#: templates/core/home.html
+msgid "Синхронизировано"
+msgstr "Synchronized"
+
+#: templates/core/home.html
+msgid "Синхронизировать"
+msgstr "Synchronize"
+
+#: templates/core/home.html
+msgid "Следующий модуль"
+msgstr "Next module"
+
+#: templates/core/home.html
+msgid "Следующий шаг"
+msgstr "Next step"
+
+#: apps/strategist/views.py:120
+msgid "Сначала создайте сессию ИИ-стратега."
+msgstr "Create an AI strategist session first."
+
+#: templates/core/landing.html
+msgid "Соберите первый контекст бизнеса и начните Pinterest-стратегию."
+msgstr "Collect the first business context and start your Pinterest strategy."
+
+#: templates/core/landing.html
+msgid "Собственные фотографии и видео"
+msgstr "Your own photos and videos"
+
+#: templates/workspaces/onboarding.html
+msgid "Создадим рабочее пространство и базовый профиль. Его можно будет дополнить вместе с ИИ-стратегом."
+msgstr "We will create a workspace and a basic profile. You can extend it later together with the AI strategist."
+
+#: templates/accounts/register.html
+msgid "Создайте аккаунт"
+msgstr "Create an account"
+
+#: templates/base.html
+msgid "Создайте сессию, чтобы начать разговор."
+msgstr "Create a session to start a conversation."
+
+#: templates/workspaces/onboarding.html
+msgid "Создание бизнеса — BOOSTKLIENT®"
+msgstr "Create a business — BOOSTKLIENT®"
+
+#: templates/accounts/login.html
+msgid "Создать аккаунт"
+msgstr "Create account"
+
+#: templates/accounts/register.html
+msgid "Создать аккаунт — BOOSTKLIENT®"
+msgstr "Create account — BOOSTKLIENT®"
+
+#: templates/workspaces/onboarding.html
+msgid "Создать профиль"
+msgstr "Create profile"
+
+#: apps/strategist/forms.py:7
+msgid "Сообщение"
+msgstr "Message"
+
+#: templates/includes/interface_scale_control.html
+msgid "Сохранено"
+msgstr "Saved"
+
+#: templates/includes/interface_scale_control.html
+msgid "Сохраняю…"
+msgstr "Saving…"
+
+#: templates/strategist/chat.html
+msgid "Спросить ИИ-стратега"
+msgstr "Ask the AI strategist"
+
+#: apps/pinterest/views.py:175
+msgid "Срок подключения Pinterest истёк. Попробуйте ещё раз."
+msgstr "The Pinterest connection has expired. Please try again."
+
+#: apps/workspaces/forms.py:18
+msgid "Ссылка на сайт или карточку магазина. Например: https://example.com. Можно заполнить позже."
+msgstr "A link to your website or store page. For example: https://example.com. You can fill it in later."
+
+#: templates/core/home.html
+msgid "Статус"
+msgstr "Status"
+
+#: apps/workspaces/forms.py:35
+msgid "Страна или регион, где вы продаёте. Например: «Россия», «Казахстан», «Европа»."
+msgstr "The country or region where you sell. For example: \"Russia\", \"Kazakhstan\", \"Europe\"."
+
+#: templates/core/home.html
+msgid "Стратег"
+msgstr "Strategist"
+
+#: templates/strategist/strategy.html
+msgid "Стратегии пока нет"
+msgstr "No strategy yet"
+
+#: templates/base.html
+#: templates/strategist/strategy.html
+msgid "Стратегия"
+msgstr "Strategy"
+
+#: templates/strategist/strategy.html
+msgid "Стратегия заменена: постройте план заново."
+msgstr "The strategy was replaced: build the plan again."
+
+#: apps/strategist/views.py:242
+msgid "Стратегия подтверждена."
+msgstr "Strategy confirmed."
+
+#: templates/strategist/strategy.html
+msgid "Стратегия — BOOSTKLIENT®"
+msgstr "Strategy — BOOSTKLIENT®"
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Стратегия, версия %(number)s"
+msgstr "Strategy, version %(number)s"
+
+#: apps/strategist/content_plan.py:93
+msgid "Стратегия, на которой построен план, уже заменена. Построй план заново."
+msgstr "The strategy this plan was built on has already been replaced. Build the plan again."
+
+#: templates/core/landing.html
+msgid "Трафик"
+msgstr "Traffic"
+
+#: templates/core/landing.html
+msgid "Трафик к товарам"
+msgstr "Traffic to products"
+
+#: apps/pinterest/views.py:112
+msgid "Требуется подтверждение отключения Pinterest."
+msgstr "Pinterest disconnection requires confirmation."
+
+#: templates/base.html
+#: templates/core/landing.html
+msgid "Тёмная тема"
+msgstr "Dark theme"
+
+#: templates/includes/interface_scale_control.html
+msgid "Увеличить текст"
+msgstr "Increase text size"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Удалить Pinterest аккаунт"
+msgstr "Delete Pinterest account"
+
+#: templates/base.html
+#: templates/core/home.html
+msgid "Удалить аккаунт"
+msgstr "Delete account"
+
+#: templates/pinterest/confirm_disconnect.html
+msgid "Удалить подключение?"
+msgstr "Delete the connection?"
+
+#: templates/base.html
+msgid "Удалить сессию"
+msgstr "Delete session"
+
+#: templates/base.html
+msgid "Удалить эту сессию вместе со всей перепиской?"
+msgstr "Delete this session along with the whole conversation?"
+
+#: templates/accounts/register.html
+msgid "Уже есть аккаунт?"
+msgstr "Already have an account?"
+
+#: templates/core/landing.html
+msgid "Уже есть карточки товара? Есть с чего начать."
+msgstr "Already have product cards? You have something to start with."
+
+#: templates/includes/interface_scale_control.html
+msgid "Уменьшить текст"
+msgstr "Decrease text size"
+
+#: templates/core/home.html
+msgid "Управляйте профилем бизнеса, создавайте Pinterest-стратегию и запускайте следующий шаг."
+msgstr "Manage your business profile, create a Pinterest strategy and start the next step."
+
+#: templates/strategist/_chat_messages.html
+#, python-format
+msgid "Фото %(index)s"
+msgstr "Photo %(index)s"
+
+#: templates/strategist/_chat_messages.html
+#, python-format
+msgid "Фото товара %(index)s"
+msgstr "Product photo %(index)s"
+
+#: apps/businesses/forms.py:17
+#: apps/workspaces/forms.py:40
+msgid "Целевая аудитория"
+msgstr "Target audience"
+
+#: templates/strategist/_strategy_version.html
+#: templates/strategist/strategy.html
+msgid "Цели"
+msgstr "Goals"
+
+#: apps/businesses/forms.py:18
+#: apps/workspaces/forms.py:46
+msgid "Цели продвижения"
+msgstr "Promotion goals"
+
+#: templates/core/home.html
+msgid "Цель"
+msgstr "Goal"
+
+#: templates/strategist/_strategy_version.html
+msgid "Частота публикаций"
+msgstr "Posting frequency"
+
+#: apps/pinterest/views.py:144
+msgid "Часть данных обновлена; Pinterest не вернул все запрошенные ресурсы."
+msgstr "Some data was updated; Pinterest did not return all the requested resources."
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Черновик, версия %(number)s"
+msgstr "Draft, version %(number)s"
+
+#: templates/strategist/strategy.html
+msgid "Черновики, подтверждённая стратегия и контент-план этого бизнеса. Строит и меняет их ИИ-стратег в чате."
+msgstr "Drafts, the confirmed strategy and the content plan for this business. The AI strategist builds and changes them in the chat."
+
+#: templates/workspaces/onboarding.html
+msgid "Что вводить"
+msgstr "What to enter"
+
+#: templates/workspaces/onboarding.html
+#, python-format
+msgid "Что вводить в поле «%(field_label)s»"
+msgstr "What to enter in the field \"%(field_label)s\""
+
+#: templates/strategist/strategy.html
+msgid "Что помнит ИИ-стратег"
+msgstr "What the AI strategist remembers"
+
+#: apps/workspaces/forms.py:47
+msgid "Что хотите получить от Pinterest. Например: «больше переходов на сайт», «продажи новой коллекции», «узнаваемость бренда»."
+msgstr "What you want from Pinterest. For example: \"more clicks to the website\", \"sales of a new collection\", \"brand awareness\"."
+
+#: templates/strategist/strategy.html
+#, python-format
+msgid "Чтобы построить стратегию, заполните профиль бизнеса: %(fields)s."
+msgstr "To build a strategy, fill in the business profile: %(fields)s."
+
+#: apps/workspaces/forms.py:23
+msgid "Широкая категория товаров или услуг. Например: «женская одежда», «декор для дома»."
+msgstr "A broad category of products or services. For example: \"women's clothing\", \"home decor\"."
+
+#: templates/core/home.html
+#: templates/includes/language_switch.html
+msgid "Язык"
+msgstr "Language"
+
+#: templates/strategist/strategy.html
+msgid "видео"
+msgstr "video"
+
+#: templates/strategist/_strategy_version.html
+msgid "гипотеза, данными не подтверждено"
+msgstr "hypothesis, not confirmed by data"
+
+#: templates/strategist/strategy.html
+msgid "доска"
+msgstr "board"
+
+#: templates/strategist/strategy.html
+msgid "ключ"
+msgstr "keyword"
+
+#: templates/strategist/_chat_messages.html
+msgid "продавец не указан"
+msgstr "seller not specified"

@@ -386,6 +386,14 @@ button.button { appearance: none; }
     .strategy-table-row { grid-template-columns: 1fr 1fr; }
 }
 
+/* components/language-switch.css */
+.language-switch { display: inline-flex; margin: 0; border: var(--line-width, 1px) solid currentColor; border-radius: var(--radius-control, 4px); opacity: .9; }
+.language-switch-option { min-width: 34px; min-height: 32px; padding: 0 var(--space-2, 8px); border: 0; background: transparent; color: inherit; font: inherit; font-size: calc(12px * var(--interface-font-scale, 1)); cursor: pointer; }
+.language-switch-option + .language-switch-option { border-left: var(--line-width, 1px) solid currentColor; }
+.language-switch-option:hover { text-decoration: underline; text-underline-offset: 4px; }
+.language-switch-option:focus-visible { outline: 2px solid var(--focus, currentColor); outline-offset: 2px; }
+.language-switch-option.is-current { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
 /* shell.css */
 .auth-header { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding-inline: var(--page-gutter); border-bottom: var(--line-width) solid var(--line); }
 .brand { font-family: var(--font-display); font-size: calc(20px * var(--interface-font-scale, 1)); font-weight: 400; letter-spacing: -.035em; text-decoration: none; }

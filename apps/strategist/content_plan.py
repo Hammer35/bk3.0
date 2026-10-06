@@ -5,6 +5,7 @@ import re
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext_noop
 
 from . import memory as mem
 from . import strategy as st
@@ -87,9 +88,9 @@ def create_plan(business, user, version: StrategyVersion, items: list[dict]) -> 
 def confirm_plan(plan: ContentPlan, user) -> ContentPlan:
     plan = ContentPlan.objects.select_for_update().get(pk=plan.pk)
     if plan.status != ContentPlan.Status.DRAFT:
-        raise PlanError("Подтвердить можно только актуальный черновик плана.")
+        raise PlanError(gettext_noop("Подтвердить можно только актуальный черновик плана."))
     if plan.strategy_version.status != StrategyVersion.Status.CONFIRMED:
-        raise PlanError("Стратегия, на которой построен план, уже заменена. Построй план заново.")
+        raise PlanError(gettext_noop("Стратегия, на которой построен план, уже заменена. Построй план заново."))
     plan.business.content_plans.filter(status=ContentPlan.Status.CONFIRMED).update(status=ContentPlan.Status.SUPERSEDED)
     plan.status, plan.confirmed_by, plan.confirmed_at = ContentPlan.Status.CONFIRMED, user, timezone.now()
     plan.save(update_fields=["status", "confirmed_by", "confirmed_at", "updated_at"])

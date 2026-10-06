@@ -10,6 +10,7 @@ import re
 from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.translation import gettext_noop
 
 from apps.businesses.models import Business
 from . import memory
@@ -250,7 +251,7 @@ def confirm_version(version: StrategyVersion, user) -> StrategyVersion:
     strategy = Strategy.objects.select_for_update().get(pk=version.strategy_id)
     version = StrategyVersion.objects.select_for_update().get(pk=version.pk)
     if version.status != StrategyVersion.Status.DRAFT:
-        raise StrategyError("Подтвердить можно только актуальный черновик.")
+        raise StrategyError(gettext_noop("Подтвердить можно только актуальный черновик."))
     strategy.versions.filter(status=StrategyVersion.Status.CONFIRMED).update(status=StrategyVersion.Status.SUPERSEDED)
     version.status = StrategyVersion.Status.CONFIRMED
     version.confirmed_by = user
