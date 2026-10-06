@@ -25,7 +25,7 @@ GOOD = {"title": "Как носить льняное платье летом", "
 DISTINCT = [
     {"title": "Как носить льняное платье летом", "description": "Три образа для офиса, прогулки и отпуска. Ткань дышит и приятна в жару.", "alt_text": "Женщина в бежевом льняном платье на летней улице"},
     {"title": "С чем сочетать льняной костюм", "description": "Сандалии, соломенная сумка и лёгкий шарф дополняют образ. Показываем сочетания по цветам.", "alt_text": "Светлый льняной костюм на вешалке рядом с сумкой"},
-    {"title": "Уход за льном: стирка без усадки", "description": "Стирайте в прохладной воде и сушите на плечиках. Так изделие дольше сохраняет форму.", "alt_text": "Льняная блузка сушится на плечиках у окна"},
+    {"title": "Как стирать лён без усадки", "description": "Стирайте в прохладной воде и сушите на плечиках. Так изделие дольше сохраняет форму.", "alt_text": "Льняная блузка сушится на плечиках у окна"},
     {"title": "Льняное платье на выпускной вечер", "description": "Простой силуэт и мягкая ткань подойдут для праздника на открытом воздухе.", "alt_text": "Девушка в длинном платье из льна у реки"},
     {"title": "Три способа сложить лён в чемодан", "description": "Рулоны вместо стопок и мягкие прокладки между слоями помогают беречь складки.", "alt_text": "Открытый чемодан с аккуратно сложенной одеждой"},
     {"title": "Цвета натурального льна", "description": "Молочный, песочный и оливковый оттенки легко сочетаются между собой.", "alt_text": "Палитра тканей молочного песочного и оливкового цветов"},
@@ -69,7 +69,7 @@ class PinGenerationTest(TestCase):
 
     def test_batch_is_capped_validated_and_never_published(self):
         answer = self.say("Создай пины по контент-плану")
-        self.assertEqual((answer.provider, answer.total_tokens, answer.prompt_version), ("pins", 30, "pin-2026-10-06.3"))
+        self.assertEqual((answer.provider, answer.total_tokens, answer.prompt_version), ("pins", 30, "pin-2026-10-06.4"))
         self.assertEqual(Pin.objects.count(), pg.BATCH)
         self.assertIn("Осталось пунктов плана без пинов: 2", answer.content)
         self.assertIn("не одобрение Pinterest", answer.content)
@@ -80,7 +80,7 @@ class PinGenerationTest(TestCase):
             self.assertEqual((version.number, version.created_by, version.destination_url), (1, self.owner, "https://shop.example.com/catalog"))
             self.assertEqual(len(version.checks), 12)
             self.assertIn("url_reachable", version.open_checks)
-            self.assertEqual(version.generation["prompt_version"], "pin-2026-10-06.3")
+            self.assertEqual(version.generation["prompt_version"], "pin-2026-10-06.4")
         self.assertEqual(len(self.requests), 3)
         self.assertEqual(self.requests[0]["item"]["keyword"], "linen dress")
         again = self.say("Создай пины по контент-плану")

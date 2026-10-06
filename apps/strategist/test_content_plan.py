@@ -138,6 +138,41 @@ class ContentPlanChatTest(TestCase):
         self.assertIn("Не получилось собрать надёжный контент-план", self.say("Составь контент-план").content)
         self.assertEqual(self.complete.call_count, 4)  # never more than two attempts per request
 
+    def test_plan_request_carries_the_business_profile_so_ideas_stay_grounded(self):
+        import json as _json
+        from apps.strategist import content_plan as plan_module
+        self.confirmed_version()
+        self.say("Составь контент-план")
+        request = _json.loads(self.complete.call_args.args[0][1]["content"])
+        self.assertEqual(request["business"]["niche"], "Одежда")
+        self.assertIn("Образы с платьями", request["strategy"]["content_directions"])
+        system = self.complete.call_args.args[0][0]["content"]
+        self.assertIn("не вводи товары, категории, бренды и ниши, которых нет", system)
+        self.assertEqual(system, plan_module.SYSTEM)
+
+    def test_instruction_like_ideas_and_invented_offers_are_dropped_and_trigger_one_retry(self):
+        self.confirmed_version()
+        def item(idea, week=1):
+            return {"target_week": week, "direction": "Образы с платьями", "idea": idea}
+        bad = completion({"items": [item("Пин с подборкой платьев с хештегами #лён"), item("Опубликовать пин со скидкой 20%"),
+                                    item("Создать серию пинов про лён"), item("Акционные предложения на платья"), item("Как носить льняное платье летом", 2)]})
+        good = completion({"items": [item("Как носить льняное платье летом"), item("С чем сочетать льняной костюм", 2)]})
+        self.complete.side_effect = [bad, good]
+        self.say("Составь контент-план")
+        self.assertEqual(self.complete.call_count, 2)
+        self.assertEqual(self.complete.call_args.args[0][-1]["content"], cp.RETRY_NOTE)
+        self.assertEqual(sorted(ContentPlan.objects.get().items.values_list("idea", flat=True)),
+                         ["Как носить льняное платье летом", "С чем сочетать льняной костюм"])
+
+    def test_valid_part_of_the_first_answer_survives_a_failed_retry(self):
+        self.confirmed_version()
+        first = completion({"items": [{"target_week": 1, "direction": "Образы с платьями", "idea": "Как носить льняное платье"},
+                                      {"target_week": 1, "direction": "Образы с платьями", "idea": "Пин с акцией"}]})
+        broken = completion({"items": [{"target_week": 1, "direction": "нет такого", "idea": "x"}]})
+        self.complete.side_effect = [first, broken]
+        self.say("Составь контент-план")
+        self.assertEqual(list(ContentPlan.objects.get().items.values_list("idea", flat=True)), ["Как носить льняное платье"])
+
     def test_confirmation_with_nothing_to_confirm_gets_a_short_answer_without_a_model(self):
         self.confirmed_version()
         self.assertIn("нет черновика контент-плана", self.say("Подтверждаю контент-план").content)

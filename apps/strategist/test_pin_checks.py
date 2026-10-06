@@ -32,6 +32,26 @@ class ChecksTest(SimpleTestCase):
         self.assertEqual(run(product_facts="")["product_source"]["status"], pc.NOT_CHECKED)
         self.assertEqual(run(product_facts="Платье, длина 90 см")["product_source"]["status"], pc.PASS)
 
+    def test_title_style_rules(self):
+        for title in ("Умные часы: тренд сезона", "Образ дня | лён", "Новинки уже ждут вас!", "ЛЬНЯНОЕ ПЛАТЬЕ ДЛЯ ЛЕТА", "Платье #лён"):
+            with self.subTest(title=title):
+                self.assertEqual(run({"title": title})["text_present"]["status"], pc.BLOCK)
+        self.assertIn("двоеточие", run({"title": "Умные часы: тренд сезона"})["text_present"]["message"])
+        for title in ("Как носить льняное платье летом", "С чем сочетать льняной костюм", "Платье из льна 100% натуральное".replace(" 100%", "")):
+            self.assertEqual(run({"title": title})["text_present"]["status"], pc.PASS, title)
+
+    def test_advertising_cliches_are_blocked_in_title_and_description(self):
+        for text in ("Откройте мир трендовых гаджетов", "Вдохните жизнь в интерьер", "Новинки ждут вас", "Купите прямо сейчас",
+                     "Не упустите шанс", "Уникальный дизайн", "Трендовые находки для дома"):
+            for field in ("title", "description"):
+                with self.subTest(text=text, field=field):
+                    self.assertEqual(run({field: text})["text_present"]["status"], pc.BLOCK)
+        self.assertEqual(run({"description": "Три образа для офиса и прогулки."})["text_present"]["status"], pc.PASS)
+        for ok in ("Подборка вдохновения для летнего гардероба", "Идеи вдохновлены классическим кроем", "Описание помогает найти вдохновение"):
+            self.assertEqual(run({"description": ok})["text_present"]["status"], pc.PASS, ok)  # ordinary words are not clichés
+        for bad in ("Станут незаменимыми спутниками", "Подойдёт на любой вкус", "Выручит в любой ситуации", "Подчеркнут ваш стиль"):
+            self.assertEqual(run({"description": bad})["text_present"]["status"], pc.BLOCK, bad)
+
     def test_limits_and_empty_text(self):
         self.assertEqual(run({"title": "я" * 101})["text_limits"]["status"], pc.BLOCK)
         self.assertEqual(run({"description": "я" * 801})["text_limits"]["status"], pc.BLOCK)
@@ -62,8 +82,12 @@ class ChecksTest(SimpleTestCase):
     def test_claims(self):
         for text in ("Гарантируем рост продаж", "100% результат", "Товар №1 на рынке", "Без риска"):
             self.assertEqual(run({"description": text + " linen dress"})["claims"]["status"], pc.BLOCK, text)
-        for text in ("Лучшее льняное платье", "Скидка на всё", "Бесплатная доставка", "Только сегодня", "Скидка 30%"):
+        for text in ("Лучшее льняное платье", "Бесплатная доставка", "Только сегодня", "Скидка 30%".replace("Скидка", "Минус")):
             self.assertEqual(run({"description": text + " linen dress"})["claims"]["status"], pc.REVIEW, text)
+        for text in ("Скидка на всё", "Специальная скидка для вас", "Эксклюзивная коллекция", "С реальными отзывами покупателей", "Хит продаж сезона"):
+            self.assertEqual(run({"description": text + " linen dress"})["claims"]["status"], pc.BLOCK, text)
+        # an offer the linked product card really mentions is not invented
+        self.assertEqual(run({"description": "Скидка на всё linen dress"}, product_facts="Платье, скидка недели")["claims"]["status"], pc.PASS)
         no_card = run({"description": "Длина 90 см, linen dress."})["claims"]
         self.assertEqual(no_card["status"], pc.REVIEW)
         self.assertIn("карточка товара не привязана", no_card["message"])

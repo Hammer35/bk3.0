@@ -21,8 +21,17 @@ _WORD = re.compile(r"[a-zа-я0-9]+")
 _STOP = {"for", "and", "the", "with", "of", "in", "to", "on", "для", "и", "в", "на", "с", "по", "из", "от", "как", "что", "или"}
 _BLOCK_CLAIM = re.compile(r"гарант\w*|100\s*%|сто\s+процентов|без\s+риска|№\s*1\b|number\s*one|#\s*1\b", re.I)
 _REVIEW_CLAIM = re.compile(
-    r"\bлучш\w*|единственн\w*|\bсамы[йе]\s+\w+|\bсамая\s+\w+|\bсамое\s+\w+|идеальн\w*|бесплатн\w*|скидк\w*|акци[яи]\b|распродаж\w*"
+    r"\bлучш\w*|единственн\w*|\bсамы[йе]\s+\w+|\bсамая\s+\w+|\bсамое\s+\w+|идеальн\w*|бесплатн\w*"
     r"|только\s+сегодня|успей\w*|\d+\s*%", re.I)
+# Offers and social proof the model cannot know: blocked unless the linked product card mentions them.
+_UNSOURCED = re.compile(r"скидк\w*|акци[яиюй]\b|распродаж\w*|эксклюзив\w*|(?:реальн|настоящ|честн)\w*\s+отзыв\w*|отзыв\w*\s+покупател\w*|"
+                        r"бестселлер\w*|хит\s+продаж", re.I)
+# Empty advertising phrases: they say nothing about the pin and read as machine text.
+_CLICHE = re.compile(
+    r"откро\w+\s+(?:для\s+себя|мир)|вдохни\w*\s+(?:жизнь|новую|в\s+)|погруз\w+(?:сь|итесь)|ждут\s+вас|прямо\s+сейчас|не\s+упусти\w*|"
+    r"секрет\w*\s+успеха|ваш\s+идеальн\w*|уникальн\w*|стильн\w+\s+(?:и|,)\s+\w+|трендов\w+\s+находк\w*|"
+    r"лучш\w+\s+из\s+лучших|раскро\w+\s+секрет|незаменим\w*|на\s+любой\s+вкус|в\s+любой\s+ситуации|"
+    r"подчерк\w+\s+(?:ваш\w*|свою|вашу)\s+(?:стиль|индивидуальность)|станут\s+\w+\s+спутник\w*", re.I)
 _NUMBER_UNIT = re.compile(r"\d+(?:[.,]\d+)?\s*(?:см|мм|кг|мл|шт|вт|гб|дн\w*|час\w*|мин\w*|₽|руб\w*|\bг\b|\bм\b|\bл\b)", re.I)
 
 
@@ -52,9 +61,28 @@ def similarity(a: str, b: str) -> float:
     return len(wa & wb) / len(wa | wb) if wa and wb else 0.0
 
 
+def _title_problem(title: str) -> str:
+    if ":" in title:
+        return "В заголовке двоеточие: шаблон «Тема: подзаголовок» не принимается, сформулируйте заголовок одной фразой."
+    if "|" in title or "#" in title:
+        return "В заголовке служебные знаки («|», «#»): заголовок должен читаться как обычная фраза."
+    if "!" in title:
+        return "В заголовке восклицательный знак: заголовок должен быть спокойной конкретной фразой."
+    letters = [c for c in title if c.isalpha()]
+    if len(letters) > 8 and sum(c.isupper() for c in letters) / len(letters) > 0.6:
+        return "Заголовок написан заглавными буквами."
+    return ""
+
+
 def check_text_present(pin: dict) -> dict:
     if not (pin.get("title") or "").strip():
         return _result("text_present", BLOCK, "У пина нет заголовка.")
+    problem = _title_problem(pin["title"])
+    if problem:
+        return _result("text_present", BLOCK, problem)
+    cliche = _CLICHE.search(f"{pin['title']} {pin.get('description') or ''}")
+    if cliche:
+        return _result("text_present", BLOCK, f"Шаблонная рекламная фраза «{cliche.group(0).strip()}» ничего не сообщает о пине: опишите, что именно показано и чем это полезно.")
     if not (pin.get("description") or "").strip():
         return _result("text_present", REVIEW, "У пина нет описания: оно помогает определить релевантность.")
     return _result("text_present", PASS, "Заголовок и описание заданы.")
@@ -116,6 +144,10 @@ def check_claims(pin: dict, ctx: CheckContext) -> dict:
     block = _BLOCK_CLAIM.search(text)
     if block:
         return _result("claims", BLOCK, f"Обещание результата или абсолютная формулировка «{block.group(0).strip()}» не подтверждена источником.")
+    unsourced = [m.group(0).strip() for m in _UNSOURCED.finditer(text)
+                 if not ctx.product_facts or m.group(0).strip().casefold()[:5] not in ctx.product_facts.casefold()]
+    if unsourced:
+        return _result("claims", BLOCK, f"«{unsourced[0]}»: скидки, акции, отзывы и «эксклюзив» нельзя придумывать, их нет в карточке товара.")
     review = [m.group(0).strip() for m in _REVIEW_CLAIM.finditer(text)]
     numbers = [m.group(0).strip() for m in _NUMBER_UNIT.finditer(text)]
     unverified = [n for n in numbers if not ctx.product_facts or n.casefold() not in ctx.product_facts.casefold()]
