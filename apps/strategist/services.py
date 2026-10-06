@@ -29,6 +29,7 @@ from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
 from . import memory
+from .content_plan import content_plan_reply
 from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
@@ -804,6 +805,9 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     memory_answer = memory.memory_reply(user_message=user_message, actor=actor)
     if memory_answer:
         return memory_answer
+    plan_answer = content_plan_reply(user_message=user_message, actor=actor)
+    if plan_answer:
+        return plan_answer
     strategy_answer = strategy_reply(user_message=user_message, actor=actor)
     if strategy_answer:
         return strategy_answer

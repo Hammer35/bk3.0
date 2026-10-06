@@ -170,3 +170,52 @@ class BusinessMemory(BaseModel):
         verbose_name = "запись памяти бизнеса"
         verbose_name_plural = "память бизнеса"
         indexes = [models.Index(fields=["business", "kind"], name="memory_business_kind_idx")]
+
+
+class ContentPlan(BaseModel):
+    """Production plan built from one confirmed strategy version; it is not a set of Pins."""
+
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Черновик"
+        CONFIRMED = "CONFIRMED", "Подтверждён"
+        SUPERSEDED = "SUPERSEDED", "Заменён"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="content_plans", verbose_name="бизнес")
+    strategy_version = models.ForeignKey(StrategyVersion, on_delete=models.PROTECT, related_name="content_plans", verbose_name="версия стратегии")
+    horizon_weeks = models.PositiveSmallIntegerField(default=4, verbose_name="горизонт, недель")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT, verbose_name="статус")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="создатель")
+    confirmed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="+", verbose_name="подтвердил")
+    confirmed_at = models.DateTimeField(null=True, blank=True, verbose_name="дата подтверждения")
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "контент-план"
+        verbose_name_plural = "контент-планы"
+
+
+class ContentPlanItem(BaseModel):
+    class ContentType(models.TextChoices):
+        PIN = "PIN", "Пин"
+        VIDEO = "VIDEO", "Видео-пин"
+
+    class Status(models.TextChoices):
+        PLANNED = "PLANNED", "Запланирован"
+
+    plan = models.ForeignKey(ContentPlan, on_delete=models.CASCADE, related_name="items", verbose_name="план")
+    position = models.PositiveSmallIntegerField(verbose_name="порядок")
+    target_week = models.PositiveSmallIntegerField(verbose_name="неделя плана")
+    direction = models.CharField(max_length=300, verbose_name="контентное направление")
+    board = models.CharField(max_length=300, blank=True, verbose_name="доска")
+    keyword = models.CharField(max_length=300, blank=True, verbose_name="ключевая фраза")
+    search_intent = models.CharField(max_length=120, blank=True, verbose_name="поисковое намерение")
+    content_type = models.CharField(max_length=8, choices=ContentType.choices, default=ContentType.PIN, verbose_name="тип контента")
+    priority = models.PositiveSmallIntegerField(default=2, verbose_name="приоритет")
+    idea = models.CharField(max_length=300, verbose_name="идея")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PLANNED, verbose_name="статус")
+
+    class Meta:
+        ordering = ("plan", "position")
+        verbose_name = "пункт контент-плана"
+        verbose_name_plural = "пункты контент-плана"
+        constraints = [models.UniqueConstraint(fields=["plan", "position"], name="unique_plan_item_position")]
