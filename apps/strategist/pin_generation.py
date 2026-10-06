@@ -9,6 +9,7 @@ import logging
 import re
 
 from django.db import transaction
+from django.db.models import Q
 
 from apps.pinterest.policy import pinterest_ai_transfer_enabled
 
@@ -106,7 +107,7 @@ def generate_pin(business, user, plan: ContentPlan, item: ContentPlanItem, *, pr
     ctx = _context(business, version, item, snapshot)
     transfer = pinterest_ai_transfer_enabled()
     provider = provider or GigaChatProvider()
-    feedback, first_blocks, tokens, model = [], [], 0, ""
+    feedback, first_blocks, tokens, model = _rework_feedback(item), [], 0, ""
     for attempt in (1, 2):
         text, completion = _generate(provider, _request(business, version, item, ctx, feedback, transfer))
         tokens += completion.total_tokens
@@ -116,7 +117,7 @@ def generate_pin(business, user, plan: ContentPlan, item: ContentPlanItem, *, pr
         if verdict != "BLOCK":
             break
         if attempt == 1:
-            first_blocks, feedback = blocks, blocks
+            first_blocks, feedback = blocks, feedback + blocks
     return _store(business, user, item, text, checks, verdict, open_checks, {
         "prompt_version": PIN_PROMPT_VERSION, "model": model, "attempts": attempt, "total_tokens": tokens,
         "first_attempt_blocked": first_blocks})
@@ -141,7 +142,19 @@ def confirmed_plan(business) -> ContentPlan | None:
 
 
 def pending_items(plan: ContentPlan) -> list[ContentPlanItem]:
-    return list(plan.items.filter(pin__isnull=True).order_by("position"))
+    """Plan items with no pin yet, plus items whose pin was sent back for rework."""
+    return list(plan.items.filter(Q(pin__isnull=True) | Q(pin__status=Pin.Status.REWORK)).order_by("position"))
+
+
+def _rework_feedback(item: ContentPlanItem) -> list[str]:
+    """What to fix on a pin sent back: the person's comment if any, else the blocking reasons."""
+    pin = Pin.objects.filter(plan_item=item).select_related("current_version").first()
+    if not pin or not pin.current_version:
+        return []
+    version = pin.current_version
+    approval = getattr(version, "approval", None)
+    reasons = [c["message"] for c in version.checks if c["status"] == pc.BLOCK]
+    return ([f"Комментарий человека: {approval.comment}"] if approval and approval.comment else []) + reasons
 
 
 VERDICT_LABEL = {"PASS": "проверки пройдены", "REVIEW": "нужна оценка человека", "BLOCK": "заблокирован проверкой"}

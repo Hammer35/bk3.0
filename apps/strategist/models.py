@@ -278,3 +278,24 @@ class PinVersion(BaseModel):
         verbose_name = "версия пина"
         verbose_name_plural = "версии пинов"
         constraints = [models.UniqueConstraint(fields=["pin", "number"], name="unique_pin_version_number")]
+
+
+class Approval(BaseModel):
+    """The user's own decision on one concrete PinVersion. Never created by the model or the chat."""
+
+    class Decision(models.TextChoices):
+        APPROVED = "APPROVED", "Одобрен"
+        REJECTED = "REJECTED", "Отклонён"
+        REWORK = "REWORK", "На переделку"
+
+    pin_version = models.OneToOneField(PinVersion, on_delete=models.CASCADE, related_name="approval", verbose_name="версия пина")
+    decision = models.CharField(max_length=10, choices=Decision.choices, verbose_name="решение")
+    decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="решил")
+    decided_at = models.DateTimeField(verbose_name="дата решения")
+    channel = models.CharField(max_length=16, default="WEB", verbose_name="канал")
+    comment = models.CharField(max_length=300, blank=True, verbose_name="комментарий")
+    acknowledged_checks = models.JSONField(default=list, blank=True, verbose_name="замечания, с которыми ознакомлен")
+
+    class Meta:
+        verbose_name = "решение по пину"
+        verbose_name_plural = "решения по пинам"

@@ -8,11 +8,12 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from apps.businesses.models import Business
 
+from . import approvals
 from . import content_plan as plans
 from . import memory, research
 from . import strategy as strategies
 from .forms import StrategistMessageForm
-from .models import AIConversation, AIMessage, ContentPlan, StrategyVersion
+from .models import AIConversation, AIMessage, ContentPlan, Pin, StrategyVersion
 from .providers import GigaChatConfigurationError, GigaChatProviderError
 from .services import conversation_slug, create_conversation, respond_to_message
 
@@ -256,3 +257,58 @@ def plan_confirm(request, workspace_slug, business_slug):
     else:
         messages.success(request, _("Контент-план подтверждён."))
     return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+PIN_STATUS_LABELS = {
+    "IDEA": _("Идея"), "GENERATING": _("Генерируется"), "VALIDATING": _("Проверяется"), "WAITING_APPROVAL": _("Ждёт одобрения"),
+    "APPROVED": _("Одобрен"), "QUEUED": _("В очереди"), "PUBLISHING": _("Отправляется"), "PUBLISHED": _("Опубликован"),
+    "REJECTED": _("Отклонён"), "REWORK": _("Требуется переделка"), "FAILED": _("Ошибка"),
+}
+VERDICT_LABELS = {"PASS": _("Проверки пройдены"), "REVIEW": _("Нужна оценка человека"), "BLOCK": _("Заблокирован проверкой")}
+CHECK_LABELS = {"pass": _("пройдена"), "review": _("нужна оценка"), "block": _("блок"), "not_checked": _("не проверено")}
+DECISION_LABELS = {"APPROVED": _("Одобрен"), "REJECTED": _("Отклонён"), "REWORK": _("Отправлен на переделку")}
+
+
+def _pin_card(pin):
+    version = pin.current_version
+    approval = getattr(version, "approval", None) if version else None
+    can_decide = version is not None and approval is None and pin.status in (Pin.Status.WAITING_APPROVAL, Pin.Status.REWORK)
+    return {
+        "pin": pin, "version": version, "approval": approval,
+        "status_label": PIN_STATUS_LABELS.get(pin.status, pin.status),
+        "verdict_label": VERDICT_LABELS.get(version.verdict, "") if version else "",
+        "checks": [{**c, "label": CHECK_LABELS.get(c["status"], c["status"])} for c in (version.checks if version else [])],
+        "decision_label": DECISION_LABELS.get(approval.decision, "") if approval else "",
+        "can_decide": can_decide, "can_approve": can_decide and pin.status == Pin.Status.WAITING_APPROVAL and version.verdict != "BLOCK",
+        "link_is_web": bool(version and version.destination_url.startswith(("http://", "https://"))),
+    }
+
+
+@login_required
+def pins_page(request, workspace_slug, business_slug):
+    business = _get_business(request, workspace_slug, business_slug)
+    pins = list(business.pins.select_related("current_version", "plan_item", "current_version__approval").order_by("plan_item__position"))
+    return render(request, "strategist/pins.html", {
+        "business": business, "strategist_business": business,
+        "strategist_sessions": list(business.ai_conversations.filter(is_active=True).order_by("-updated_at")),
+        "can_edit": memory.actor_can_edit(business, request.user),
+        "cards": [_pin_card(p) for p in pins],
+    })
+
+
+@login_required
+def pin_decide(request, workspace_slug, business_slug, pin_id):
+    business = _editable_business(request, workspace_slug, business_slug)
+    pin = get_object_or_404(Pin, pk=pin_id, business=business)
+    try:
+        version_number = int(request.POST.get("version", ""))
+    except ValueError:
+        raise Http404
+    try:
+        approvals.decide(pin, request.user, action=request.POST.get("action", ""), version_number=version_number,
+                         comment=request.POST.get("comment", ""), acknowledged=request.POST.get("acknowledge") == "on")
+    except approvals.ApprovalError as error:
+        messages.error(request, gettext(str(error)))
+    else:
+        messages.success(request, _("Решение сохранено."))
+    return redirect("strategist:pins", workspace_slug=business.workspace.slug, business_slug=business.slug)

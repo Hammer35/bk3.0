@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Пины — BOOSTKLIENT®" %}{% endblock %}
+{% block content %}
+<header class="workbench-page-header">
+    <div>
+        <p class="eyebrow">{{ business.workspace.name }} / {{ business.name }}</p>
+        <h1>{% trans "Пины" %}</h1>
+        <p>{% trans "Черновики текстов пинов с результатами проверок. Одобрение — только ваше решение: ИИ и чат пины не одобряют, а публикации здесь пока нет." %}</p>
+    </div>
+</header>
+
+<div class="strategy-page">
+    {% if not cards %}
+        <section class="panel strategy-panel">
+            <h2 class="panel-title">{% trans "Пинов пока нет" %}</h2>
+            <p class="meta">{% trans "Напишите ИИ-стратегу «Создай пины по контент-плану»: он подготовит тексты по подтверждённому плану и проверит их." %}</p>
+            <a class="button button-primary" href="{% url 'strategist:chat' business.workspace.slug business.slug %}">{% trans "Открыть чат с ИИ-стратегом" %}</a>
+        </section>
+    {% endif %}
+
+    {% for card in cards %}
+        <article class="panel strategy-panel pin-card" aria-labelledby="pin-{{ card.pin.pk }}-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow{% if card.pin.status == 'APPROVED' %} status-active{% endif %}">{% blocktrans with week=card.pin.plan_item.target_week %}Неделя {{ week }}{% endblocktrans %} · {{ card.status_label }}</p>
+                    <h2 class="panel-title" id="pin-{{ card.pin.pk }}-title">{{ card.version.title }}</h2>
+                    <p class="meta">{% blocktrans with number=card.version.number %}Версия {{ number }}{% endblocktrans %}{% if card.version.board %} · {% trans "доска" %}: {{ card.version.board }}{% endif %}</p>
+                </div>
+                <span class="pin-verdict pin-verdict-{{ card.version.verdict|lower }}">{{ card.verdict_label }}</span>
+            </div>
+
+            <dl class="strategy-facts">
+                {% if card.version.description %}<div><dt>{% trans "Описание" %}</dt><dd>{{ card.version.description }}</dd></div>{% endif %}
+                {% if card.version.alt_text %}<div><dt>{% trans "Альтернативный текст" %}</dt><dd>{{ card.version.alt_text }}</dd></div>{% endif %}
+                <div><dt>{% trans "Ссылка" %}</dt><dd>{% if card.link_is_web %}<a href="{{ card.version.destination_url }}" rel="noopener noreferrer">{{ card.version.destination_url }}</a>{% else %}{{ card.version.destination_url|default:"—" }}{% endif %}</dd></div>
+                {% if card.version.keyword %}<div><dt>{% trans "Ключевая фраза" %}</dt><dd>{{ card.version.keyword }}</dd></div>{% endif %}
+            </dl>
+
+            <details class="pin-checks">
+                <summary>{% trans "Результаты проверок" %}</summary>
+                <ul class="strategy-list">
+                    {% for check in card.checks %}
+                        <li class="pin-check pin-check-{{ check.status }}"><strong>{{ check.label }}</strong> — {{ check.message }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="meta">{% trans "Проверки отражают соблюдение наших правил и не являются одобрением Pinterest или прогнозом показов." %}</p>
+            </details>
+
+            {% if card.approval %}
+                <p class="meta pin-decision">{{ card.decision_label }} · {{ card.approval.decided_at|date:"d.m.Y H:i" }}{% if card.approval.comment %} · {{ card.approval.comment }}{% endif %}</p>
+            {% elif card.can_decide and can_edit %}
+                <form method="post" class="pin-decision-form" action="{% url 'strategist:pin-decide' business.workspace.slug business.slug card.pin.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="version" value="{{ card.version.number }}">
+                    <div class="form-field">
+                        <label for="comment-{{ card.pin.pk }}">{% trans "Комментарий (необязательно)" %}</label>
+                        <input id="comment-{{ card.pin.pk }}" name="comment" type="text" maxlength="300">
+                    </div>
+                    {% if card.can_approve %}
+                        <label class="pin-acknowledge"><input type="checkbox" name="acknowledge"> {% trans "Я прочитал замечания и знаю, какие проверки не выполнены" %}</label>
+                    {% endif %}
+                    <div class="pin-actions">
+                        {% if card.can_approve %}<button type="submit" name="action" value="approve" class="button button-primary">{% trans "Одобрить эту версию" %}</button>{% endif %}
+                        <button type="submit" name="action" value="rework" class="button button-secondary">{% trans "На переделку" %}</button>
+                        <button type="submit" name="action" value="reject" class="button button-secondary">{% trans "Отклонить" %}</button>
+                    </div>
+                </form>
+            {% endif %}
+        </article>
+    {% endfor %}
+</div>
+{% endblock %}

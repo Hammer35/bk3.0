@@ -28,7 +28,7 @@ msgstr "BoostKlient collects business context before strategy work, so the AI is
 msgid "Email"
 msgstr "Email"
 
-#: apps/strategist/views.py:81
+#: apps/strategist/views.py:82
 msgid "GigaChat временно недоступен. Повторите запрос."
 msgstr "GigaChat is temporarily unavailable. Please try again."
 
@@ -91,12 +91,16 @@ msgstr "Active"
 msgid "Активный бизнес: %(workspace)s / %(name)s"
 msgstr "Active business: %(workspace)s / %(name)s"
 
+#: templates/strategist/pins.html
+msgid "Альтернативный текст"
+msgstr "Alt text"
+
 #: templates/core/home.html
 #: templates/strategist/strategy.html
 msgid "Аудитория"
 msgstr "Audience"
 
-#: apps/strategist/provenance.py:71
+#: apps/strategist/provenance.py:74
 #, python-format
 msgid "База знаний: %(titles)s"
 msgstr "Knowledge base: %(titles)s"
@@ -117,10 +121,19 @@ msgstr "A more specific direction within the niche. For example: \"linen dresses
 msgid "В архиве"
 msgstr "Archived"
 
+#: apps/strategist/views.py:264
+msgid "В очереди"
+msgstr "Queued"
+
+#: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 #, python-format
 msgid "Версия %(number)s"
 msgstr "Version %(number)s"
+
+#: apps/strategist/approvals.py:28
+msgid "Версия пина изменилась. Обновите страницу и проверьте новую версию."
+msgstr "The pin version has changed. Refresh the page and review the new version."
 
 #: templates/strategist/_chat_messages.html
 msgid "Версия промпта"
@@ -157,6 +170,10 @@ msgstr "Choose a session on the left or create a new one."
 msgid "Выйти"
 msgstr "Sign out"
 
+#: apps/strategist/views.py:263
+msgid "Генерируется"
+msgstr "Generating"
+
 #: templates/strategist/_strategy_version.html
 msgid "Гипотезы (не подтверждены)"
 msgstr "Hypotheses (not confirmed)"
@@ -170,12 +187,12 @@ msgstr "Yes, delete the account"
 msgid "Данные @%(name)s синхронизированы."
 msgstr "Data for @%(name)s synchronized."
 
-#: apps/strategist/provenance.py:74
+#: apps/strategist/provenance.py:77
 #, python-format
 msgid "Данные Pinterest через API: %(resources)s"
 msgstr "Pinterest data via API: %(resources)s"
 
-#: apps/strategist/provenance.py:76
+#: apps/strategist/provenance.py:79
 #, python-format
 msgid "Данные Wildberries: %(what)s"
 msgstr "Wildberries data: %(what)s"
@@ -218,9 +235,17 @@ msgstr "Add your first business"
 msgid "Доски"
 msgstr "Boards"
 
+#: apps/strategist/views.py:263
+msgid "Ждёт одобрения"
+msgstr "Awaiting approval"
+
 #: templates/strategist/strategy.html
 msgid "Ждёт подтверждения"
 msgstr "Awaiting confirmation"
+
+#: apps/strategist/views.py:267
+msgid "Заблокирован проверкой"
+msgstr "Blocked by a check"
 
 #: templates/strategist/chat.html
 msgid "Задайте первый вопрос о контенте или стратегии."
@@ -243,6 +268,10 @@ msgstr "AI strategist — BOOSTKLIENT®"
 msgid "Идеи для производства, а не расписание публикаций: даты и частоту вы задаёте сами."
 msgstr "These are ideas for production, not a publishing schedule: you set the dates and frequency yourself."
 
+#: apps/strategist/views.py:263
+msgid "Идея"
+msgstr "Idea"
+
 #: templates/strategist/_strategy_version.html
 #, python-format
 msgid "Из исследования ниши от %(date)s"
@@ -256,7 +285,7 @@ msgstr "Change text size"
 msgid "Исключено по вашей просьбе"
 msgstr "Excluded at your request"
 
-#: apps/strategist/provenance.py:78
+#: apps/strategist/provenance.py:81
 #, python-format
 msgid "Исследование ниши от %(date)s"
 msgstr "Niche research dated %(date)s"
@@ -269,7 +298,7 @@ msgstr "Version history"
 msgid "История версий стратегии"
 msgstr "Strategy version history"
 
-#: apps/strategist/provenance.py:68
+#: apps/strategist/provenance.py:71
 #, python-format
 msgid "История диалога: сообщений %(count)s"
 msgstr "Conversation history: %(count)s messages"
@@ -278,7 +307,7 @@ msgstr "Conversation history: %(count)s messages"
 msgid "Источники ответа"
 msgstr "Sources of this answer"
 
-#: apps/strategist/provenance.py:82
+#: apps/strategist/provenance.py:85
 #, python-format
 msgid "Источники черновика: %(count)s"
 msgstr "Draft sources: %(count)s"
@@ -317,13 +346,21 @@ msgstr "Catalog → Pinterest"
 msgid "Каталог → стратегия → органический трафик"
 msgstr "Catalog → strategy → organic traffic"
 
-#: apps/strategist/views.py:79
+#: apps/strategist/views.py:80
 msgid "Ключ GigaChat не настроен."
 msgstr "The GigaChat key is not configured."
+
+#: templates/strategist/pins.html
+msgid "Ключевая фраза"
+msgstr "Keyword"
 
 #: templates/strategist/_strategy_version.html
 msgid "Ключевые слова"
 msgstr "Keywords"
+
+#: templates/strategist/pins.html
+msgid "Комментарий (необязательно)"
+msgstr "Comment (optional)"
 
 #: apps/workspaces/forms.py:41
 msgid "Кому вы продаёте: возраст, интересы, задача или ситуация покупки. Например: «женщины 25–40, ищут базовую одежду для офиса»."
@@ -342,7 +379,7 @@ msgstr "Content"
 msgid "Контент-план по версии %(number)s"
 msgstr "Content plan for version %(number)s"
 
-#: apps/strategist/views.py:257
+#: apps/strategist/views.py:258
 msgid "Контент-план подтверждён."
 msgstr "Content plan confirmed."
 
@@ -358,6 +395,10 @@ msgstr "MB"
 #: templates/core/home.html
 msgid "Мой бизнес"
 msgstr "My business"
+
+#: templates/strategist/pins.html
+msgid "На переделку"
+msgstr "Send back for rework"
 
 #: templates/base.html
 msgid "Навигация приложения"
@@ -379,6 +420,10 @@ msgstr "Workspace name"
 #: templates/strategist/strategy.html
 msgid "Напишите ИИ-стратегу «Построй стратегию»: он соберёт черновик по профилю бизнеса."
 msgstr "Ask the AI strategist: \"Build a strategy\". It will assemble a draft from the business profile."
+
+#: templates/strategist/pins.html
+msgid "Напишите ИИ-стратегу «Создай пины по контент-плану»: он подготовит тексты по подтверждённому плану и проверит их."
+msgstr "Tell the AI strategist \"Create pins from the content plan\": it will prepare texts from the confirmed plan and check them."
 
 #: apps/strategist/forms.py:12
 msgid "Напишите стратегу или вставьте ссылку на товар Wildberries"
@@ -408,10 +453,15 @@ msgstr "Could not save the text size. Please try again."
 msgid "Не хватает данных"
 msgstr "Missing data"
 
+#: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 #, python-format
 msgid "Неделя %(week)s"
 msgstr "Week %(week)s"
+
+#: apps/strategist/approvals.py:24
+msgid "Неизвестное действие."
+msgstr "Unknown action."
 
 #: templates/accounts/login.html
 msgid "Нет аккаунта?"
@@ -432,9 +482,30 @@ msgstr "New session"
 msgid "Новый бизнес — BOOSTKLIENT®"
 msgstr "New business — BOOSTKLIENT®"
 
+#: apps/strategist/views.py:267
+msgid "Нужна оценка человека"
+msgstr "Needs human review"
+
 #: apps/workspaces/forms.py:8
 msgid "Общее имя для ваших проектов. Например: «Мой магазин» или «Studio North»."
 msgstr "A shared name for your projects. For example: \"My store\" or \"Studio North\"."
+
+#: apps/strategist/views.py:264
+#: apps/strategist/views.py:269
+msgid "Одобрен"
+msgstr "Approved"
+
+#: templates/strategist/pins.html
+msgid "Одобрить эту версию"
+msgstr "Approve this version"
+
+#: templates/strategist/pins.html
+msgid "Описание"
+msgstr "Description"
+
+#: apps/strategist/views.py:264
+msgid "Опубликован"
+msgstr "Published"
 
 #: templates/core/landing.html
 msgid "Основная навигация"
@@ -443,6 +514,15 @@ msgstr "Main navigation"
 #: templates/pinterest/confirm_disconnect.html
 msgid "Оставить аккаунт"
 msgstr "Keep the account"
+
+#: templates/strategist/pins.html
+msgid "Отклонить"
+msgstr "Reject"
+
+#: apps/strategist/views.py:265
+#: apps/strategist/views.py:269
+msgid "Отклонён"
+msgstr "Rejected"
 
 #: templates/core/home.html
 msgid "Открыть ИИ-стратега"
@@ -456,6 +536,7 @@ msgstr "Open product card"
 msgid "Открыть рабочую среду"
 msgstr "Open the workspace"
 
+#: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 msgid "Открыть чат с ИИ-стратегом"
 msgstr "Open chat with the AI strategist"
@@ -468,7 +549,23 @@ msgstr "Cancel"
 msgid "Отправить сообщение"
 msgstr "Send message"
 
-#: apps/strategist/provenance.py:66
+#: apps/strategist/views.py:269
+msgid "Отправлен на переделку"
+msgstr "Sent back for rework"
+
+#: apps/strategist/views.py:264
+msgid "Отправляется"
+msgstr "Publishing"
+
+#: apps/strategist/views.py:265
+msgid "Ошибка"
+msgstr "Failed"
+
+#: templates/base.html
+msgid "ПН"
+msgstr "PN"
+
+#: apps/strategist/provenance.py:69
 #, python-format
 msgid "Память бизнеса: фактов %(count)s"
 msgstr "Business memory: %(count)s facts"
@@ -485,9 +582,31 @@ msgstr "Reconnect"
 msgid "Переподключить Pinterest? Вы будете перенаправлены на Pinterest для повторного подтверждения доступа."
 msgstr "Reconnect Pinterest? You will be redirected to Pinterest to confirm access again."
 
+#: apps/strategist/approvals.py:36
+msgid "Пин заблокирован проверкой: одобрить его нельзя, отправьте на переделку или отклоните."
+msgstr "The pin is blocked by a check and cannot be approved: send it back for rework or reject it."
+
+#: templates/strategist/pins.html
+msgid "Пинов пока нет"
+msgstr "No pins yet"
+
+#: templates/base.html
+#: templates/strategist/pins.html
+msgid "Пины"
+msgstr "Pins"
+
+#: templates/strategist/pins.html
+msgid "Пины — BOOSTKLIENT®"
+msgstr "Pins — BOOSTKLIENT®"
+
 #: templates/strategist/chat.html
 msgid "Планируйте Pinterest-контент и следующий шаг для этого бизнеса."
 msgstr "Plan Pinterest content and the next step for this business."
+
+#: apps/strategist/approvals.py:30
+#: apps/strategist/approvals.py:32
+msgid "По этой версии пина решение уже принято."
+msgstr "A decision has already been made on this pin version."
 
 #: templates/core/landing.html
 msgid "Подготовьте пины, ключевые слова и план публикаций из готовых карточек, фото и видео."
@@ -515,11 +634,15 @@ msgstr "Connect another Pinterest account to this business? You will be redirect
 msgid "Подниша"
 msgstr "Subniche"
 
+#: apps/strategist/approvals.py:38
+msgid "Подтвердите, что вы прочитали замечания и знаете, какие проверки не выполнены."
+msgstr "Confirm that you have read the remarks and know which checks were not performed."
+
 #: templates/strategist/strategy.html
 msgid "Подтвердить контент-план"
 msgstr "Confirm content plan"
 
-#: apps/strategist/content_plan.py:94
+#: apps/strategist/content_plan.py:101
 msgid "Подтвердить можно только актуальный черновик плана."
 msgstr "Only the current draft of the plan can be confirmed."
 
@@ -544,7 +667,7 @@ msgstr "Confirm action"
 msgid "Подтверждение отключения Pinterest недействительно."
 msgstr "Pinterest disconnection confirmation is invalid."
 
-#: apps/strategist/provenance.py:80
+#: apps/strategist/provenance.py:83
 #, python-format
 msgid "Подтверждённая стратегия, версия %(number)s"
 msgstr "Confirmed strategy, version %(number)s"
@@ -586,6 +709,18 @@ msgstr "Example of product visuals for Pinterest: suitable and unsuitable images
 msgid "Приоритеты"
 msgstr "Priorities"
 
+#: templates/strategist/pins.html
+msgid "Проверки отражают соблюдение наших правил и не являются одобрением Pinterest или прогнозом показов."
+msgstr "The checks reflect compliance with our rules; they are not an approval by Pinterest or a reach forecast."
+
+#: apps/strategist/views.py:267
+msgid "Проверки пройдены"
+msgstr "Checks passed"
+
+#: apps/strategist/views.py:263
+msgid "Проверяется"
+msgstr "Being checked"
+
 #: templates/accounts/register.html
 #: templates/base.html
 msgid "Продолжить"
@@ -607,7 +742,7 @@ msgstr "Business profile"
 msgid "Профиль бизнеса, стратегия и контент в одной рабочей среде"
 msgstr "Business profile, strategy and content in one workspace"
 
-#: apps/strategist/provenance.py:64
+#: apps/strategist/provenance.py:67
 #, python-format
 msgid "Профиль бизнеса: %(fields)s"
 msgstr "Business profile: %(fields)s"
@@ -656,6 +791,14 @@ msgstr "Text size"
 #: templates/workspaces/onboarding.html
 msgid "Расскажите о первом бизнесе"
 msgstr "Tell us about your first business"
+
+#: templates/strategist/pins.html
+msgid "Результаты проверок"
+msgstr "Check results"
+
+#: apps/strategist/views.py:313
+msgid "Решение сохранено."
+msgstr "Decision saved."
 
 #: apps/businesses/forms.py:16
 #: apps/workspaces/forms.py:34
@@ -718,7 +861,7 @@ msgstr "Next module"
 msgid "Следующий шаг"
 msgstr "Next step"
 
-#: apps/strategist/views.py:120
+#: apps/strategist/views.py:121
 msgid "Сначала создайте сессию ИИ-стратега."
 msgstr "Create an AI strategist session first."
 
@@ -778,6 +921,10 @@ msgstr "Ask the AI strategist"
 msgid "Срок подключения Pinterest истёк. Попробуйте ещё раз."
 msgstr "The Pinterest connection has expired. Please try again."
 
+#: templates/strategist/pins.html
+msgid "Ссылка"
+msgstr "Link"
+
 #: apps/workspaces/forms.py:18
 msgid "Ссылка на сайт или карточку магазина. Например: https://example.com. Можно заполнить позже."
 msgstr "A link to your website or store page. For example: https://example.com. You can fill it in later."
@@ -807,7 +954,7 @@ msgstr "Strategy"
 msgid "Стратегия заменена: постройте план заново."
 msgstr "The strategy was replaced: build the plan again."
 
-#: apps/strategist/views.py:242
+#: apps/strategist/views.py:243
 msgid "Стратегия подтверждена."
 msgstr "Strategy confirmed."
 
@@ -820,7 +967,7 @@ msgstr "Strategy — BOOSTKLIENT®"
 msgid "Стратегия, версия %(number)s"
 msgstr "Strategy, version %(number)s"
 
-#: apps/strategist/content_plan.py:96
+#: apps/strategist/content_plan.py:103
 msgid "Стратегия, на которой построен план, уже заменена. Построй план заново."
 msgstr "The strategy this plan was built on has already been replaced. Build the plan again."
 
@@ -831,6 +978,10 @@ msgstr "Traffic"
 #: templates/core/landing.html
 msgid "Трафик к товарам"
 msgstr "Traffic to products"
+
+#: apps/strategist/views.py:265
+msgid "Требуется переделка"
+msgstr "Rework needed"
 
 #: apps/pinterest/views.py:112
 msgid "Требуется подтверждение отключения Pinterest."
@@ -924,6 +1075,10 @@ msgstr "Some data was updated; Pinterest did not return all the requested resour
 msgid "Черновик, версия %(number)s"
 msgstr "Draft, version %(number)s"
 
+#: templates/strategist/pins.html
+msgid "Черновики текстов пинов с результатами проверок. Одобрение — только ваше решение: ИИ и чат пины не одобряют, а публикации здесь пока нет."
+msgstr "Draft pin texts with check results. Approval is your decision only: the AI and the chat never approve pins, and there is no publishing here yet."
+
 #: templates/strategist/strategy.html
 msgid "Черновики, подтверждённая стратегия и контент-план этого бизнеса. Строит и меняет их ИИ-стратег в чате."
 msgstr "Drafts, the confirmed strategy and the content plan for this business. The AI strategist builds and changes them in the chat."
@@ -954,10 +1109,18 @@ msgstr "To build a strategy, fill in the business profile: %(fields)s."
 msgid "Широкая категория товаров или услуг. Например: «женская одежда», «декор для дома»."
 msgstr "A broad category of products or services. For example: \"women's clothing\", \"home decor\"."
 
+#: templates/strategist/pins.html
+msgid "Я прочитал замечания и знаю, какие проверки не выполнены"
+msgstr "I have read the remarks and know which checks were not performed"
+
 #: templates/core/home.html
 #: templates/includes/language_switch.html
 msgid "Язык"
 msgstr "Language"
+
+#: apps/strategist/views.py:268
+msgid "блок"
+msgstr "block"
 
 #: templates/strategist/strategy.html
 msgid "видео"
@@ -967,6 +1130,7 @@ msgstr "video"
 msgid "гипотеза, данными не подтверждено"
 msgstr "hypothesis, not confirmed by data"
 
+#: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 msgid "доска"
 msgstr "board"
@@ -979,9 +1143,17 @@ msgstr "keyword"
 msgid "название"
 msgstr "name"
 
+#: apps/strategist/views.py:268
+msgid "не проверено"
+msgstr "not checked"
+
 #: apps/strategist/strategy.py:22
 msgid "ниша"
 msgstr "niche"
+
+#: apps/strategist/views.py:268
+msgid "нужна оценка"
+msgstr "needs review"
 
 #: apps/strategist/strategy.py:23
 msgid "подниша"
@@ -990,6 +1162,10 @@ msgstr "subniche"
 #: templates/strategist/_chat_messages.html
 msgid "продавец не указан"
 msgstr "seller not specified"
+
+#: apps/strategist/views.py:268
+msgid "пройдена"
+msgstr "passed"
 
 #: apps/strategist/strategy.py:23
 msgid "рынок"

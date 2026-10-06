@@ -1,6 +1,7 @@
 {% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,12 +24,15 @@
                 </div>
                 <div id="app-sidebar" class="sidebar-content">
                     <nav class="sidebar-nav" aria-label="{% trans 'Разделы приложения' %}">
-                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.url_name != 'strategy' %}{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}{% endif %}>
+                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.url_name != 'strategy' and request.resolver_match.url_name != 'pins' %}{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}{% endif %}>
                             <span class="nav-item-full">{% trans "Мой бизнес" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "МБ" %}</span>
                         </a>
                         {% if strategist_business %}
                             <a href="{% url 'strategist:strategy' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'strategy' %} aria-current="page"{% endif %}>
                                 <span class="nav-item-full">{% trans "Стратегия" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "СТ" %}</span>
+                            </a>
+                            <a href="{% url 'strategist:pins' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'pins' %} aria-current="page"{% endif %}>
+                                <span class="nav-item-full">{% trans "Пины" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "ПН" %}</span>
                             </a>
                         {% endif %}
                     </nav>

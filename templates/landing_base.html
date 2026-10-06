@@ -1,6 +1,7 @@
 {% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

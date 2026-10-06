@@ -12,5 +12,7 @@ urlpatterns = [
     path("business/<slug:workspace_slug>/<slug:business_slug>/strategy/", views.strategy_page, name="strategy"),
     path("business/<slug:workspace_slug>/<slug:business_slug>/strategy/versions/<int:number>/confirm/", views.strategy_confirm, name="strategy-confirm"),
     path("business/<slug:workspace_slug>/<slug:business_slug>/strategy/plan/confirm/", views.plan_confirm, name="plan-confirm"),
+    path("business/<slug:workspace_slug>/<slug:business_slug>/pins/", views.pins_page, name="pins"),
+    path("business/<slug:workspace_slug>/<slug:business_slug>/pins/<int:pin_id>/decide/", views.pin_decide, name="pin-decide"),
     path("business/<uuid:business_id>/", views.legacy_chat_redirect, name="legacy-chat"),
 ]

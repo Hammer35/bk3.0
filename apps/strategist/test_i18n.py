@@ -51,10 +51,10 @@ class SwitchingTest(TestCase):
 
     def test_default_is_russian_and_accept_language_selects_english(self):
         ru = self.client.get(reverse("login")).content.decode()
-        self.assertIn('lang="ru"', ru)
+        self.assertIn('<html lang="ru"', ru)
         self.assertIn("Войти", ru)
         en = self.client.get(reverse("login"), headers={"accept-language": "en"}).content.decode()
-        self.assertIn('lang="en"', en)
+        self.assertIn('<html lang="en"', en)  # the document language, not the switcher button's lang attribute
         self.assertIn("Sign in", en)
         self.assertNotIn("Войти", en)
 
