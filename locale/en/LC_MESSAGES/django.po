@@ -1022,6 +1022,10 @@ msgid "Рынок"
 msgstr "Market"
 
 #: templates/base.html
+msgid "СП"
+msgstr "CP"
+
+#: templates/base.html
 msgid "СТ"
 msgstr "ST"
 
@@ -1128,6 +1132,7 @@ msgstr "Create a session to start a conversation."
 msgid "Создание бизнеса — BOOSTKLIENT®"
 msgstr "Create a business — BOOSTKLIENT®"
 
+#: templates/base.html
 #: templates/strategist/pin_generate.html
 msgid "Создание пинов"
 msgstr "Create pins"

@@ -125,3 +125,11 @@ def json_attr(value) -> str:
     """JSON for a data-attribute (HTML-escaped by the template engine): data only, no inline script."""
     import json
     return json.dumps(value, ensure_ascii=False)
+
+
+@register.simple_tag(takes_context=True)
+def can_edit_business(context, business) -> bool:
+    """Whether the current user may use editing pages of this business (used to show menu items)."""
+    from apps.strategist.memory import actor_can_edit
+    request = context.get("request")
+    return bool(business and request is not None and actor_can_edit(business, request.user))

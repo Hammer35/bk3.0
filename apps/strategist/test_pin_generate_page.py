@@ -96,6 +96,22 @@ class AccessAndRenderTest(GeneratePageBase):
         self.client.force_login(self.viewer)
         self.assertNotIn(self.url, self.client.get(pins).content.decode())
 
+    def test_menu_item_is_shown_to_editors_only_and_marked_current_on_the_page(self):
+        def nav(response):
+            return response.content.decode().split("sidebar-nav")[1].split("</nav>")[0]
+        menu = nav(self.client.get(self.url))
+        self.assertIn(f'href="{self.url}"', menu)
+        self.assertIn("Создание пинов", menu)
+        self.assertEqual(menu.count('aria-current="page"'), 1)
+        self.assertRegex(menu, rf'href="{re.escape(self.url)}"[^>]*aria-current="page"')
+        pins = reverse("strategist:pins", kwargs={"workspace_slug": "a", "business_slug": "shop"})
+        self.assertNotRegex(nav(self.client.get(pins)), rf'href="{re.escape(self.url)}"[^>]*aria-current')
+        self.client.force_login(self.viewer)
+        self.assertNotIn(self.url, nav(self.client.get(pins)))  # a viewer would only get a 404 there
+        self.client.force_login(self.owner)
+        english = nav(self.client.get(self.url, headers={"accept-language": "en"}))
+        self.assertIn("Create pins", english)
+
     def test_english_page(self):
         html = self.client.get(self.url, headers={"accept-language": "en"}).content.decode()
         for part in ("Create pins", "What to create", "Summary", "from the business profile", "Generate", "Tone"):
