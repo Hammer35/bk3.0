@@ -31,6 +31,7 @@ from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
 from . import memory
 from .content_plan import content_plan_reply
+from .coverage import coverage_reply
 from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
@@ -812,6 +813,9 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     strategy_answer = strategy_reply(user_message=user_message, actor=actor)
     if strategy_answer:
         return strategy_answer
+    coverage_answer = coverage_reply(user_message=user_message, actor=actor)
+    if coverage_answer:
+        return coverage_answer
     pinterest_accounts = list(
         PinterestAccount.objects.filter(
             business=conversation.business,

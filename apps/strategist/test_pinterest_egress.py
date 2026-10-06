@@ -18,6 +18,7 @@ from apps.strategist.models import AIConversation, AIMessage, ResearchSnapshot
 from apps.workspaces.models import Membership, Workspace
 
 KEYWORD = "CANARYKEY linen phrase"
+GAP = "CANARYGAP uncovered phrase"
 API_DATA = "CANARYDATA 1394708 impressions"
 STRATEGY = {"goals": ["Трафик"], "content_directions": ["Образы"], "recommended_boards": [{"name": "Витрина", "purpose": ""}],
             "keyword_clusters": [{"name": "Лён", "keywords": [KEYWORD]}]}
@@ -46,6 +47,10 @@ class EgressTest(TestCase):
             business=self.business, account=self.account, seeds=["linen"], region="X", researched_at=timezone.now(),
             candidates=[{"phrase": KEYWORD, "sources": ["pinterest_trends"], "seeds": ["linen"], "metrics": {},
                          "intent": "general", "length": "long", "trend": "unknown", "peak_week": ""}])
+        self.coverage = ResearchSnapshot.objects.create(
+            business=self.business, account=self.account, kind=ResearchSnapshot.Kind.COVERAGE, seeds=["linen"], region="X",
+            researched_at=timezone.now(), candidates=[{"phrase": GAP, "ru": "", "pins": 0, "covered": False, "example": ""},
+                                                       {"phrase": KEYWORD, "ru": "", "pins": 3, "covered": True, "example": "x"}])
         self.conversation = AIConversation.objects.create(business=self.business, created_by=user)
         self.client.force_login(user)
         self.url = reverse("strategist:session", kwargs={"workspace_slug": "e", "business_slug": "shop", "session_slug": self.conversation.slug})
@@ -94,6 +99,18 @@ class EgressTest(TestCase):
     def test_strategy_build_does_not_send_researched_phrases(self):
         self.responder = lambda messages, **kw: completion(STRATEGY)
         self.check(KEYWORD, lambda: self.say("Построй стратегию"))
+
+    def test_strategy_build_does_not_send_own_pin_coverage(self):
+        self.responder = lambda messages, **kw: completion(STRATEGY)
+        self.check(GAP, lambda: self.say("Построй стратегию"))
+
+    def test_coverage_report_never_calls_the_model(self):
+        with patch("apps.strategist.services._read_all_pinterest_pages", return_value={"items": [{"title": "pin"}]}):
+            for enabled in (False, True):
+                with self.subTest(transfer_enabled=enabled), override_settings(PINTEREST_AI_DATA_TRANSFER_ENABLED=enabled):
+                    self.calls.clear()
+                    self.say("Покажи пробелы в контенте")
+                    self.assertEqual(self.calls, [])
 
     def test_strategy_revision_does_not_send_earlier_keyword_clusters(self):
         self.responder = lambda messages, **kw: completion(STRATEGY)

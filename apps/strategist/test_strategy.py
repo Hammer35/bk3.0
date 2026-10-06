@@ -59,6 +59,13 @@ class CleanPayloadTest(SimpleTestCase):
         self.assertEqual(out["seasonal_plans"], [])
         self.assertNotIn("unknown_key", out)
 
+    def test_relevance_wording_is_a_demand_claim_too(self):
+        raw = {**RAW, "rationale": [{"claim": "Эти запросы актуальны для аудитории", "basis": ["research:abc"]},
+                                    {"claim": "Фразы найдены в исследовании", "basis": ["research:abc"]}]}
+        out = st.clean_payload(raw, allowed_refs={"research:abc"})
+        self.assertEqual([r["claim"] for r in out["rationale"]], ["Фразы найдены в исследовании"])
+        self.assertIn("Эти запросы актуальны для аудитории", out["hypotheses"])
+
     def test_internal_field_names_never_reach_the_user(self):
         raw = {**RAW,
                "missing_data": ["Нет ключевых слов из research.keywords", "Нет данных об аккаунте"],

@@ -78,6 +78,14 @@ class ResearchTest(ResearchBase):
         self.assertEqual([c["phrase"] for c in snapshot.candidates], ["evening dress"])
         self.assertIn("оставлено 1 из 3", snapshot.notices[-1])
 
+    def test_filter_can_return_russian_equivalents_which_are_validated(self):
+        KEEP["value"] = [{"phrase": "Midi Dress", "ru": "платье миди"}, {"phrase": "evening dress", "ru": "evening gown"},
+                         {"phrase": "dress ideas", "ru": ""}, {"phrase": "never found", "ru": "несуществующая"},
+                         {"phrase": "midi dress", "ru": "x" * 200}]
+        snapshot = research.research_niche(self.business)
+        by = {c["phrase"]: c["ru"] for c in snapshot.candidates}
+        self.assertEqual(by, {"midi dress": "платье миди", "evening dress": "", "dress ideas": ""})
+
     def test_unreadable_filter_answer_stores_no_keywords(self):
         KEEP["value"] = "not a list"
         snapshot = research.research_niche(self.business)

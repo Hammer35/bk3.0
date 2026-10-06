@@ -10,6 +10,7 @@ from .models import AIMessage, StrategyVersion
 from .providers import GigaChatProvider
 from apps.pinterest.policy import pinterest_ai_transfer_enabled
 
+from .coverage import fresh_coverage
 from .research import (ResearchError, deterministic_clusters, fresh_snapshot, render_snapshot,
                        research_niche, snapshot_phrases)
 
@@ -37,7 +38,8 @@ SYSTEM = (
     "Верни ТОЛЬКО JSON по схеме: " + SCHEMA + ". Правила: опирайся только на факты профиля; "
     "ключевые слова бери ТОЛЬКО из research.keywords, не придумывай свои; "
     "утверждение со ссылкой на research может говорить только о том, что фразы найдены источниками, "
-    "но не об интересе аудитории или спросе; "
+    "но не об интересе аудитории или спросе; own_coverage показывает, у каких фраз ниши нет пинов в "
+    "аккаунте пользователя, пробелы можно предлагать как приоритет, но не как доказанный спрос; "
     "каждое утверждение в rationale сопровождай basis — списком ref из поля allowed_refs, иначе "
     "помести его в hypotheses; не выдумывай спрос, тренды, сезонность, конкурентов и числа; "
     "частоту публикаций называй только если её назвал пользователь, иначе оставь пустой; "
@@ -77,7 +79,7 @@ def render_version(version: StrategyVersion) -> str:
 
     section("Цели", version.goals)
     section("Приоритеты", version.priorities)
-    snapshot = version.research_snapshots.order_by("-researched_at").first()
+    snapshot = version.research_snapshots.filter(kind="NICHE_KEYWORDS").order_by("-researched_at").first()
     section(f"Ключевые слова (из исследования от {snapshot.researched_at:%d.%m.%Y})" if snapshot else "Ключевые слова", [f"{c['name']}: {', '.join(c['keywords'])}" for c in version.keyword_clusters])
     section("Доски", [b["name"] + (f" — {b['purpose']}" if b.get("purpose") else "") for b in version.recommended_boards])
     section("Контентные направления", version.content_directions)
@@ -104,7 +106,7 @@ def _reply(conversation, content, *, model="strategy-draft", completion=None) ->
     )
 
 
-def _generate(*, facts, user_texts, base=None, instruction="", provider, snapshot=None, memory_texts=None):
+def _generate(*, facts, user_texts, base=None, instruction="", provider, snapshot=None, memory_texts=None, coverage=None):
     memory_texts = memory_texts or {}
     refs = set(facts) | set(user_texts) | set(memory_texts)
     request = {"profile": facts, "user_messages": {ref: text for ref, text in user_texts.items()}}
@@ -113,6 +115,12 @@ def _generate(*, facts, user_texts, base=None, instruction="", provider, snapsho
     if snapshot is not None:
         refs.add(st.research_ref(snapshot))
         request["research"] = {"ref": st.research_ref(snapshot), "keywords": snapshot_phrases(snapshot)}
+    if coverage is not None:
+        refs.add(st.research_ref(coverage))
+        request["own_coverage"] = {
+            "ref": st.research_ref(coverage),
+            "uncovered_phrases": [r["phrase"] for r in coverage.candidates if not r["covered"]],
+            "covered_phrases": [{"phrase": r["phrase"], "pins": r["pins"]} for r in coverage.candidates if r["covered"]]}
     allowed = sorted(refs)
     request["allowed_refs"] = allowed
     if base:
@@ -192,8 +200,10 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     transfer = pinterest_ai_transfer_enabled()  # off: Pinterest-derived phrases are not shown to the model
     memory_items = mem.facts(business)
     memory_texts = {mem.memory_ref(i): i.text for i in memory_items}
+    coverage = fresh_coverage(business) if snapshot else None
     raw, completion, allowed = _generate(
         facts=facts, user_texts=user_texts, base=base, snapshot=snapshot if transfer else None, memory_texts=memory_texts,
+        coverage=coverage if transfer else None,
         instruction=text if revises else "", provider=provider)
     exclusions = base_version.exclusions if base_version else []
     try:
@@ -206,7 +216,7 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
         payload["keyword_clusters"] = deterministic_clusters(snapshot)
         payload = st.apply_exclusions(payload, payload["exclusions"])
         payload["missing_data"] = [m for m in payload["missing_data"] if m != st.KEYWORDS_NOT_CONFIRMED_NOTE]
-    snapshots = [snapshot] if snapshot else []
+    snapshots = [x for x in (snapshot, coverage) if x]
     version = st.create_draft(business, actor, payload, sources=st.build_sources(
         facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots,
         memory_items=memory_items),

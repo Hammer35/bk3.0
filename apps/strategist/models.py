@@ -129,6 +129,7 @@ class ResearchSnapshot(BaseModel):
 
     class Kind(models.TextChoices):
         NICHE_KEYWORDS = "NICHE_KEYWORDS", "Ключевые слова ниши"
+        COVERAGE = "COVERAGE", "Охват собственного контента"
 
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="research_snapshots", verbose_name="бизнес")
     account = models.ForeignKey(

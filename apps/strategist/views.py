@@ -192,7 +192,7 @@ def _version_view(version):
         "rationale": _rationale_view(version),
         "cadence": cadence.get("text") if cadence else "",
         "cadence_confirmed": bool(cadence) and cadence.get("basis") == "user",
-        "snapshot": version.research_snapshots.order_by("-researched_at").first(),
+        "snapshot": version.research_snapshots.filter(kind="NICHE_KEYWORDS").order_by("-researched_at").first(),
     }
 
 
