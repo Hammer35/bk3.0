@@ -12,14 +12,14 @@ from django.utils.translation import gettext as _
 CHAT_PROMPT_VERSION = "chat-2026-10-06.2"
 STRATEGY_PROMPT_VERSION = "strategy-2026-10-06.1"
 PLAN_PROMPT_VERSION = "content-plan-2026-10-06.4"
-RESEARCH_PROMPT_VERSION = "research-2026-10-06.1"
+RESEARCH_PROMPT_VERSION = "research-2026-10-06.2"
 PIN_PROMPT_VERSION = "pin-2026-10-06.4"
 
 FINGERPRINTS = {
     "chat-2026-10-06.2": "217b14366345",
     "strategy-2026-10-06.1": "5cfb5ea333b3",
     "content-plan-2026-10-06.4": "e51be609838e",
-    "research-2026-10-06.1": "be53792a2b51",
+    "research-2026-10-06.2": "9e9fe551bce2",
     "pin-2026-10-06.4": "16f52613c2c6",
 }
 

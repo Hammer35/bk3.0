@@ -205,7 +205,7 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     user_texts = {f"user_message:{m.pk}": m.content[:500] for m in recent}
     provider = provider or GigaChatProvider()
     base = None
-    if base_version:
+    if base_version and revises:  # a fresh build starts from the profile; only an explicit edit carries the old content over
         fields = ["goals", "priorities", "content_directions", "recommended_boards"]
         if pinterest_ai_transfer_enabled():  # keyword clusters are built from Pinterest Trends phrases
             fields.append("keyword_clusters")

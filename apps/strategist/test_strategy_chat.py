@@ -148,3 +148,28 @@ class StrategyChatTest(TestCase):
         self.assertIn("версия 3 (черновик)", revised.content)
         self.assertNotIn("Свадебн", revised.content.split("Исключено по вашей просьбе")[0])
         self.assertEqual(self.complete.call_count, 2)
+
+
+class FreshBuildIgnoresOldContentTest(StrategyChatTest):
+    """A new "build a strategy" starts from the profile; only an explicit edit sees the previous content."""
+
+    def requests_of(self):
+        import json as _json
+        return [_json.loads(call.args[0][1]["content"]) for call in self.complete.call_args_list]
+
+    def test_rebuild_does_not_carry_the_old_directions_but_an_edit_does(self):
+        self.say("Построй стратегию")
+        self.say("Построй стратегию")
+        first, second = self.requests_of()
+        self.assertNotIn("current_strategy", first)
+        self.assertNotIn("current_strategy", second)  # the old draft's directions are not inherited by a new build
+        self.say("Измени стратегию: добавь больше про костюмы")
+        edit = self.requests_of()[-1]
+        self.assertIn("current_strategy", edit)
+        self.assertIn("Образы с платьями", edit["current_strategy"]["content_directions"])
+
+    def test_user_exclusions_still_survive_a_fresh_build(self):
+        self.say("Построй стратегию")
+        self.say("Не продвигай свадебные товары")
+        draft = self.say("Построй стратегию заново")
+        self.assertNotIn("Свадебн", draft.content.split("Исключено по вашей просьбе")[0])

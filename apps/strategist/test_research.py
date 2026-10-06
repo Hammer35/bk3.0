@@ -99,6 +99,20 @@ class ResearchTest(ResearchBase):
         text = research.render_snapshot(research.research_niche(self.business))
         self.assertIn("может не совпадать с рынком бизнеса («Россия»)", text)
 
+    def test_channels_and_brands_are_never_search_roots(self):
+        self.complete.side_effect = lambda messages, **kw: completion(json.dumps(
+            {"seeds": ["homegoods", "marketplaces", "home decor", "kitchen store", "IKEA", "home storage", "online shop"]}))
+        snapshot = research.research_niche(self.business)
+        self.assertEqual(snapshot.seeds, ["home decor", "home storage"])
+        self.complete.side_effect = lambda messages, **kw: completion(json.dumps({"seeds": ["homegoods", "marketplaces"]}))
+        with self.assertRaises(research.ResearchError):
+            research.research_niche(self.business)
+
+    def test_seed_prompt_names_the_rules(self):
+        self.assertIn("не бренды и не названия магазинов", research.SEED_SYSTEM)
+        self.assertIn("home decor", research.SEED_SYSTEM)
+        self.assertTrue(research.SEED_SYSTEM.startswith("Преобразуй нишу"))  # the test doubles route by this prefix
+
     def test_refusals_do_not_call_apis(self):
         self.account.status = PinterestAccount.Status.DISCONNECTED
         self.account.save()
