@@ -112,3 +112,16 @@ def provenance_lines(manifest) -> list[str]:
     """Readable lines for the sources a reply was built from."""
     from apps.strategist.provenance import describe
     return describe(manifest)
+
+
+@register.filter(name="get_item")
+def get_item(mapping, key):
+    """Template access to a dict value by a variable key."""
+    return mapping.get(key, {}) if isinstance(mapping, dict) else {}
+
+
+@register.filter(name="json_attr")
+def json_attr(value) -> str:
+    """JSON for a data-attribute (HTML-escaped by the template engine): data only, no inline script."""
+    import json
+    return json.dumps(value, ensure_ascii=False)

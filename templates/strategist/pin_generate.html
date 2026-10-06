@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load i18n static strategist_format %}
+{% block title %}{% trans "Создание пинов — BOOSTKLIENT®" %}{% endblock %}
+{% block content %}
+<header class="workbench-page-header">
+    <div>
+        <p class="eyebrow">{{ business.workspace.name }} / {{ business.name }}</p>
+        <h1>{% trans "Создание пинов" %}</h1>
+        <p>{% trans "Выберите пункты контент-плана и настройки. Часть полей заполнена автоматически: у каждого поля указано, откуда значение. Готовые тексты появятся на странице «Пины» на ваше одобрение." %}</p>
+    </div>
+</header>
+
+{% if not plan %}
+    <section class="panel strategy-panel">
+        <h2 class="panel-title">{% trans "Нет подтверждённого контент-плана" %}</h2>
+        <p class="meta">{% trans "Пины создаются по подтверждённому контент-плану. Постройте и подтвердите его в чате или на странице «Стратегия»." %}</p>
+        <a class="button button-primary" href="{% url 'strategist:strategy' business.workspace.slug business.slug %}">{% trans "Открыть стратегию" %}</a>
+    </section>
+{% else %}
+<form method="post" class="gen-layout" data-gen-form data-max-items="{{ max_items }}" action="{% url 'strategist:pin-generate' business.workspace.slug business.slug %}">
+    {% csrf_token %}
+    <div class="gen-main">
+        {% if form.non_field_errors %}<ul class="form-errors">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+
+        <section class="panel strategy-panel gen-section" aria-labelledby="gen-items-title">
+            <h2 class="panel-title" id="gen-items-title">1. {% trans "Что создаём" %}</h2>
+            <p class="meta">{% blocktrans with max=max_items %}Отметьте пункты плана (не больше {{ max }} за запуск). Для пунктов, у которых уже есть пин, генерация недоступна, пока он не отправлен на переделку.{% endblocktrans %}</p>
+            <div class="gen-table" role="group" aria-labelledby="gen-items-title">
+                <label class="gen-row gen-row-head"><input type="checkbox" data-gen-all> <span>{% trans "Выбрать доступные" %}</span></label>
+                {% for row in rows %}
+                    <div class="gen-row{% if not row.selectable %} is-disabled{% endif %}">
+                        <input type="checkbox" name="items" value="{{ row.item.pk }}" id="item-{{ row.item.pk }}" data-gen-item{% if row.checked %} checked{% endif %}{% if not row.selectable %} disabled{% endif %}>
+                        <label for="item-{{ row.item.pk }}" class="gen-row-main">
+                            <strong>{{ row.item.idea }}</strong>
+                            <span class="meta">{% blocktrans with week=row.item.target_week %}Неделя {{ week }}{% endblocktrans %} · {{ row.item.direction }}{% if row.item.keyword %} · {{ row.item.keyword }}{% endif %}{% if row.status %} · {{ row.status }}{% endif %}</span>
+                        </label>
+                        {% if row.selectable %}
+                            <select name="board_{{ row.item.pk }}" aria-label="{% trans 'Доска' %}" data-auto="{{ row.item.board }}" data-gen-board>
+                                <option value="">{% trans "— без доски —" %}</option>
+                                {% for board in board_choices %}<option value="{{ board }}"{% if board == row.board %} selected{% endif %}>{{ board }}</option>{% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel strategy-panel gen-section" aria-labelledby="gen-where-title">
+            <h2 class="panel-title" id="gen-where-title">2. {% trans "Куда" %}</h2>
+            {% if accounts_missing %}<p class="meta strategy-flag">{% trans "Pinterest-аккаунт не подключён: доски из аккаунта недоступны, пины готовятся по доскам стратегии." %}</p>{% endif %}
+            {% include "strategist/_gen_field.html" with field=form.account meta=meta.account %}
+            {% include "strategist/_gen_field.html" with field=form.destination_url meta=meta.destination_url %}
+            <div class="form-field gen-field"><div class="gen-field-head"><span class="gen-fixed-label">{% trans "Язык текста" %}</span> <span class="source-badge source-default">{% trans "по умолчанию" %}</span></div><p class="meta">{% trans "Русский. Другие языки появятся позже." %}</p></div>
+        </section>
+
+        <section class="panel strategy-panel gen-section" aria-labelledby="gen-how-title">
+            <h2 class="panel-title" id="gen-how-title">3. {% trans "Как пишем" %}</h2>
+            <div class="gen-grid">
+                {% include "strategist/_gen_field.html" with field=form.tone meta=meta.tone %}
+                {% include "strategist/_gen_field.html" with field=form.cta meta=meta.cta %}
+                {% include "strategist/_gen_field.html" with field=form.length meta=meta.length %}
+            </div>
+            <details class="gen-advanced" data-gen-advanced>
+                <summary>{% trans "Дополнительно" %} <span class="meta" data-gen-changed></span></summary>
+                <div class="gen-grid">
+                    {% for field in advanced %}{% with meta_key=field.name %}{% include "strategist/_gen_field.html" with field=field meta=meta|get_item:meta_key %}{% endwith %}{% endfor %}
+                </div>
+            </details>
+        </section>
+
+        <section class="panel strategy-panel gen-section" aria-labelledby="gen-checks-title">
+            <h2 class="panel-title" id="gen-checks-title">4. {% trans "Проверки" %}</h2>
+            <p class="meta">{% trans "Все 12 проверок выполняются всегда и отключить их нельзя: длина текста, соответствие стратегии, ключ и набивка, обещания, ссылка, дубли, альтернативный текст и другие. Невыполнимые проверки будут показаны отдельно." %}</p>
+            {% include "strategist/_gen_field.html" with field=form.rewrite meta=meta.rewrite %}
+        </section>
+
+        <section class="panel strategy-panel gen-section" aria-labelledby="gen-schedule-title">
+            <h2 class="panel-title" id="gen-schedule-title">5. {% trans "Расписание" %}</h2>
+            <p class="meta">{% trans "Сейчас создаются только черновики. Ничего не публикуется без вашего одобрения каждой версии пина. Расписание появится отдельным шагом." %}</p>
+        </section>
+    </div>
+
+    <aside class="gen-summary" aria-label="{% trans 'Сводка запуска' %}">
+        <div class="panel strategy-panel">
+            <h2 class="panel-title">{% trans "Сводка" %}</h2>
+            <dl class="gen-summary-list">
+                <div><dt>{% trans "Выбрано пунктов" %}</dt><dd><span data-gen-count>0</span> / {{ max_items }}</dd></div>
+                <div><dt>{% trans "Проверки" %}</dt><dd>12</dd></div>
+                <div><dt>{% trans "Режим" %}</dt><dd>{% trans "только черновики" %}</dd></div>
+            </dl>
+            <p class="form-errors" data-gen-limit hidden>{% blocktrans with max=max_items %}Не больше {{ max }} пунктов за запуск.{% endblocktrans %}</p>
+            {% include "strategist/_gen_field.html" with field=form.remember meta=meta.remember %}
+            <button type="submit" class="button button-primary" data-gen-submit>{% trans "Сгенерировать" %}</button>
+        </div>
+
+        <div class="panel strategy-panel" id="jobs">
+            <h2 class="panel-title">{% trans "Задачи" %}</h2>
+            {% for card in jobs %}
+                <div class="job-card" data-job{% if card.active %} data-job-status-url="{% url 'strategist:pin-job-status' business.workspace.slug business.slug card.job.pk %}"{% endif %} data-job-labels="{{ job_labels|json_attr }}">
+                    <p><strong data-job-label>{{ card.label }}</strong> · <span class="meta">{{ card.job.created_at|date:"d.m.Y H:i" }}</span></p>
+                    <progress class="job-bar" max="100" value="{{ card.percent }}" data-job-bar>{{ card.percent }}%</progress>
+                    <p class="meta">{% blocktrans with done=card.job.done total=card.job.total failed=card.job.failed %}Готово {{ done }} из {{ total }}, с ошибкой {{ failed }}{% endblocktrans %}</p>
+                    {% for note in card.job.notes %}<p class="meta strategy-flag">{{ note }}</p>{% endfor %}
+                    {% if card.active %}<button type="submit" class="button button-ghost button-small" formaction="{% url 'strategist:pin-job-cancel' business.workspace.slug business.slug card.job.pk %}" formnovalidate>{% trans "Отменить" %}</button>{% endif %}
+                </div>
+            {% empty %}
+                <p class="meta">{% trans "Запусков пока не было." %}</p>
+            {% endfor %}
+            <a class="button button-secondary button-small" href="{% url 'strategist:pins' business.workspace.slug business.slug %}">{% trans "Перейти к пинам" %}</a>
+        </div>
+    </aside>
+</form>
+<script src="{% static 'js/strategist/pin-generate.js' %}" defer></script>
+{% endif %}
+{% endblock %}

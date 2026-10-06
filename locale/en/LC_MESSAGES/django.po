@@ -28,7 +28,7 @@ msgstr "BoostKlient collects business context before strategy work, so the AI is
 msgid "Email"
 msgstr "Email"
 
-#: apps/strategist/views.py:82
+#: apps/strategist/views.py:85
 msgid "GigaChat временно недоступен. Повторите запрос."
 msgstr "GigaChat is temporarily unavailable. Please try again."
 
@@ -70,9 +70,17 @@ msgstr "Pinterest did not return an authorization code."
 msgid "Pinterest отменил или отклонил авторизацию."
 msgstr "Pinterest canceled or rejected the authorization."
 
+#: templates/strategist/pin_generate.html
+msgid "Pinterest-аккаунт не подключён: доски из аккаунта недоступны, пины готовятся по доскам стратегии."
+msgstr "No Pinterest account is connected: account boards are unavailable, pins are prepared for the strategy boards."
+
 #: templates/core/landing.html
 msgid "Wildberries, Ozon и Etsy"
 msgstr "Wildberries, Ozon and Etsy"
+
+#: apps/strategist/pin_forms.py:14
+msgid "Аккаунт Pinterest"
+msgstr "Pinterest account"
 
 #: templates/pinterest/confirm_disconnect.html
 msgid "Аккаунт будет удалён из BOOSTKLIENT, а его OAuth-токены — очищены. Это действие нельзя отменить."
@@ -95,6 +103,10 @@ msgstr "Active business: %(workspace)s / %(name)s"
 msgid "Альтернативный текст"
 msgstr "Alt text"
 
+#: apps/strategist/pin_forms.py:19
+msgid "Английская фраза"
+msgstr "English phrase"
+
 #: templates/core/home.html
 #: templates/strategist/strategy.html
 msgid "Аудитория"
@@ -104,6 +116,10 @@ msgstr "Audience"
 #, python-format
 msgid "База знаний: %(titles)s"
 msgstr "Knowledge base: %(titles)s"
+
+#: apps/strategist/pin_forms.py:17
+msgid "Без призыва"
+msgstr "No call to action"
 
 #: apps/businesses/views.py:23
 msgid "Бизнес добавлен."
@@ -121,7 +137,8 @@ msgstr "A more specific direction within the niche. For example: \"linen dresses
 msgid "В архиве"
 msgstr "Archived"
 
-#: apps/strategist/views.py:264
+#: apps/strategist/views.py:267
+#: apps/strategist/views.py:321
 msgid "В очереди"
 msgstr "Queued"
 
@@ -153,6 +170,10 @@ msgstr "Questions will appear here"
 msgid "Вопросы этой сессии"
 msgstr "Questions in this session"
 
+#: templates/strategist/pin_generate.html
+msgid "Все 12 проверок выполняются всегда и отключить их нельзя: длина текста, соответствие стратегии, ключ и набивка, обещания, ссылка, дубли, альтернативный текст и другие. Невыполнимые проверки будут показаны отдельно."
+msgstr "All 12 checks always run and cannot be switched off: text length, strategy match, keyword and stuffing, claims, link, duplicates, alt text and others. Checks that cannot be performed are shown separately."
+
 #: templates/accounts/login.html
 msgid "Вход — BOOSTKLIENT®"
 msgstr "Sign in — BOOSTKLIENT®"
@@ -162,21 +183,50 @@ msgstr "Sign in — BOOSTKLIENT®"
 msgid "Вы"
 msgstr "You"
 
+#: templates/strategist/pin_generate.html
+msgid "Выберите пункты контент-плана и настройки. Часть полей заполнена автоматически: у каждого поля указано, откуда значение. Готовые тексты появятся на странице «Пины» на ваше одобрение."
+msgstr "Choose content plan items and settings. Some fields are filled in automatically: each field shows where its value comes from. Finished texts appear on the \"Pins\" page for your approval."
+
 #: templates/strategist/chat.html
 msgid "Выберите сессию слева или создайте новую."
 msgstr "Choose a session on the left or create a new one."
+
+#: templates/strategist/pin_generate.html
+msgid "Выбрано пунктов"
+msgstr "Items selected"
+
+#: templates/strategist/pin_generate.html
+msgid "Выбрать доступные"
+msgstr "Select available"
 
 #: templates/base.html
 msgid "Выйти"
 msgstr "Sign out"
 
-#: apps/strategist/views.py:263
+#: apps/strategist/views.py:321
+msgid "Выполняется"
+msgstr "In progress"
+
+#: apps/strategist/views.py:403
+msgid "Генерация запущена. Результаты появятся на странице «Пины» по мере готовности."
+msgstr "Generation started. Results will appear on the \"Pins\" page as they are ready."
+
+#: apps/strategist/views.py:266
 msgid "Генерируется"
 msgstr "Generating"
 
 #: templates/strategist/_strategy_version.html
 msgid "Гипотезы (не подтверждены)"
 msgstr "Hypotheses (not confirmed)"
+
+#: apps/strategist/views.py:322
+msgid "Готово"
+msgstr "Done"
+
+#: templates/strategist/pin_generate.html
+#, python-format
+msgid "Готово %(done)s из %(total)s, с ошибкой %(failed)s"
+msgstr "Done %(done)s of %(total)s, failed %(failed)s"
 
 #: templates/pinterest/confirm_disconnect.html
 msgid "Да, удалить аккаунт"
@@ -205,6 +255,14 @@ msgstr "Active"
 msgid "Диагностика и план"
 msgstr "Diagnosis and plan"
 
+#: apps/strategist/pin_forms.py:18
+msgid "Длина описания"
+msgstr "Description length"
+
+#: apps/strategist/pin_forms.py:14
+msgid "Для какого аккаунта готовятся пины и откуда берутся доски."
+msgstr "The account the pins are prepared for and where boards come from."
+
 #: templates/core/landing.html
 msgid "Для продавцов"
 msgstr "For sellers"
@@ -213,6 +271,10 @@ msgstr "For sellers"
 #, python-format
 msgid "Для стратегии не хватает: %(fields)s."
 msgstr "Not enough data for the strategy: %(fields)s."
+
+#: apps/strategist/pin_forms.py:25
+msgid "До 500 символов. Это пожелание, а не правило: оно не отменяет проверки."
+msgstr "Up to 500 characters. This is a wish, not a rule: it does not override the checks."
 
 #: templates/businesses/create.html
 msgid "Добавить"
@@ -231,25 +293,53 @@ msgstr "Add a business"
 msgid "Добавьте первый бизнес"
 msgstr "Add your first business"
 
+#: templates/strategist/pin_generate.html
+msgid "Дополнительно"
+msgstr "Advanced"
+
+#: templates/strategist/pin_generate.html
+msgid "Доска"
+msgstr "Board"
+
 #: templates/strategist/_strategy_version.html
 msgid "Доски"
 msgstr "Boards"
 
-#: apps/strategist/views.py:263
+#: apps/strategist/pin_forms.py:15
+msgid "Дружелюбный"
+msgstr "Friendly"
+
+#: apps/strategist/views.py:266
 msgid "Ждёт одобрения"
 msgstr "Awaiting approval"
+
+#: apps/strategist/views.py:321
+msgid "Ждёт ответа"
+msgstr "Waiting for input"
 
 #: templates/strategist/strategy.html
 msgid "Ждёт подтверждения"
 msgstr "Awaiting confirmation"
 
-#: apps/strategist/views.py:267
+#: apps/strategist/views.py:270
 msgid "Заблокирован проверкой"
 msgstr "Blocked by a check"
 
 #: templates/strategist/chat.html
 msgid "Задайте первый вопрос о контенте или стратегии."
 msgstr "Ask your first question about content or strategy."
+
+#: templates/strategist/pin_generate.html
+msgid "Задачи"
+msgstr "Jobs"
+
+#: apps/strategist/pin_forms.py:37
+msgid "Запомнить эти настройки для бизнеса"
+msgstr "Remember these settings for the business"
+
+#: templates/strategist/pin_generate.html
+msgid "Запусков пока не было."
+msgstr "No runs yet."
 
 #: templates/strategist/_chat_messages.html
 #: templates/strategist/chat.html
@@ -268,7 +358,7 @@ msgstr "AI strategist — BOOSTKLIENT®"
 msgid "Идеи для производства, а не расписание публикаций: даты и частоту вы задаёте сами."
 msgstr "These are ideas for production, not a publishing schedule: you set the dates and frequency yourself."
 
-#: apps/strategist/views.py:263
+#: apps/strategist/views.py:266
 msgid "Идея"
 msgstr "Idea"
 
@@ -316,6 +406,14 @@ msgstr "Draft sources: %(count)s"
 msgid "Исходные данные для работы ИИ-стратега"
 msgstr "Source data for the AI strategist"
 
+#: apps/strategist/pin_forms.py:20
+msgid "Как использовать ключ из исследования ниши."
+msgstr "How to use the keyword from the niche research."
+
+#: templates/strategist/pin_generate.html
+msgid "Как пишем"
+msgstr "How we write"
+
 #: templates/core/landing.html
 msgid "Как это работает"
 msgstr "How it works"
@@ -346,10 +444,11 @@ msgstr "Catalog → Pinterest"
 msgid "Каталог → стратегия → органический трафик"
 msgstr "Catalog → strategy → organic traffic"
 
-#: apps/strategist/views.py:80
+#: apps/strategist/views.py:83
 msgid "Ключ GigaChat не настроен."
 msgstr "The GigaChat key is not configured."
 
+#: apps/strategist/pin_forms.py:20
 #: templates/strategist/pins.html
 msgid "Ключевая фраза"
 msgstr "Keyword"
@@ -379,7 +478,7 @@ msgstr "Content"
 msgid "Контент-план по версии %(number)s"
 msgstr "Content plan for version %(number)s"
 
-#: apps/strategist/views.py:258
+#: apps/strategist/views.py:261
 msgid "Контент-план подтверждён."
 msgstr "Content plan confirmed."
 
@@ -387,14 +486,42 @@ msgstr "Content plan confirmed."
 msgid "Контентные направления"
 msgstr "Content directions"
 
+#: apps/strategist/pin_forms.py:18
+msgid "Короткое описание"
+msgstr "Short description"
+
+#: templates/strategist/pin_generate.html
+msgid "Куда"
+msgstr "Where"
+
+#: apps/strategist/pin_forms.py:27
+msgid "Куда ведёт пин. По умолчанию сайт из профиля бизнеса."
+msgstr "Where the pin leads. The website from the business profile by default."
+
 #: templates/base.html
 msgid "МБ"
 msgstr "MB"
+
+#: apps/strategist/pin_forms.py:32
+msgid "Метка utm_campaign"
+msgstr "utm_campaign tag"
+
+#: apps/strategist/pin_forms.py:30
+msgid "Метка utm_medium"
+msgstr "utm_medium tag"
+
+#: apps/strategist/pin_forms.py:28
+msgid "Метка utm_source"
+msgstr "utm_source tag"
 
 #: templates/base.html
 #: templates/core/home.html
 msgid "Мой бизнес"
 msgstr "My business"
+
+#: apps/strategist/pin_forms.py:17
+msgid "Мягкий призыв"
+msgstr "Soft call to action"
 
 #: templates/strategist/pins.html
 msgid "На переделку"
@@ -433,6 +560,11 @@ msgstr "Write to the strategist or paste a Wildberries product link"
 msgid "Начинаем с товарных визуалов, которые можно превратить в понятный Pinterest-контент."
 msgstr "We start with product visuals that can be turned into clear Pinterest content."
 
+#: templates/strategist/pin_generate.html
+#, python-format
+msgid "Не больше %(max)s пунктов за запуск."
+msgstr "No more than %(max)s items per run."
+
 #: templates/core/landing.html
 msgid "Не новый контент с нуля, а новая точка входа к вашему ассортименту."
 msgstr "Not new content from scratch, but a new entry point to your range."
@@ -453,6 +585,7 @@ msgstr "Could not save the text size. Please try again."
 msgid "Не хватает данных"
 msgstr "Missing data"
 
+#: templates/strategist/pin_generate.html
 #: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 #, python-format
@@ -463,9 +596,21 @@ msgstr "Week %(week)s"
 msgid "Неизвестное действие."
 msgstr "Unknown action."
 
+#: apps/strategist/pin_forms.py:15
+msgid "Нейтральный"
+msgstr "Neutral"
+
+#: apps/strategist/pin_forms.py:35
+msgid "Необязательно. По карточке проверяются числа и обещания в тексте."
+msgstr "Optional. Numbers and claims in the text are checked against the card."
+
 #: templates/accounts/login.html
 msgid "Нет аккаунта?"
 msgstr "No account yet?"
+
+#: templates/strategist/pin_generate.html
+msgid "Нет подтверждённого контент-плана"
+msgstr "No confirmed content plan"
 
 #: apps/businesses/forms.py:14
 #: apps/workspaces/forms.py:22
@@ -482,7 +627,7 @@ msgstr "New session"
 msgid "Новый бизнес — BOOSTKLIENT®"
 msgstr "New business — BOOSTKLIENT®"
 
-#: apps/strategist/views.py:267
+#: apps/strategist/views.py:270
 msgid "Нужна оценка человека"
 msgstr "Needs human review"
 
@@ -490,8 +635,8 @@ msgstr "Needs human review"
 msgid "Общее имя для ваших проектов. Например: «Мой магазин» или «Studio North»."
 msgstr "A shared name for your projects. For example: \"My store\" or \"Studio North\"."
 
-#: apps/strategist/views.py:264
-#: apps/strategist/views.py:269
+#: apps/strategist/views.py:267
+#: apps/strategist/views.py:272
 msgid "Одобрен"
 msgstr "Approved"
 
@@ -503,7 +648,7 @@ msgstr "Approve this version"
 msgid "Описание"
 msgstr "Description"
 
-#: apps/strategist/views.py:264
+#: apps/strategist/views.py:267
 msgid "Опубликован"
 msgstr "Published"
 
@@ -519,8 +664,8 @@ msgstr "Keep the account"
 msgid "Отклонить"
 msgstr "Reject"
 
-#: apps/strategist/views.py:265
-#: apps/strategist/views.py:269
+#: apps/strategist/views.py:268
+#: apps/strategist/views.py:272
 msgid "Отклонён"
 msgstr "Rejected"
 
@@ -536,6 +681,10 @@ msgstr "Open product card"
 msgid "Открыть рабочую среду"
 msgstr "Open the workspace"
 
+#: templates/strategist/pin_generate.html
+msgid "Открыть стратегию"
+msgstr "Open the strategy"
+
 #: templates/strategist/pins.html
 #: templates/strategist/strategy.html
 msgid "Открыть чат с ИИ-стратегом"
@@ -545,19 +694,37 @@ msgstr "Open chat with the AI strategist"
 msgid "Отмена"
 msgstr "Cancel"
 
+#: apps/strategist/views.py:455
+msgid "Отмена запрошена: текущий пин будет дописан, остальные не обрабатываются."
+msgstr "Cancellation requested: the current pin will be finished, the rest are not processed."
+
+#: apps/strategist/views.py:322
+msgid "Отменена"
+msgstr "Cancelled"
+
+#: templates/strategist/pin_generate.html
+msgid "Отменить"
+msgstr "Cancel"
+
+#: templates/strategist/pin_generate.html
+#, python-format
+msgid "Отметьте пункты плана (не больше %(max)s за запуск). Для пунктов, у которых уже есть пин, генерация недоступна, пока он не отправлен на переделку."
+msgstr "Tick the plan items (no more than %(max)s per run). Items that already have a pin cannot be generated until the pin is sent back for rework."
+
 #: templates/strategist/chat.html
 msgid "Отправить сообщение"
 msgstr "Send message"
 
-#: apps/strategist/views.py:269
+#: apps/strategist/views.py:272
 msgid "Отправлен на переделку"
 msgstr "Sent back for rework"
 
-#: apps/strategist/views.py:264
+#: apps/strategist/views.py:267
 msgid "Отправляется"
 msgstr "Publishing"
 
-#: apps/strategist/views.py:265
+#: apps/strategist/views.py:268
+#: apps/strategist/views.py:322
 msgid "Ошибка"
 msgstr "Failed"
 
@@ -574,6 +741,14 @@ msgstr "Business memory: %(count)s facts"
 msgid "Первый шаг"
 msgstr "First step"
 
+#: templates/strategist/pin_generate.html
+msgid "Перейти к пинам"
+msgstr "Go to pins"
+
+#: apps/strategist/pin_forms.py:36
+msgid "Переписать один раз, если проверка заблокирует текст"
+msgstr "Rewrite once if a check blocks the text"
+
 #: templates/core/home.html
 msgid "Переподключить"
 msgstr "Reconnect"
@@ -582,7 +757,7 @@ msgstr "Reconnect"
 msgid "Переподключить Pinterest? Вы будете перенаправлены на Pinterest для повторного подтверждения доступа."
 msgstr "Reconnect Pinterest? You will be redirected to Pinterest to confirm access again."
 
-#: apps/strategist/approvals.py:36
+#: apps/strategist/approvals.py:31
 msgid "Пин заблокирован проверкой: одобрить его нельзя, отправьте на переделку или отклоните."
 msgstr "The pin is blocked by a check and cannot be approved: send it back for rework or reject it."
 
@@ -595,6 +770,10 @@ msgstr "No pins yet"
 msgid "Пины"
 msgstr "Pins"
 
+#: templates/strategist/pin_generate.html
+msgid "Пины создаются по подтверждённому контент-плану. Постройте и подтвердите его в чате или на странице «Стратегия»."
+msgstr "Pins are created from a confirmed content plan. Build and confirm it in the chat or on the \"Strategy\" page."
+
 #: templates/strategist/pins.html
 msgid "Пины — BOOSTKLIENT®"
 msgstr "Pins — BOOSTKLIENT®"
@@ -603,8 +782,8 @@ msgstr "Pins — BOOSTKLIENT®"
 msgid "Планируйте Pinterest-контент и следующий шаг для этого бизнеса."
 msgstr "Plan Pinterest content and the next step for this business."
 
-#: apps/strategist/approvals.py:30
-#: apps/strategist/approvals.py:32
+#: apps/strategist/approvals.py:33
+#: apps/strategist/approvals.py:35
 msgid "По этой версии пина решение уже принято."
 msgstr "A decision has already been made on this pin version."
 
@@ -633,6 +812,10 @@ msgstr "Connect another Pinterest account to this business? You will be redirect
 #: apps/workspaces/forms.py:28
 msgid "Подниша"
 msgstr "Subniche"
+
+#: apps/strategist/pin_forms.py:18
+msgid "Подробное"
+msgstr "Detailed"
 
 #: apps/strategist/approvals.py:38
 msgid "Подтвердите, что вы прочитали замечания и знаете, какие проверки не выполнены."
@@ -701,6 +884,14 @@ msgstr "See the path"
 msgid "Почему так"
 msgstr "Why this way"
 
+#: apps/strategist/pin_forms.py:15
+msgid "Премиальный"
+msgstr "Premium"
+
+#: apps/strategist/pin_forms.py:17
+msgid "Призыв к действию"
+msgstr "Call to action"
+
 #: templates/core/landing.html
 msgid "Пример визуалов товара для Pinterest: подходящие и неподходящие изображения"
 msgstr "Example of product visuals for Pinterest: suitable and unsuitable images"
@@ -709,15 +900,19 @@ msgstr "Example of product visuals for Pinterest: suitable and unsuitable images
 msgid "Приоритеты"
 msgstr "Priorities"
 
+#: templates/strategist/pin_generate.html
+msgid "Проверки"
+msgstr "Checks"
+
 #: templates/strategist/pins.html
 msgid "Проверки отражают соблюдение наших правил и не являются одобрением Pinterest или прогнозом показов."
 msgstr "The checks reflect compliance with our rules; they are not an approval by Pinterest or a reach forecast."
 
-#: apps/strategist/views.py:267
+#: apps/strategist/views.py:270
 msgid "Проверки пройдены"
 msgstr "Checks passed"
 
-#: apps/strategist/views.py:263
+#: apps/strategist/views.py:266
 msgid "Проверяется"
 msgstr "Being checked"
 
@@ -746,6 +941,10 @@ msgstr "Business profile, strategy and content in one workspace"
 #, python-format
 msgid "Профиль бизнеса: %(fields)s"
 msgstr "Business profile: %(fields)s"
+
+#: apps/strategist/pin_forms.py:17
+msgid "Прямой призыв"
+msgstr "Direct call to action"
 
 #: templates/core/landing.html
 msgid "Публикации ведут к товарам там, где уже оформлена покупка."
@@ -788,17 +987,33 @@ msgstr "App sections"
 msgid "Размер текста"
 msgstr "Text size"
 
+#: templates/strategist/pin_generate.html
+msgid "Расписание"
+msgstr "Schedule"
+
 #: templates/workspaces/onboarding.html
 msgid "Расскажите о первом бизнесе"
 msgstr "Tell us about your first business"
+
+#: templates/strategist/pin_generate.html
+msgid "Режим"
+msgstr "Mode"
 
 #: templates/strategist/pins.html
 msgid "Результаты проверок"
 msgstr "Check results"
 
-#: apps/strategist/views.py:313
+#: apps/strategist/views.py:316
 msgid "Решение сохранено."
 msgstr "Decision saved."
+
+#: apps/strategist/pin_forms.py:19
+msgid "Русский или английский"
+msgstr "Russian or English"
+
+#: templates/strategist/pin_generate.html
+msgid "Русский. Другие языки появятся позже."
+msgstr "Russian. Other languages will come later."
 
 #: apps/businesses/forms.py:16
 #: apps/workspaces/forms.py:34
@@ -829,9 +1044,29 @@ msgstr "Collapse sidebar"
 msgid "Светлая тема"
 msgstr "Light theme"
 
+#: apps/strategist/pin_forms.py:24
+msgid "Свободное пожелание"
+msgstr "Free-form wish"
+
+#: templates/strategist/pin_generate.html
+msgid "Сводка"
+msgstr "Summary"
+
+#: templates/strategist/pin_generate.html
+msgid "Сводка запуска"
+msgstr "Run summary"
+
+#: templates/strategist/pin_generate.html
+msgid "Сгенерировать"
+msgstr "Generate"
+
 #: templates/strategist/_strategy_version.html
 msgid "Сезонные идеи"
 msgstr "Seasonal ideas"
+
+#: templates/strategist/pin_generate.html
+msgid "Сейчас создаются только черновики. Ничего не публикуется без вашего одобрения каждой версии пина. Расписание появится отдельным шагом."
+msgstr "Only drafts are created for now. Nothing is published without your approval of each pin version. Scheduling will come as a separate step."
 
 #: templates/base.html
 msgid "Сессии"
@@ -861,7 +1096,11 @@ msgstr "Next module"
 msgid "Следующий шаг"
 msgstr "Next step"
 
-#: apps/strategist/views.py:121
+#: apps/strategist/pin_forms.py:21
+msgid "Слова, которых не должно быть"
+msgstr "Words that must not appear"
+
+#: apps/strategist/views.py:124
 msgid "Сначала создайте сессию ИИ-стратега."
 msgstr "Create an AI strategist session first."
 
@@ -889,6 +1128,14 @@ msgstr "Create a session to start a conversation."
 msgid "Создание бизнеса — BOOSTKLIENT®"
 msgstr "Create a business — BOOSTKLIENT®"
 
+#: templates/strategist/pin_generate.html
+msgid "Создание пинов"
+msgstr "Create pins"
+
+#: templates/strategist/pin_generate.html
+msgid "Создание пинов — BOOSTKLIENT®"
+msgstr "Create pins — BOOSTKLIENT®"
+
 #: templates/accounts/login.html
 msgid "Создать аккаунт"
 msgstr "Create account"
@@ -896,6 +1143,10 @@ msgstr "Create account"
 #: templates/accounts/register.html
 msgid "Создать аккаунт — BOOSTKLIENT®"
 msgstr "Create account — BOOSTKLIENT®"
+
+#: templates/strategist/pins.html
+msgid "Создать пины"
+msgstr "Create pins"
 
 #: templates/workspaces/onboarding.html
 msgid "Создать профиль"
@@ -925,9 +1176,21 @@ msgstr "The Pinterest connection has expired. Please try again."
 msgid "Ссылка"
 msgstr "Link"
 
+#: apps/strategist/pin_forms.py:34
+msgid "Ссылка на карточку товара Wildberries"
+msgstr "Wildberries product card link"
+
 #: apps/workspaces/forms.py:18
 msgid "Ссылка на сайт или карточку магазина. Например: https://example.com. Можно заполнить позже."
 msgstr "A link to your website or store page. For example: https://example.com. You can fill it in later."
+
+#: apps/strategist/pin_forms.py:26
+msgid "Ссылка назначения"
+msgstr "Destination link"
+
+#: apps/strategist/pin_forms.py:18
+msgid "Стандартное"
+msgstr "Standard"
 
 #: templates/core/home.html
 msgid "Статус"
@@ -954,7 +1217,7 @@ msgstr "Strategy"
 msgid "Стратегия заменена: постройте план заново."
 msgstr "The strategy was replaced: build the plan again."
 
-#: apps/strategist/views.py:243
+#: apps/strategist/views.py:246
 msgid "Стратегия подтверждена."
 msgstr "Strategy confirmed."
 
@@ -971,6 +1234,20 @@ msgstr "Strategy, version %(number)s"
 msgid "Стратегия, на которой построен план, уже заменена. Построй план заново."
 msgstr "The strategy this plan was built on has already been replaced. Build the plan again."
 
+#: apps/strategist/pin_forms.py:29
+#: apps/strategist/pin_forms.py:31
+#: apps/strategist/pin_forms.py:33
+msgid "Только латинские буквы, цифры, точка, дефис и подчёркивание."
+msgstr "Latin letters, digits, dot, hyphen and underscore only."
+
+#: apps/strategist/pin_forms.py:19
+msgid "Только русский"
+msgstr "Russian only"
+
+#: apps/strategist/pin_forms.py:16
+msgid "Тон текста"
+msgstr "Tone"
+
 #: templates/core/landing.html
 msgid "Трафик"
 msgstr "Traffic"
@@ -979,7 +1256,7 @@ msgstr "Traffic"
 msgid "Трафик к товарам"
 msgstr "Traffic to products"
 
-#: apps/strategist/views.py:265
+#: apps/strategist/views.py:268
 msgid "Требуется переделка"
 msgstr "Rework needed"
 
@@ -1070,6 +1347,10 @@ msgstr "Posting frequency"
 msgid "Часть данных обновлена; Pinterest не вернул все запрошенные ресурсы."
 msgstr "Some data was updated; Pinterest did not return all the requested resources."
 
+#: apps/strategist/pin_forms.py:22
+msgid "Через запятую или с новой строки. Проверка заблокирует пин, если слово встретится."
+msgstr "Separated by commas or new lines. A check will block the pin if the word appears."
+
 #: templates/strategist/strategy.html
 #, python-format
 msgid "Черновик, версия %(number)s"
@@ -1096,6 +1377,10 @@ msgstr "What to enter in the field \"%(field_label)s\""
 msgid "Что помнит ИИ-стратег"
 msgstr "What the AI strategist remembers"
 
+#: templates/strategist/pin_generate.html
+msgid "Что создаём"
+msgstr "What to create"
+
 #: apps/workspaces/forms.py:47
 msgid "Что хотите получить от Pinterest. Например: «больше переходов на сайт», «продажи новой коллекции», «узнаваемость бренда»."
 msgstr "What you want from Pinterest. For example: \"more clicks to the website\", \"sales of a new collection\", \"brand awareness\"."
@@ -1109,6 +1394,10 @@ msgstr "To build a strategy, fill in the business profile: %(fields)s."
 msgid "Широкая категория товаров или услуг. Например: «женская одежда», «декор для дома»."
 msgstr "A broad category of products or services. For example: \"women's clothing\", \"home decor\"."
 
+#: apps/strategist/pin_forms.py:15
+msgid "Экспертный"
+msgstr "Expert"
+
 #: templates/strategist/pins.html
 msgid "Я прочитал замечания и знаю, какие проверки не выполнены"
 msgstr "I have read the remarks and know which checks were not performed"
@@ -1118,13 +1407,25 @@ msgstr "I have read the remarks and know which checks were not performed"
 msgid "Язык"
 msgstr "Language"
 
-#: apps/strategist/views.py:268
+#: templates/strategist/pin_generate.html
+msgid "Язык текста"
+msgstr "Text language"
+
+#: apps/strategist/views.py:271
 msgid "блок"
 msgstr "block"
+
+#: templates/strategist/_gen_field.html
+msgid "вернуть авто"
+msgstr "reset to auto"
 
 #: templates/strategist/strategy.html
 msgid "видео"
 msgstr "video"
+
+#: templates/strategist/_gen_field.html
+msgid "вы изменили"
+msgstr "you changed it"
 
 #: templates/strategist/_strategy_version.html
 msgid "гипотеза, данными не подтверждено"
@@ -1135,6 +1436,22 @@ msgstr "hypothesis, not confirmed by data"
 msgid "доска"
 msgstr "board"
 
+#: apps/strategist/views.py:324
+msgid "из аккаунта Pinterest"
+msgstr "from the Pinterest account"
+
+#: apps/strategist/views.py:325
+msgid "из ваших прошлых настроек"
+msgstr "from your earlier settings"
+
+#: apps/strategist/views.py:324
+msgid "из профиля бизнеса"
+msgstr "from the business profile"
+
+#: apps/strategist/views.py:324
+msgid "из стратегии"
+msgstr "from the strategy"
+
 #: templates/strategist/strategy.html
 msgid "ключ"
 msgstr "keyword"
@@ -1143,7 +1460,7 @@ msgstr "keyword"
 msgid "название"
 msgstr "name"
 
-#: apps/strategist/views.py:268
+#: apps/strategist/views.py:271
 msgid "не проверено"
 msgstr "not checked"
 
@@ -1151,9 +1468,14 @@ msgstr "not checked"
 msgid "ниша"
 msgstr "niche"
 
-#: apps/strategist/views.py:268
+#: apps/strategist/views.py:271
 msgid "нужна оценка"
 msgstr "needs review"
+
+#: apps/strategist/views.py:325
+#: templates/strategist/pin_generate.html
+msgid "по умолчанию"
+msgstr "default"
 
 #: apps/strategist/strategy.py:23
 msgid "подниша"
@@ -1163,7 +1485,7 @@ msgstr "subniche"
 msgid "продавец не указан"
 msgstr "seller not specified"
 
-#: apps/strategist/views.py:268
+#: apps/strategist/views.py:271
 msgid "пройдена"
 msgstr "passed"
 
@@ -1175,6 +1497,10 @@ msgstr "market"
 msgid "сайт"
 msgstr "website"
 
+#: templates/strategist/pin_generate.html
+msgid "только черновики"
+msgstr "drafts only"
+
 #: apps/strategist/strategy.py:24
 msgid "целевая аудитория"
 msgstr "target audience"
@@ -1182,3 +1508,11 @@ msgstr "target audience"
 #: apps/strategist/strategy.py:24
 msgid "цели бизнеса"
 msgstr "business goals"
+
+#: templates/strategist/pin_generate.html
+msgid "— без доски —"
+msgstr "— no board —"
+
+#: apps/strategist/pin_forms.py:13
+msgid "— не выбран —"
+msgstr "— not selected —"

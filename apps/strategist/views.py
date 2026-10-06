@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -8,12 +9,14 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from apps.businesses.models import Business
 
-from . import approvals
+from . import approvals, pin_jobs
+from . import pin_settings as ps
 from . import content_plan as plans
 from . import memory, research
 from . import strategy as strategies
 from .forms import StrategistMessageForm
-from .models import AIConversation, AIMessage, ContentPlan, Pin, StrategyVersion
+from .pin_forms import PinGenerationForm, initial_values
+from .models import AIConversation, AIJob, AIMessage, ContentPlan, GenerationPreset, Pin, StrategyVersion
 from .providers import GigaChatConfigurationError, GigaChatProviderError
 from .services import conversation_slug, create_conversation, respond_to_message
 
@@ -312,3 +315,142 @@ def pin_decide(request, workspace_slug, business_slug, pin_id):
     else:
         messages.success(request, _("Решение сохранено."))
     return redirect("strategist:pins", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+JOB_STATUS_LABELS = {
+    "PENDING": _("В очереди"), "RUNNING": _("Выполняется"), "WAITING_INPUT": _("Ждёт ответа"),
+    "COMPLETED": _("Готово"), "FAILED": _("Ошибка"), "CANCELLED": _("Отменена"),
+}
+SOURCE_LABELS = {"profile": _("из профиля бизнеса"), "strategy": _("из стратегии"), "account": _("из аккаунта Pinterest"),
+                 "preset": _("из ваших прошлых настроек"), "default": _("по умолчанию")}
+ADVANCED_FIELDS = ("keyword_mode", "forbidden_words", "instruction", "utm_source", "utm_medium", "utm_campaign", "product_url")
+
+
+def _auto_values(business, version, accounts) -> dict:
+    """What the page can fill in by itself, and where it comes from."""
+    defaults = ps.normalize({})
+    auto = {name: ("default", str(value)) for name, value in (
+        ("tone", defaults["tone"]), ("cta", defaults["cta"]), ("length", defaults["length"]),
+        ("keyword_mode", defaults["keyword_mode"]), ("rewrite", "on"), ("remember", "on"),
+        ("utm_source", ""), ("utm_medium", ""), ("utm_campaign", ""), ("instruction", ""), ("product_url", ""), ("account", ""))}
+    auto["destination_url"] = ("profile", (business.website or "").strip()) if (business.website or "").strip() else ("default", "")
+    exclusions = ", ".join(version.exclusions) if version else ""
+    auto["forbidden_words"] = ("strategy", exclusions) if exclusions else ("default", "")
+    if len(accounts) == 1:
+        auto["account"] = ("account", str(accounts[0].pk))
+    return auto
+
+
+def _account_boards(account) -> list[str]:
+    from apps.pinterest.sync import fresh_snapshot_resource
+    if account is None:
+        return []
+    snapshot = fresh_snapshot_resource(account=account, resource="boards") or {}
+    return [str(b.get("name")) for b in snapshot.get("items", []) if isinstance(b, dict) and b.get("name")]
+
+
+def _job_card(job):
+    percent = int((job.done + job.failed) * 100 / job.total) if job.total else 0
+    return {"job": job, "label": JOB_STATUS_LABELS.get(job.status, job.status), "percent": min(percent, 100),
+            "active": job.status in pin_jobs.ACTIVE}
+
+
+def _editable_page_business(request, workspace_slug, business_slug):
+    business = _get_business(request, workspace_slug, business_slug)
+    if not memory.actor_can_edit(business, request.user):
+        raise Http404
+    return business
+
+
+@login_required
+def pin_generate(request, workspace_slug, business_slug):
+    from .pin_generation import confirmed_plan, pending_items
+    business = _editable_page_business(request, workspace_slug, business_slug)
+    plan = confirmed_plan(business)
+    accounts = list(connected_accounts(business))
+    preset = ps.normalize(getattr(getattr(business, "generation_preset", None), "values", None))
+    has_preset = hasattr(business, "generation_preset")
+    auto = _auto_values(business, plan.strategy_version if plan else None, accounts)
+    pending = {i.pk for i in pending_items(plan)} if plan else set()
+    items = list(plan.items.select_related("pin").order_by("position")) if plan else []
+    form_kwargs = {"business": business}
+    if request.method == "POST":
+        form = PinGenerationForm(request.POST, **form_kwargs)
+        selected = [int(v) for v in request.POST.getlist("items") if v.isdigit()]
+    else:
+        initial = initial_values(preset) if has_preset else {}
+        for name, (source, value) in auto.items():
+            if not initial.get(name) and name not in ("rewrite", "remember") and value:
+                initial[name] = int(value) if name == "account" else value
+        if not has_preset:
+            initial.update({"rewrite": True, "remember": True})
+        form = PinGenerationForm(initial=initial, **form_kwargs)
+        selected = [i.pk for i in items if i.pk in pending][:3]
+    boards_posted = {str(i.pk): request.POST.get(f"board_{i.pk}", "") for i in items} if request.method == "POST" else {}
+    if request.method == "POST" and form.is_valid() and plan:
+        options = form.options({k: v for k, v in boards_posted.items() if v and int(k) in selected})
+        try:
+            with transaction.atomic():
+                job = pin_jobs.start_job(business, request.user, selected, options)
+                if options["remember"]:
+                    stored = {k: v for k, v in options.items() if k not in ("boards", "product_facts")}
+                    GenerationPreset.objects.update_or_create(business=business, defaults={"values": stored, "updated_by": request.user})
+                from .tasks import run_pin_generation
+                transaction.on_commit(lambda: run_pin_generation.delay(job.pk))
+        except pin_jobs.JobError as error:
+            messages.error(request, gettext(str(error)))
+        else:
+            messages.success(request, _("Генерация запущена. Результаты появятся на странице «Пины» по мере готовности."))
+            return redirect("strategist:pin-generate", workspace_slug=business.workspace.slug, business_slug=business.slug)
+    selected_account = None
+    if form.is_bound:
+        selected_account = form.cleaned_data.get("account") if form.is_valid() else None
+    elif form.initial.get("account"):
+        selected_account = next((a for a in accounts if a.pk == form.initial["account"]), None)
+    strategy_boards = [b["name"] for b in plan.strategy_version.recommended_boards] if plan else []
+    board_choices = list(dict.fromkeys([*strategy_boards, *_account_boards(selected_account)]))
+    meta, preset_form = {}, (initial_values(preset) if has_preset else {})
+    for name in form.fields:
+        source, value = auto.get(name, ("default", ""))
+        remembered = preset_form.get(name)
+        if remembered not in (None, "", False) and str(remembered) != value:
+            source = "preset"  # the value comes from the user's earlier choice, not from the auto-fill
+        meta[name] = {"source": source, "source_label": SOURCE_LABELS[source], "auto": value}
+        form[name].field.widget.attrs["data-auto"] = value
+    rows = []
+    for item in items:
+        pin = getattr(item, "pin", None)
+        rows.append({"item": item, "pin": pin, "selectable": item.pk in pending, "checked": item.pk in selected,
+                     "board": boards_posted.get(str(item.pk)) or item.board,
+                     "status": PIN_STATUS_LABELS.get(pin.status, pin.status) if pin else ""})
+    return render(request, "strategist/pin_generate.html", {
+        "business": business, "strategist_business": business,
+        "strategist_sessions": list(business.ai_conversations.filter(is_active=True).order_by("-updated_at")),
+        "plan": plan, "form": form, "meta": meta, "rows": rows, "board_choices": board_choices,
+        "advanced": [form[n] for n in ADVANCED_FIELDS], "max_items": ps.MAX_ITEMS,
+        "jobs": [_job_card(j) for j in business.ai_jobs.filter(kind=AIJob.Kind.PIN_GENERATION)[:5]],
+        "job_labels": {k: str(v) for k, v in JOB_STATUS_LABELS.items()},
+        "accounts_missing": not accounts,
+    })
+
+
+def connected_accounts(business):
+    from apps.pinterest.models import PinterestAccount
+    return PinterestAccount.objects.filter(business=business, deleted_at__isnull=True,
+                                           status=PinterestAccount.Status.CONNECTED).order_by("created_at")
+
+
+@login_required
+def pin_job_status(request, workspace_slug, business_slug, job_id):
+    business = _get_business(request, workspace_slug, business_slug)
+    job = get_object_or_404(AIJob, pk=job_id, business=business)
+    return JsonResponse({**pin_jobs.summary(job), "label": str(JOB_STATUS_LABELS.get(job.status, job.status))})
+
+
+@login_required
+def pin_job_cancel(request, workspace_slug, business_slug, job_id):
+    business = _editable_business(request, workspace_slug, business_slug)
+    job = get_object_or_404(AIJob, pk=job_id, business=business)
+    pin_jobs.request_cancel(job)
+    messages.success(request, _("Отмена запрошена: текущий пин будет дописан, остальные не обрабатываются."))
+    return redirect("strategist:pin-generate", workspace_slug=business.workspace.slug, business_slug=business.slug)

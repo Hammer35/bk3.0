@@ -8,6 +8,7 @@
         <h1>{% trans "Пины" %}</h1>
         <p>{% trans "Черновики текстов пинов с результатами проверок. Одобрение — только ваше решение: ИИ и чат пины не одобряют, а публикации здесь пока нет." %}</p>
     </div>
+    {% if can_edit %}<a class="button button-primary" href="{% url 'strategist:pin-generate' business.workspace.slug business.slug %}">{% trans "Создать пины" %}</a>{% endif %}
 </header>
 
 <div class="strategy-page">

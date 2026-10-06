@@ -14,5 +14,8 @@ urlpatterns = [
     path("business/<slug:workspace_slug>/<slug:business_slug>/strategy/plan/confirm/", views.plan_confirm, name="plan-confirm"),
     path("business/<slug:workspace_slug>/<slug:business_slug>/pins/", views.pins_page, name="pins"),
     path("business/<slug:workspace_slug>/<slug:business_slug>/pins/<int:pin_id>/decide/", views.pin_decide, name="pin-decide"),
+    path("business/<slug:workspace_slug>/<slug:business_slug>/pins/generate/", views.pin_generate, name="pin-generate"),
+    path("business/<slug:workspace_slug>/<slug:business_slug>/pins/jobs/<int:job_id>/status/", views.pin_job_status, name="pin-job-status"),
+    path("business/<slug:workspace_slug>/<slug:business_slug>/pins/jobs/<int:job_id>/cancel/", views.pin_job_cancel, name="pin-job-cancel"),
     path("business/<uuid:business_id>/", views.legacy_chat_redirect, name="legacy-chat"),
 ]

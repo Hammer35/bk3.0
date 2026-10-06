@@ -13,14 +13,14 @@ CHAT_PROMPT_VERSION = "chat-2026-10-06.1"
 STRATEGY_PROMPT_VERSION = "strategy-2026-10-06.1"
 PLAN_PROMPT_VERSION = "content-plan-2026-10-06.2"
 RESEARCH_PROMPT_VERSION = "research-2026-10-06.1"
-PIN_PROMPT_VERSION = "pin-2026-10-06.2"
+PIN_PROMPT_VERSION = "pin-2026-10-06.3"
 
 FINGERPRINTS = {
     "chat-2026-10-06.1": "d4e0b7726f6b",
     "strategy-2026-10-06.1": "5cfb5ea333b3",
     "content-plan-2026-10-06.2": "8cd5c05c0a5d",
     "research-2026-10-06.1": "be53792a2b51",
-    "pin-2026-10-06.2": "39bfbcfe06cb",
+    "pin-2026-10-06.3": "593fcf5ba02e",
 }
 
 

@@ -299,3 +299,48 @@ class Approval(BaseModel):
     class Meta:
         verbose_name = "решение по пину"
         verbose_name_plural = "решения по пинам"
+
+
+class AIJob(BaseModel):
+    """State of one long-running AI task; PostgreSQL is the source of truth (the broker only delivers)."""
+
+    class Kind(models.TextChoices):
+        PIN_GENERATION = "PIN_GENERATION", "Генерация пинов"
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "В очереди"
+        RUNNING = "RUNNING", "Выполняется"
+        WAITING_INPUT = "WAITING_INPUT", "Ждёт ответа"
+        COMPLETED = "COMPLETED", "Готово"
+        FAILED = "FAILED", "Ошибка"
+        CANCELLED = "CANCELLED", "Отменена"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="ai_jobs", verbose_name="бизнес")
+    kind = models.CharField(max_length=24, choices=Kind.choices, verbose_name="тип")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING, verbose_name="статус")
+    params = models.JSONField(default=dict, blank=True, verbose_name="параметры")
+    total = models.PositiveIntegerField(default=0, verbose_name="всего")
+    done = models.PositiveIntegerField(default=0, verbose_name="готово")
+    failed = models.PositiveIntegerField(default=0, verbose_name="с ошибкой")
+    notes = models.JSONField(default=list, blank=True, verbose_name="сообщения")
+    cancel_requested = models.BooleanField(default=False, verbose_name="запрошена отмена")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="создатель")
+    started_at = models.DateTimeField(null=True, blank=True, verbose_name="начата")
+    finished_at = models.DateTimeField(null=True, blank=True, verbose_name="завершена")
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "фоновая задача ИИ"
+        verbose_name_plural = "фоновые задачи ИИ"
+
+
+class GenerationPreset(BaseModel):
+    """What the user chose last time on the pin generation page; the page starts from it."""
+
+    business = models.OneToOneField(Business, on_delete=models.CASCADE, related_name="generation_preset", verbose_name="бизнес")
+    values = models.JSONField(default=dict, blank=True, verbose_name="настройки")
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+", verbose_name="изменил")
+
+    class Meta:
+        verbose_name = "настройки генерации пинов"
+        verbose_name_plural = "настройки генерации пинов"

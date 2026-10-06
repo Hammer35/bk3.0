@@ -69,7 +69,7 @@ class PinGenerationTest(TestCase):
 
     def test_batch_is_capped_validated_and_never_published(self):
         answer = self.say("Создай пины по контент-плану")
-        self.assertEqual((answer.provider, answer.total_tokens, answer.prompt_version), ("pins", 30, "pin-2026-10-06.2"))
+        self.assertEqual((answer.provider, answer.total_tokens, answer.prompt_version), ("pins", 30, "pin-2026-10-06.3"))
         self.assertEqual(Pin.objects.count(), pg.BATCH)
         self.assertIn("Осталось пунктов плана без пинов: 2", answer.content)
         self.assertIn("не одобрение Pinterest", answer.content)
@@ -80,7 +80,7 @@ class PinGenerationTest(TestCase):
             self.assertEqual((version.number, version.created_by, version.destination_url), (1, self.owner, "https://shop.example.com/catalog"))
             self.assertEqual(len(version.checks), 12)
             self.assertIn("url_reachable", version.open_checks)
-            self.assertEqual(version.generation["prompt_version"], "pin-2026-10-06.2")
+            self.assertEqual(version.generation["prompt_version"], "pin-2026-10-06.3")
         self.assertEqual(len(self.requests), 3)
         self.assertEqual(self.requests[0]["item"]["keyword"], "linen dress")
         again = self.say("Создай пины по контент-плану")

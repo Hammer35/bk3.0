@@ -1,0 +1,21 @@
+{% comment %}One setting: label, widget, source badge ("auto" values can be reset), help and errors.{% endcomment %}
+{% load i18n %}
+<div class="form-field gen-field" data-gen-field data-auto="{{ meta.auto }}">
+    {% if field.field.widget.input_type == "checkbox" %}
+        <div class="gen-field-check">
+            {{ field }}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <span class="source-badge source-{{ meta.source }}" data-source-badge data-source-label="{{ meta.source_label }}" data-changed-label="{% trans 'вы изменили' %}">{{ meta.source_label }}</span>
+            <button type="button" class="gen-reset" data-gen-reset hidden>{% trans "вернуть авто" %}</button>
+        </div>
+    {% else %}
+        <div class="gen-field-head">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <span class="source-badge source-{{ meta.source }}" data-source-badge data-source-label="{{ meta.source_label }}" data-changed-label="{% trans 'вы изменили' %}">{{ meta.source_label }}</span>
+            <button type="button" class="gen-reset" data-gen-reset hidden>{% trans "вернуть авто" %}</button>
+        </div>
+        {{ field }}
+    {% endif %}
+    {% if field.help_text %}<p class="meta">{{ field.help_text }}</p>{% endif %}
+    {% for error in field.errors %}<span class="form-errors">{{ error }}</span>{% endfor %}
+</div>
