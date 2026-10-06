@@ -218,6 +218,7 @@ def strategy_page(request, workspace_slug, business_slug):
         "can_edit": memory.actor_can_edit(business, request.user),
         "active": _version_view(active), "draft": _version_view(draft),
         "history": history, "plan": plan, "plan_weeks": sorted(weeks.items()),
+        "can_build_plan": bool(active) and memory.actor_can_edit(business, request.user) and (plan is None or plan.status == ContentPlan.Status.DRAFT),
         "plan_stale": bool(plan and plan.status == ContentPlan.Status.DRAFT and plan.strategy_version.status != StrategyVersion.Status.CONFIRMED),
         "profile_missing": [gettext(label) for label in strategies.missing_profile_fields(business)],
         "memory_facts": memory.facts(business),
@@ -245,6 +246,26 @@ def strategy_confirm(request, workspace_slug, business_slug, number):
     else:
         messages.success(request, _("Стратегия подтверждена."))
     return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+@login_required
+def plan_build(request, workspace_slug, business_slug):
+    business = _editable_business(request, workspace_slug, business_slug)
+    version = strategies.active_version(business)
+    target = redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)
+    if version is None or not version.content_directions:
+        messages.error(request, _("Контент-план строится по подтверждённой стратегии с контентными направлениями."))
+        return target
+    try:
+        plan, _completion = plans.generate_plan(business, request.user, version)
+    except (GigaChatConfigurationError, GigaChatProviderError):
+        messages.error(request, _("Модель сейчас недоступна. Повторите попытку позже."))
+        return target
+    if plan is None:
+        messages.error(request, _("Не получилось собрать надёжный контент-план по этой стратегии. Попробуйте ещё раз."))
+    else:
+        messages.success(request, _("Контент-план составлен. Проверьте его и подтвердите."))
+    return target
 
 
 @login_required
@@ -431,6 +452,7 @@ def pin_generate(request, workspace_slug, business_slug):
         "jobs": [_job_card(j) for j in business.ai_jobs.filter(kind=AIJob.Kind.PIN_GENERATION)[:5]],
         "job_labels": {k: str(v) for k, v in JOB_STATUS_LABELS.items()},
         "accounts_missing": not accounts,
+        "steps": _generation_steps(business),
     })
 
 
@@ -454,3 +476,25 @@ def pin_job_cancel(request, workspace_slug, business_slug, job_id):
     pin_jobs.request_cancel(job)
     messages.success(request, _("Отмена запрошена: текущий пин будет дописан, остальные не обрабатываются."))
     return redirect("strategist:pin-generate", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+def _generation_steps(business):
+    """Where the business is on the way to pin generation, and the one next action."""
+    active = strategies.active_version(business)
+    draft = strategies.pending_draft(business)
+    plan = business.content_plans.exclude(status=ContentPlan.Status.SUPERSEDED).order_by("-created_at").first()
+    strategy_state = ("done", _("Подтверждена, версия %(number)s") % {"number": active.number}) if active else (
+        ("todo", _("Есть черновик, он ждёт подтверждения")) if draft else ("todo", _("Стратегии пока нет")))
+    if plan is None:
+        plan_state = ("todo", _("Контент-плана пока нет"))
+    elif plan.status == ContentPlan.Status.CONFIRMED:
+        plan_state = ("done", _("Подтверждён"))
+    else:
+        plan_state = ("todo", _("Есть черновик, он ждёт подтверждения"))
+    if active is None:
+        action = "strategy" if draft else "chat"
+    elif plan is None:
+        action = "build"
+    else:
+        action = "confirm"
+    return {"strategy": strategy_state, "plan": plan_state, "action": action}

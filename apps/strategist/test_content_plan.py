@@ -171,3 +171,78 @@ class BusinessDeletionTest(TestCase):
         business.delete()
         self.assertEqual((Strategy.objects.count(), StrategyVersion.objects.count(), ContentPlan.objects.count(),
                           BusinessMemory.objects.count(), ResearchSnapshot.objects.count()), (0, 0, 0, 0, 0))
+
+
+class PlanBuildOnThePageTest(TestCase):
+    """The content plan can be built from the strategy page, not only from the chat."""
+
+    def setUp(self):
+        self.owner = get_user_model().objects.create_user("build-owner")
+        self.workspace = Workspace.objects.create(name="B", slug="b", created_by=self.owner)
+        Membership.objects.create(workspace=self.workspace, user=self.owner, role=Membership.Role.OWNER)
+        self.business = Business.objects.create(workspace=self.workspace, name="Shop", slug="shop", niche="Одежда", audience="Женщины", goals="Трафик")
+        self.client.force_login(self.owner)
+        self.page = reverse("strategist:strategy", kwargs={"workspace_slug": "b", "business_slug": "shop"})
+        self.build = reverse("strategist:plan-build", kwargs={"workspace_slug": "b", "business_slug": "shop"})
+        self.generate = reverse("strategist:pin-generate", kwargs={"workspace_slug": "b", "business_slug": "shop"})
+        self.complete = self.enterContext(patch("apps.strategist.content_plan.GigaChatProvider.complete", return_value=completion(ITEMS)))
+
+    def confirm_strategy(self):
+        payload = st.clean_payload(VERSION_RAW, allowed_refs=set(), allowed_keywords=None)
+        return st.confirm_version(st.create_draft(self.business, self.owner, payload, sources=[]), self.owner)
+
+    def test_button_appears_only_for_an_active_strategy_without_a_plan(self):
+        self.assertNotIn(self.build, self.client.get(self.page).content.decode())
+        self.confirm_strategy()
+        html = self.client.get(self.page).content.decode()
+        self.assertIn(self.build, html)
+        self.assertIn("Составить контент-план", html)
+
+    def test_post_builds_a_draft_plan_shown_with_confirm_and_rebuild(self):
+        self.confirm_strategy()
+        response = self.client.post(self.build, follow=True)
+        self.assertContains(response, "Контент-план составлен")
+        self.assertEqual(ContentPlan.objects.get().status, "DRAFT")
+        self.assertContains(response, "Подтвердить контент-план")
+        self.assertContains(response, "Составить заново")
+        self.client.post(self.build)
+        self.assertEqual(sorted(ContentPlan.objects.values_list("status", flat=True)), ["DRAFT", "SUPERSEDED"])
+
+    def test_refusals_and_failures_are_explained_without_a_model_call_or_a_plan(self):
+        self.assertContains(self.client.post(self.build, follow=True), "Контент-план строится по подтверждённой стратегии")
+        self.complete.assert_not_called()
+        self.confirm_strategy()
+        self.complete.return_value = completion({"items": [{"target_week": 1, "direction": "нет такого", "idea": "x"}]})
+        self.assertContains(self.client.post(self.build, follow=True), "Не получилось собрать надёжный контент-план")
+        from apps.strategist.providers import GigaChatProviderError
+        self.complete.side_effect = GigaChatProviderError("down")
+        self.assertContains(self.client.post(self.build, follow=True), "Модель сейчас недоступна")
+        self.assertFalse(ContentPlan.objects.exists())
+
+    def test_rights_and_method(self):
+        self.confirm_strategy()
+        self.assertEqual(self.client.get(self.build).status_code, 404)
+        viewer = get_user_model().objects.create_user("build-viewer")
+        Membership.objects.create(workspace=self.workspace, user=viewer, role=Membership.Role.VIEWER)
+        self.client.force_login(viewer)
+        self.assertEqual(self.client.post(self.build).status_code, 404)
+        self.assertNotIn(self.build, self.client.get(self.page).content.decode())
+        self.complete.assert_not_called()
+
+    def test_generation_page_shows_the_steps_and_the_one_next_action(self):
+        html = self.client.get(self.generate).content.decode()
+        self.assertIn("Чтобы создавать пины, нужны два шага", html)
+        self.assertIn("Стратегии пока нет", html)
+        self.assertIn("Настрой стратегию", html)
+        draft = st.create_draft(self.business, self.owner, st.clean_payload(VERSION_RAW, allowed_refs=set(), allowed_keywords=None), sources=[])
+        html = self.client.get(self.generate).content.decode()
+        self.assertIn("Есть черновик, он ждёт подтверждения", html)
+        st.confirm_version(draft, self.owner)
+        html = self.client.get(self.generate).content.decode()
+        self.assertIn("Подтверждена, версия 1", html)
+        self.assertIn(self.build, html)  # the next action is a button that builds the plan right here
+        self.client.post(self.build)
+        html = self.client.get(self.generate).content.decode()
+        self.assertIn("Проверить и подтвердить контент-план", html)
+        self.client.post(reverse("strategist:plan-confirm", kwargs={"workspace_slug": "b", "business_slug": "shop"}))
+        self.assertIn("data-gen-form", self.client.get(self.generate).content.decode())

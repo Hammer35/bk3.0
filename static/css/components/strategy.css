@@ -52,6 +52,9 @@
 .gen-advanced { margin-top: var(--space-4); }
 .gen-advanced summary { cursor: pointer; color: var(--muted); font-size: calc(13px * var(--interface-font-scale, 1)); }
 .gen-fixed-label { color: var(--quiet); font-family: var(--font-compact); font-size: calc(12px * var(--interface-font-scale, 1)); letter-spacing: .08em; text-transform: uppercase; }
+.gen-steps { display: grid; gap: var(--space-2); margin: var(--space-3) 0; padding: 0; list-style: none; }
+.gen-step { padding-left: var(--space-3); border-left: var(--line-width) solid var(--line-strong); font-size: calc(14px * var(--interface-font-scale, 1)); }
+.gen-step.is-done { border-left-color: var(--success); }
 .gen-field-check { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .gen-field-check input[type="checkbox"] { width: auto; margin: 0; }
 .gen-field-check label { margin: 0; text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: calc(14px * var(--interface-font-scale, 1)); }

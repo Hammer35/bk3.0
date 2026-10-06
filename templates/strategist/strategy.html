@@ -67,6 +67,22 @@
         </section>
     {% endif %}
 
+    {% if can_build_plan and not plan %}
+        <section class="panel strategy-panel" aria-labelledby="plan-build-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow">{% trans "Следующий шаг" %}</p>
+                    <h2 class="panel-title" id="plan-build-title">{% trans "Контент-план" %}</h2>
+                    <p class="meta">{% trans "Идеи пинов на 4 недели из подтверждённой стратегии. Составление может занять до минуты." %}</p>
+                </div>
+                <form method="post" action="{% url 'strategist:plan-build' business.workspace.slug business.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-primary">{% trans "Составить контент-план" %}</button>
+                </form>
+            </div>
+        </section>
+    {% endif %}
+
     {% if plan %}
         <section class="panel strategy-panel" aria-labelledby="plan-title">
             <div class="strategy-panel-header">
@@ -77,10 +93,18 @@
                     {% if plan_stale %}<p class="meta strategy-flag">{% trans "Стратегия заменена: постройте план заново." %}</p>{% endif %}
                 </div>
                 {% if can_edit and plan.status == 'DRAFT' and not plan_stale %}
-                    <form method="post" action="{% url 'strategist:plan-confirm' business.workspace.slug business.slug %}">
-                        {% csrf_token %}
-                        <button type="submit" class="button button-primary">{% trans "Подтвердить контент-план" %}</button>
-                    </form>
+                    <div class="pin-actions">
+                        <form method="post" action="{% url 'strategist:plan-confirm' business.workspace.slug business.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="button button-primary">{% trans "Подтвердить контент-план" %}</button>
+                        </form>
+                        {% if can_build_plan %}
+                            <form method="post" action="{% url 'strategist:plan-build' business.workspace.slug business.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-secondary">{% trans "Составить заново" %}</button>
+                            </form>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
             <div class="strategy-weeks">

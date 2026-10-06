@@ -134,30 +134,11 @@ def _reply(conversation, content, *, model="content-plan", completion=None, prom
         completion_tokens=getattr(completion, "completion_tokens", 0), total_tokens=getattr(completion, "total_tokens", 0))
 
 
-def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIMessage | None:
-    conversation = user_message.conversation
-    business = conversation.business
-    text = user_message.content
-    pending = pending_plan(business)
-    builds = bool(_BUILD.search(text)) and not re.search(r"\bпин\w*", text, re.I)  # "создай пины по контент-плану" is a pin request
-    confirms = pending is not None and bool(_CONFIRM.match(text))
-    if pending is None and _CONFIRM.match(text) and not builds:  # an explicit confirmation with nothing to confirm
-        return _reply(conversation, "Сейчас нет черновика контент-плана для подтверждения. Напиши «Составь контент-план».", model="content-plan-nothing-to-confirm")
-    if not (builds or confirms):
-        return None
-    if not mem.actor_can_edit(business, actor):
-        return _reply(conversation, "Строить и подтверждать контент-план могут владелец, администратор и редактор рабочего пространства.", model="content-plan-denied")
-    if confirms:
-        try:
-            confirm_with_decision(pending, actor)
-        except PlanError as error:
-            return _reply(conversation, str(error), model="content-plan-refused")
-        return _reply(conversation, "Контент-план подтверждён. Следующий шаг (создание пинов) отдельный, и я его сам не запускаю.", model="content-plan-confirmed")
-    version = st.active_version(business)
-    if version is None:
-        return _reply(conversation, "Контент-план строится по подтверждённой стратегии. Сначала построй и подтверди стратегию.", model="content-plan-needs-strategy")
-    if not version.content_directions:
-        return _reply(conversation, "В подтверждённой стратегии нет контентных направлений: план не из чего строить. Уточни стратегию.", model="content-plan-needs-directions")
+def generate_plan(business, user, version: StrategyVersion, *, provider=None):
+    """Ask the model for plan items, validate them against the version, retry once, store a draft.
+
+    Returns (plan, completion); plan is None when both attempts were rejected by validation.
+    """
     request = {"strategy": {
         "content_directions": version.content_directions,
         "boards": [b["name"] for b in version.recommended_boards],
@@ -184,9 +165,36 @@ def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) ->
             messages = messages[:2] + [{"role": "assistant", "content": (completion.content or "")[:1500]},
                                        {"role": "user", "content": RETRY_NOTE}]
     completion = SimpleNamespace(model=completion.model, **tokens)
-    if items is None:
+    return (create_plan(business, user, version, items) if items is not None else None), completion
+
+
+def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIMessage | None:
+    conversation = user_message.conversation
+    business = conversation.business
+    text = user_message.content
+    pending = pending_plan(business)
+    builds = bool(_BUILD.search(text)) and not re.search(r"\bпин\w*", text, re.I)  # "создай пины по контент-плану" is a pin request
+    confirms = pending is not None and bool(_CONFIRM.match(text))
+    if pending is None and _CONFIRM.match(text) and not builds:  # an explicit confirmation with nothing to confirm
+        return _reply(conversation, "Сейчас нет черновика контент-плана для подтверждения. Напиши «Составь контент-план».", model="content-plan-nothing-to-confirm")
+    if not (builds or confirms):
+        return None
+    if not mem.actor_can_edit(business, actor):
+        return _reply(conversation, "Строить и подтверждать контент-план могут владелец, администратор и редактор рабочего пространства.", model="content-plan-denied")
+    if confirms:
+        try:
+            confirm_with_decision(pending, actor)
+        except PlanError as error:
+            return _reply(conversation, str(error), model="content-plan-refused")
+        return _reply(conversation, "Контент-план подтверждён. Следующий шаг (создание пинов) отдельный, и я его сам не запускаю.", model="content-plan-confirmed")
+    version = st.active_version(business)
+    if version is None:
+        return _reply(conversation, "Контент-план строится по подтверждённой стратегии. Сначала построй и подтверди стратегию.", model="content-plan-needs-strategy")
+    if not version.content_directions:
+        return _reply(conversation, "В подтверждённой стратегии нет контентных направлений: план не из чего строить. Уточни стратегию.", model="content-plan-needs-directions")
+    plan, completion = generate_plan(business, actor, version, provider=provider)
+    if plan is None:
         return _reply(conversation, "Не получилось собрать надёжный контент-план по этой стратегии.", model="content-plan-invalid", completion=completion)
-    plan = create_plan(business, actor, version, items)
     return _reply(conversation, render_plan(plan), completion=completion, prompt_version=PLAN_PROMPT_VERSION,
                   manifest=[{"type": "strategy_version", "number": version.number}])
 

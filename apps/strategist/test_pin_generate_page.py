@@ -53,7 +53,9 @@ class AccessAndRenderTest(GeneratePageBase):
         self.plan.status = "SUPERSEDED"
         self.plan.save()
         html = self.client.get(self.url).content.decode()
-        self.assertIn("Нет подтверждённого контент-плана", html)
+        self.assertIn("Чтобы создавать пины, нужны два шага", html)
+        self.assertIn("Подтверждена, версия 1", html)  # the strategy is fine; only the plan is missing
+        self.assertIn("Контент-плана пока нет", html)  # a superseded plan does not count
         self.assertNotIn("data-gen-form", html)
 
     def test_autofilled_values_show_their_source_and_the_auto_value(self):

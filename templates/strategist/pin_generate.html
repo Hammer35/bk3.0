@@ -11,10 +11,26 @@
 </header>
 
 {% if not plan %}
-    <section class="panel strategy-panel">
-        <h2 class="panel-title">{% trans "Нет подтверждённого контент-плана" %}</h2>
-        <p class="meta">{% trans "Пины создаются по подтверждённому контент-плану. Постройте и подтвердите его в чате или на странице «Стратегия»." %}</p>
-        <a class="button button-primary" href="{% url 'strategist:strategy' business.workspace.slug business.slug %}">{% trans "Открыть стратегию" %}</a>
+    <section class="panel strategy-panel" aria-labelledby="gen-steps-title">
+        <h2 class="panel-title" id="gen-steps-title">{% trans "Чтобы создавать пины, нужны два шага" %}</h2>
+        <ol class="gen-steps">
+            <li class="gen-step is-{{ steps.strategy.0 }}"><strong>1. {% trans "Стратегия" %}</strong> — {{ steps.strategy.1 }}</li>
+            <li class="gen-step is-{{ steps.plan.0 }}"><strong>2. {% trans "Контент-план" %}</strong> — {{ steps.plan.1 }}</li>
+        </ol>
+        {% if steps.action == "chat" %}
+            <p class="meta">{% trans "Напишите в чате «Настрой стратегию»: ИИ-стратег соберёт черновик по профилю бизнеса." %}</p>
+            <a class="button button-primary" href="{% url 'strategist:chat' business.workspace.slug business.slug %}">{% trans "Открыть чат с ИИ-стратегом" %}</a>
+        {% elif steps.action == "strategy" %}
+            <a class="button button-primary" href="{% url 'strategist:strategy' business.workspace.slug business.slug %}">{% trans "Открыть стратегию" %}</a>
+        {% elif steps.action == "build" %}
+            <form method="post" action="{% url 'strategist:plan-build' business.workspace.slug business.slug %}">
+                {% csrf_token %}
+                <p class="meta">{% trans "Составление контент-плана может занять до минуты." %}</p>
+                <button type="submit" class="button button-primary">{% trans "Составить контент-план" %}</button>
+            </form>
+        {% else %}
+            <a class="button button-primary" href="{% url 'strategist:strategy' business.workspace.slug business.slug %}">{% trans "Проверить и подтвердить контент-план" %}</a>
+        {% endif %}
     </section>
 {% else %}
 <form method="post" class="gen-layout" data-gen-form data-max-items="{{ max_items }}" action="{% url 'strategist:pin-generate' business.workspace.slug business.slug %}">
