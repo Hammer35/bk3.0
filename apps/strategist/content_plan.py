@@ -7,6 +7,8 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_noop
 
+from apps.pinterest.policy import pinterest_ai_transfer_enabled
+
 from . import memory as mem
 from . import strategy as st
 from .models import AIMessage, ContentPlan, ContentPlanItem, StrategyVersion
@@ -148,7 +150,7 @@ def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) ->
     request = {"strategy": {
         "content_directions": version.content_directions,
         "boards": [b["name"] for b in version.recommended_boards],
-        "keywords": _flat_keywords(version),
+        "keywords": _flat_keywords(version) if pinterest_ai_transfer_enabled() else [],  # derived from Pinterest data
         "exclusions": version.exclusions}}
     completion = (provider or GigaChatProvider()).complete([
         {"role": "system", "content": SYSTEM},

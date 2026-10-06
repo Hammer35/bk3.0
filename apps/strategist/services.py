@@ -12,6 +12,7 @@ from apps.knowledge.embeddings import OpenRouterEmbeddingProvider, get_knowledge
 from apps.knowledge.services import format_knowledge_context, search_knowledge, search_knowledge_lexical
 from apps.knowledge.sources import load_source
 from apps.pinterest.models import PinterestAccount
+from apps.pinterest.policy import AI_TRANSFER_DISABLED_MESSAGE, PINTEREST_DERIVED_PROVIDERS, pinterest_ai_transfer_enabled
 from apps.pinterest.strategist_tools import pinterest_read_function, read_pinterest_data
 from apps.pinterest.sync import fresh_snapshot_resource, sync_pinterest_account
 
@@ -1102,9 +1103,11 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     latest_store_assets = conversation.messages.filter(
         role=AIMessage.Role.ASSISTANT, assets__wb_store__isnull=False,
     ).order_by("-created_at").values_list("assets", flat=True).first()
-    history = list(
-        conversation.messages.order_by("-created_at").values("role", "content")[:12]
-    )
+    ai_transfer = pinterest_ai_transfer_enabled()
+    history_source = conversation.messages
+    if not ai_transfer:  # keep Pinterest API data (and what was built from it) out of the model's context
+        history_source = history_source.exclude(role=AIMessage.Role.ASSISTANT, provider__in=PINTEREST_DERIVED_PROVIDERS)
+    history = list(history_source.order_by("-created_at").values("role", "content")[:12])
     history.reverse()
     provider = GigaChatProvider()
     pinterest_context = [
@@ -1193,9 +1196,11 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     system_prompt = build_strategist_system_prompt(
         conversation.business,
         knowledge_context=knowledge_context,
-        pinterest_accounts=[] if community_rules_question else pinterest_context,
+        pinterest_accounts=[] if community_rules_question or not ai_transfer else pinterest_context,
         memory_facts=memory.prompt_lines(conversation.business),
     )
+    if not ai_transfer and pinterest_accounts:
+        system_prompt += "\n\n" + AI_TRANSFER_DISABLED_MESSAGE + " Не утверждай ничего о данных аккаунта Pinterest."
     if not community_rules_question and sum(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts) > 1:
         system_prompt += (
             "\n\nУ бизнеса несколько подключённых Pinterest-аккаунтов. Для конкретного пина "
@@ -1262,7 +1267,8 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     if asks_for_pinterest_data and not community_rules_question and any(
         account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts
     ):
-        functions.append(pinterest_read_function())
+        if ai_transfer:
+            functions.append(pinterest_read_function())
     if isinstance(latest_store_assets, dict) and re.search(
         r"магазин|витрин|бренд|продавц|товар|ассортимент|каталог|артикул|wildberries|\bвб\b",
         user_message.content, re.IGNORECASE,

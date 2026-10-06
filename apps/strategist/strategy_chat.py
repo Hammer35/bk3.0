@@ -8,7 +8,10 @@ from . import memory as mem
 from . import strategy as st
 from .models import AIMessage, StrategyVersion
 from .providers import GigaChatProvider
-from .research import ResearchError, fresh_snapshot, render_snapshot, research_niche, snapshot_phrases
+from apps.pinterest.policy import pinterest_ai_transfer_enabled
+
+from .research import (ResearchError, deterministic_clusters, fresh_snapshot, render_snapshot,
+                       research_niche, snapshot_phrases)
 
 logger = logging.getLogger(__name__)
 
@@ -181,12 +184,16 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     provider = provider or GigaChatProvider()
     base = None
     if base_version:
-        base = {f: getattr(base_version, f) for f in ("goals", "priorities", "content_directions", "recommended_boards", "keyword_clusters")}
+        fields = ["goals", "priorities", "content_directions", "recommended_boards"]
+        if pinterest_ai_transfer_enabled():  # keyword clusters are built from Pinterest Trends phrases
+            fields.append("keyword_clusters")
+        base = {f: getattr(base_version, f) for f in fields}
     snapshot = fresh_snapshot(business)
+    transfer = pinterest_ai_transfer_enabled()  # off: Pinterest-derived phrases are not shown to the model
     memory_items = mem.facts(business)
     memory_texts = {mem.memory_ref(i): i.text for i in memory_items}
     raw, completion, allowed = _generate(
-        facts=facts, user_texts=user_texts, base=base, snapshot=snapshot, memory_texts=memory_texts,
+        facts=facts, user_texts=user_texts, base=base, snapshot=snapshot if transfer else None, memory_texts=memory_texts,
         instruction=text if revises else "", provider=provider)
     exclusions = base_version.exclusions if base_version else []
     try:
@@ -195,6 +202,10 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     except st.StrategyError:
         logger.warning("Strategy draft rejected by validation for business %s", business.pk)
         return _reply(conversation, "Не получилось собрать надёжный черновик стратегии. Попробуй ещё раз или уточни данные о бизнесе.", model="strategy-invalid", completion=completion)
+    if snapshot and not transfer:
+        payload["keyword_clusters"] = deterministic_clusters(snapshot)
+        payload = st.apply_exclusions(payload, payload["exclusions"])
+        payload["missing_data"] = [m for m in payload["missing_data"] if m != st.KEYWORDS_NOT_CONFIRMED_NOTE]
     snapshots = [snapshot] if snapshot else []
     version = st.create_draft(business, actor, payload, sources=st.build_sources(
         facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots,

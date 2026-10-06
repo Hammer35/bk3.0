@@ -27,6 +27,7 @@ LIST_SECTIONS = {
     "hypotheses": 10, "missing_data": 10, "recommended_boards": 10, "keyword_clusters": 10,
 }
 TEXT_LIMIT = 300
+KEYWORDS_NOT_CONFIRMED_NOTE = "Ключевые слова не подтверждены исследованием: напиши «Исследуй нишу»."
 DEMAND_WORDS = r"спрос|интерес|популярн|тренд|растёт|растет|рост[а-я]*\s+(?:запрос|поиск)|ищут|востребован"
 KEYWORDS_PER_CLUSTER = 15
 
@@ -154,7 +155,7 @@ def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str 
                     for c in payload["keyword_clusters"]]
         payload["keyword_clusters"] = [c for c in clusters if c["keywords"]]
         if not payload["keyword_clusters"]:
-            note = "Ключевые слова не подтверждены исследованием: напиши «Исследуй нишу»."
+            note = KEYWORDS_NOT_CONFIRMED_NOTE
             payload["missing_data"] = [m for m in payload["missing_data"] if m != note][:LIST_SECTIONS["missing_data"] - 1] + [note]
     payload = apply_exclusions(payload, payload["exclusions"])
     if not payload["goals"] and not payload["content_directions"]:
