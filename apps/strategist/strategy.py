@@ -12,6 +12,7 @@ from django.db.models import Max
 from django.utils import timezone
 
 from apps.businesses.models import Business
+from . import memory
 from .models import Strategy, StrategyVersion
 
 PROFILE_FIELDS = ("name", "website", "niche", "subniche", "market", "audience", "goals")
@@ -225,3 +226,22 @@ def active_version(business: Business) -> StrategyVersion | None:
     strategy = (Strategy.objects.filter(business=business, status=Strategy.Status.ACTIVE)
                 .select_related("active_version").order_by("-created_at").first())
     return strategy.active_version if strategy else None
+
+
+def ref_label(ref: str) -> str:
+    """Human label for a source reference shown next to a rationale item."""
+    if ref.startswith("profile:"):
+        return "профиль: " + FIELD_LABELS.get(ref.split(":", 1)[1], ref)
+    if ref.startswith("memory:"):
+        return "память бизнеса"
+    if ref.startswith("research:"):
+        return "исследование ниши"
+    return "ваше сообщение" if ref.startswith("user_message:") else ref
+
+
+def confirm_with_decision(version: StrategyVersion, user) -> StrategyVersion:
+    """Confirm a draft and record the decision with its reason and author."""
+    version = confirm_version(version, user)
+    memory.record_decision(version.strategy.business, user, f"Подтверждена стратегия, версия {version.number}",
+                           reason=version.change_note, source_ref=f"strategy_version:{version.pk}")
+    return version

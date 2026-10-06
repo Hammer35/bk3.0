@@ -181,7 +181,7 @@ class ContentPlan(BaseModel):
         SUPERSEDED = "SUPERSEDED", "Заменён"
 
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="content_plans", verbose_name="бизнес")
-    strategy_version = models.ForeignKey(StrategyVersion, on_delete=models.PROTECT, related_name="content_plans", verbose_name="версия стратегии")
+    strategy_version = models.ForeignKey(StrategyVersion, on_delete=models.RESTRICT, related_name="content_plans", verbose_name="версия стратегии")
     horizon_weeks = models.PositiveSmallIntegerField(default=4, verbose_name="горизонт, недель")
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT, verbose_name="статус")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="создатель")

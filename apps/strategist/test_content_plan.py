@@ -133,3 +133,20 @@ class ContentPlanChatTest(TestCase):
         Membership.objects.create(workspace=self.workspace, user=viewer, role=Membership.Role.VIEWER)
         message = AIMessage.objects.create(conversation=self.conversation, role=AIMessage.Role.USER, content="Составь контент-план")
         self.assertIn("владелец, администратор", cp.content_plan_reply(user_message=message, actor=viewer).content)
+
+
+class BusinessDeletionTest(TestCase):
+    def test_business_with_strategy_plan_memory_and_research_can_be_deleted(self):
+        from django.utils import timezone
+        from apps.strategist import memory as mem
+        from apps.strategist.models import ResearchSnapshot, Strategy
+        owner = get_user_model().objects.create_user("delete-owner")
+        workspace = Workspace.objects.create(name="D", slug="d", created_by=owner)
+        business = Business.objects.create(workspace=workspace, name="Shop", slug="shop")
+        version = st.confirm_version(st.create_draft(business, owner, st.clean_payload(VERSION_RAW, allowed_refs=set()), sources=[]), owner)
+        cp.create_plan(business, owner, version, cp.clean_items(ITEMS, version))
+        mem.record_decision(business, owner, "решение", source_ref="x")
+        ResearchSnapshot.objects.create(business=business, candidates=[], researched_at=timezone.now())
+        business.delete()
+        self.assertEqual((Strategy.objects.count(), StrategyVersion.objects.count(), ContentPlan.objects.count(),
+                          BusinessMemory.objects.count(), ResearchSnapshot.objects.count()), (0, 0, 0, 0, 0))

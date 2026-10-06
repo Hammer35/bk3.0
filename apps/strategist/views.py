@@ -8,8 +8,11 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.businesses.models import Business
 
+from . import content_plan as plans
+from . import memory, research
+from . import strategy as strategies
 from .forms import StrategistMessageForm
-from .models import AIConversation, AIMessage
+from .models import AIConversation, AIMessage, ContentPlan, StrategyVersion
 from .providers import GigaChatConfigurationError, GigaChatProviderError
 from .services import conversation_slug, create_conversation, respond_to_message
 
@@ -174,3 +177,82 @@ def legacy_chat_redirect(request, business_id):
         business_slug=business.slug,
         permanent=True,
     )
+
+
+def _rationale_view(version):
+    return [{"claim": r["claim"], "sources": [strategies.ref_label(b) for b in r["basis"]]} for r in version.rationale]
+
+
+def _version_view(version):
+    if version is None:
+        return None
+    cadence = version.publishing_cadence
+    return {
+        "version": version,
+        "rationale": _rationale_view(version),
+        "cadence": cadence.get("text") if cadence else "",
+        "cadence_confirmed": bool(cadence) and cadence.get("basis") == "user",
+        "snapshot": version.research_snapshots.order_by("-researched_at").first(),
+    }
+
+
+@login_required
+def strategy_page(request, workspace_slug, business_slug):
+    business = _get_business(request, workspace_slug, business_slug)
+    strategy = business.strategies.exclude(status="ARCHIVED").order_by("-created_at").first()
+    active = strategies.active_version(business)
+    draft = strategies.pending_draft(business)
+    plan = (business.content_plans.filter(status__in=[ContentPlan.Status.DRAFT, ContentPlan.Status.CONFIRMED])
+            .select_related("strategy_version").order_by("-created_at").first())
+    history = list(strategy.versions.order_by("-number")[:20]) if strategy else []
+    weeks = {}
+    for item in (plan.items.all() if plan else []):
+        weeks.setdefault(item.target_week, []).append(item)
+    return render(request, "strategist/strategy.html", {
+        "business": business, "strategist_business": business,
+        "strategist_sessions": list(business.ai_conversations.filter(is_active=True).order_by("-updated_at")),
+        "can_edit": memory.actor_can_edit(business, request.user),
+        "active": _version_view(active), "draft": _version_view(draft),
+        "history": history, "plan": plan, "plan_weeks": sorted(weeks.items()),
+        "plan_stale": bool(plan and plan.status == ContentPlan.Status.DRAFT and plan.strategy_version.status != StrategyVersion.Status.CONFIRMED),
+        "profile_missing": strategies.missing_profile_fields(business),
+        "memory_facts": memory.facts(business),
+        "snapshot_fresh": research.fresh_snapshot(business),
+    })
+
+
+def _editable_business(request, workspace_slug, business_slug):
+    if request.method != "POST":
+        raise Http404
+    business = _get_business(request, workspace_slug, business_slug)
+    if not memory.actor_can_edit(business, request.user):
+        raise Http404
+    return business
+
+
+@login_required
+def strategy_confirm(request, workspace_slug, business_slug, number):
+    business = _editable_business(request, workspace_slug, business_slug)
+    version = get_object_or_404(StrategyVersion, strategy__business=business, number=number)
+    try:
+        strategies.confirm_with_decision(version, request.user)
+    except strategies.StrategyError as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, _("Стратегия подтверждена."))
+    return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+@login_required
+def plan_confirm(request, workspace_slug, business_slug):
+    business = _editable_business(request, workspace_slug, business_slug)
+    plan = plans.pending_plan(business)
+    if plan is None:
+        raise Http404
+    try:
+        plans.confirm_with_decision(plan, request.user)
+    except plans.PlanError as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(request, _("Контент-план подтверждён."))
+    return redirect("strategist:strategy", workspace_slug=business.workspace.slug, business_slug=business.slug)

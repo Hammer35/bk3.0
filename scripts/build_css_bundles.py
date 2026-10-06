@@ -15,6 +15,7 @@ APP_SOURCES = (
     "components/dialogs.css",
     "components/interface-scale.css",
     "components/workbench.css",
+    "components/strategy.css",
     "shell.css",
 )
 LANDING_SOURCES = ("components/interface-scale.css", "landing.css")

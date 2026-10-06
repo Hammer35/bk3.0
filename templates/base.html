@@ -23,9 +23,14 @@
                 </div>
                 <div id="app-sidebar" class="sidebar-content">
                     <nav class="sidebar-nav" aria-label="{% trans 'Разделы приложения' %}">
-                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}>
+                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.url_name != 'strategy' %}{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}{% endif %}>
                             <span class="nav-item-full">{% trans "Мой бизнес" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "МБ" %}</span>
                         </a>
+                        {% if strategist_business %}
+                            <a href="{% url 'strategist:strategy' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'strategy' %} aria-current="page"{% endif %}>
+                                <span class="nav-item-full">{% trans "Стратегия" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "СТ" %}</span>
+                            </a>
+                        {% endif %}
                     </nav>
                     {% if strategist_business %}
                         <section class="sidebar-sessions" aria-label="{% trans 'Сессии ИИ-стратега' %}">

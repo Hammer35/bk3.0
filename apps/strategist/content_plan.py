@@ -135,11 +135,9 @@ def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) ->
         return _reply(conversation, "Строить и подтверждать контент-план могут владелец, администратор и редактор рабочего пространства.", model="content-plan-denied")
     if confirms:
         try:
-            plan = confirm_plan(pending, actor)
+            confirm_with_decision(pending, actor)
         except PlanError as error:
             return _reply(conversation, str(error), model="content-plan-refused")
-        mem.record_decision(business, actor, f"Подтверждён контент-план по стратегии, версия {plan.strategy_version.number}",
-                            source_ref=f"content_plan:{plan.pk}")
         return _reply(conversation, "Контент-план подтверждён. Следующий шаг (создание пинов) отдельный, и я его сам не запускаю.", model="content-plan-confirmed")
     version = st.active_version(business)
     if version is None:
@@ -165,3 +163,10 @@ def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) ->
         logger.warning("Content plan rejected by validation for business %s", business.pk)
         return _reply(conversation, str(error), model="content-plan-invalid", completion=completion)
     return _reply(conversation, render_plan(plan), completion=completion)
+
+
+def confirm_with_decision(plan: ContentPlan, user) -> ContentPlan:
+    plan = confirm_plan(plan, user)
+    mem.record_decision(plan.business, user, f"Подтверждён контент-план по стратегии, версия {plan.strategy_version.number}",
+                        source_ref=f"content_plan:{plan.pk}")
+    return plan

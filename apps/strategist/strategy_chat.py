@@ -63,14 +63,6 @@ def _exclusion_stem(message: str) -> str | None:
     return None
 
 
-def _ref_label(ref: str) -> str:
-    if ref.startswith("profile:"):
-        return "профиль: " + st.FIELD_LABELS.get(ref.split(":", 1)[1], ref)
-    if ref.startswith("memory:"):
-        return "память бизнеса"
-    return "ваше сообщение" if ref.startswith("user_message:") else ref
-
-
 def render_version(version: StrategyVersion) -> str:
     lines = [f"Стратегия, версия {version.number} ({version.get_status_display().lower()})."]
 
@@ -92,7 +84,7 @@ def render_version(version: StrategyVersion) -> str:
         mark = "" if cadence.get("basis") == "user" else " (гипотеза, данными не подтверждено)"
         section("Частота публикаций", [cadence["text"] + mark])
     section("Исключено по вашей просьбе", version.exclusions)
-    section("Почему так", [f"{r['claim']} [{', '.join(_ref_label(b) for b in r['basis'])}]" for r in version.rationale])
+    section("Почему так", [f"{r['claim']} [{', '.join(st.ref_label(b) for b in r['basis'])}]" for r in version.rationale])
     section("Гипотезы (не подтверждены)", version.hypotheses)
     section("Не хватает данных", version.missing_data)
     lines += ["", "Если всё верно, напиши «Подтверждаю стратегию». Чтобы изменить, напиши, что поправить."]
@@ -159,11 +151,9 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
                                                  total_tokens=snapshot.total_tokens))
     if confirms:
         try:
-            version = st.confirm_version(pending, actor)
+            version = st.confirm_with_decision(pending, actor)
         except st.StrategyError as error:
             return _reply(conversation, str(error), model="strategy-confirm-refused")
-        mem.record_decision(business, actor, f"Подтверждена стратегия, версия {version.number}",
-                            reason=version.change_note, source_ref=f"strategy_version:{version.pk}")
         return _reply(conversation, f"Стратегия, версия {version.number}, подтверждена и теперь действует. "
                       "Изменить её можно в любой момент: появится новая версия, прежняя сохранится.",
                       model="strategy-confirmed")
