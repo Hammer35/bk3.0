@@ -387,6 +387,7 @@ def _editable_page_business(request, workspace_slug, business_slug):
 def pin_generate(request, workspace_slug, business_slug):
     from .pin_generation import confirmed_plan, pending_items
     business = _editable_page_business(request, workspace_slug, business_slug)
+    pin_jobs.reap_stale(business)
     plan = confirmed_plan(business)
     accounts = list(connected_accounts(business))
     preset = ps.normalize(getattr(getattr(business, "generation_preset", None), "values", None))
@@ -465,6 +466,7 @@ def connected_accounts(business):
 @login_required
 def pin_job_status(request, workspace_slug, business_slug, job_id):
     business = _get_business(request, workspace_slug, business_slug)
+    pin_jobs.reap_stale(business)
     job = get_object_or_404(AIJob, pk=job_id, business=business)
     return JsonResponse({**pin_jobs.summary(job), "label": str(JOB_STATUS_LABELS.get(job.status, job.status))})
 

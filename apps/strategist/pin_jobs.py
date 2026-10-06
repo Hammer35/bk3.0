@@ -18,10 +18,31 @@ from .providers import GigaChatConfigurationError, GigaChatProviderError
 logger = logging.getLogger(__name__)
 ACTIVE = (AIJob.Status.PENDING, AIJob.Status.RUNNING)
 MAX_NOTES = 20
+STALE_PENDING_SECONDS = 180   # a job nobody picked up (worker down, task unknown to a worker started before it existed)
+STALE_RUNNING_SECONDS = 900   # a running job that stopped reporting (worker killed mid-run)
 
 
 class JobError(Exception):
     """Safe-to-show reason a run could not be started."""
+
+
+def reap_stale(business, *, now=None) -> int:
+    """Fail jobs that can no longer finish, so they stop blocking the business and the user sees why."""
+    now = now or timezone.now()
+    count = 0
+    for job in business.ai_jobs.filter(kind=AIJob.Kind.PIN_GENERATION, status__in=ACTIVE):
+        waiting = (now - job.created_at).total_seconds() if job.status == AIJob.Status.PENDING else None
+        silent = (now - job.updated_at).total_seconds() if job.status == AIJob.Status.RUNNING else None
+        if (waiting or 0) > STALE_PENDING_SECONDS:
+            note = "Задачу не приняла фоновая служба. Повторите запуск; если повторится, сообщите администратору."
+        elif (silent or 0) > STALE_RUNNING_SECONDS:
+            note = "Выполнение прервалось: часть пунктов не обработана. Повторите запуск."
+        else:
+            continue
+        AIJob.objects.filter(pk=job.pk, status=job.status).update(
+            status=AIJob.Status.FAILED, finished_at=now, notes=[*job.notes, note][-MAX_NOTES:])
+        count += 1
+    return count
 
 
 def active_job(business):
@@ -44,6 +65,7 @@ def start_job(business, user, item_ids, options) -> AIJob:
             pk=options["account_id"], business=business, deleted_at__isnull=True,
             status=PinterestAccount.Status.CONNECTED).exists():
         raise JobError("Выбранный аккаунт Pinterest не подключён к этому бизнесу.")
+    reap_stale(business)
     if active_job(business):
         raise JobError("Генерация уже идёт. Дождитесь её завершения или отмените её.")
     stored = {k: v for k, v in options.items() if k != "product_facts"}

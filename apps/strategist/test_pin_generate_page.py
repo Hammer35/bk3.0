@@ -206,6 +206,18 @@ class JobEndpointsTest(GeneratePageBase):
         self.client.force_login(self.owner)
         self.assertEqual(self.client.get(foreign).status_code, 404)
 
+    def test_a_stale_job_is_failed_when_the_page_or_status_is_requested(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        job = self.make_job()
+        AIJob.objects.filter(pk=job.pk).update(created_at=timezone.now() - timedelta(seconds=pj.STALE_PENDING_SECONDS + 30))
+        url = reverse("strategist:pin-job-status", kwargs={"workspace_slug": "a", "business_slug": "shop", "job_id": job.pk})
+        data = self.client.get(url).json()
+        self.assertEqual((data["status"], data["finished"]), ("FAILED", True))
+        html = self.client.get(self.url).content.decode()
+        self.assertIn("не приняла фоновая служба", html)
+        self.assertNotIn("data-job-status-url", html)
+
     def test_cancel_is_a_post_by_an_editor(self):
         job = self.make_job()
         url = reverse("strategist:pin-job-cancel", kwargs={"workspace_slug": "a", "business_slug": "shop", "job_id": job.pk})

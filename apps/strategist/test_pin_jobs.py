@@ -180,3 +180,49 @@ class JobTest(ApprovalBase):
             run_pin_generation.run(job.pk)
         job.refresh_from_db()
         self.assertEqual((job.status, job.done), ("COMPLETED", 1))
+
+
+class StaleJobTest(ApprovalBase):
+    def setUp(self):
+        super().setUp()
+        from django.utils import timezone
+        self.now = timezone.now()
+
+    def start(self):
+        return pj.start_job(self.business, self.owner, [i.pk for i in self.plan.items.order_by("position")][:1], {})
+
+    def age(self, job, seconds):
+        from datetime import timedelta
+        AIJob.objects.filter(pk=job.pk).update(created_at=self.now - timedelta(seconds=seconds), updated_at=self.now - timedelta(seconds=seconds))
+
+    def test_a_job_nobody_picked_up_is_failed_with_an_explanation_and_stops_blocking(self):
+        job = self.start()
+        self.assertEqual(pj.reap_stale(self.business, now=self.now), 0)  # a young pending job is simply waiting
+        self.age(job, pj.STALE_PENDING_SECONDS + 5)
+        self.assertEqual(pj.reap_stale(self.business, now=self.now), 1)
+        job.refresh_from_db()
+        self.assertEqual(job.status, "FAILED")
+        self.assertIn("не приняла фоновая служба", job.notes[-1])
+        self.assertIsNotNone(job.finished_at)
+        self.assertEqual(pj.reap_stale(self.business, now=self.now), 0)
+        self.assertEqual(self.start().status, "PENDING")  # the business can start again
+
+    def test_starting_a_run_reaps_a_stale_job_instead_of_refusing(self):
+        job = self.start()
+        self.age(job, pj.STALE_PENDING_SECONDS + 5)
+        new = self.start()
+        self.assertEqual((AIJob.objects.get(pk=job.pk).status, new.status), ("FAILED", "PENDING"))
+
+    def test_running_job_that_stopped_reporting_is_failed_but_a_live_one_is_not(self):
+        job = self.start()
+        AIJob.objects.filter(pk=job.pk).update(status="RUNNING")
+        self.age(job, 60)
+        self.assertEqual(pj.reap_stale(self.business, now=self.now), 0)
+        self.age(job, pj.STALE_RUNNING_SECONDS + 5)
+        self.assertEqual(pj.reap_stale(self.business, now=self.now), 1)
+        self.assertIn("Выполнение прервалось", AIJob.objects.get(pk=job.pk).notes[-1])
+
+    def test_pin_generation_task_is_routed_to_the_generation_queue(self):
+        from apps.strategist.tasks import run_pin_generation
+        self.assertEqual(run_pin_generation.queue, "generation")
+        self.assertEqual(run_pin_generation.name, "strategist.run_pin_generation")

@@ -5,7 +5,7 @@ from .models import AIJob
 from .pin_jobs import run_job
 
 
-@shared_task(name="strategist.run_pin_generation")
+@shared_task(name="strategist.run_pin_generation", queue="generation")
 def run_pin_generation(job_id: int) -> None:
     try:
         run_job(job_id)
