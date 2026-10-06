@@ -132,3 +132,44 @@ class StrategyVersionTest(TestCase):
         other = Business.objects.create(workspace=self.workspace, name="O", slug="o")
         self.assertIsNone(st.pending_draft(other))
         self.assertIsNone(st.active_version(other))
+
+
+class ExclusionTrimTest(SimpleTestCase):
+    def trim(self, text, term="этси"):
+        return st._trim(text, [term])
+
+    def test_enumerations_lose_only_the_excluded_name(self):
+        for text, expected in (
+            ("Увеличить переходы на Озон, ВБ и Этси", "Увеличить переходы на Озон, ВБ"),
+            ("Увеличить переходы на Озон, Этси и ВБ", "Увеличить переходы на Озон и ВБ"),
+            ("Этси и Озон", "Озон"),
+            ("Продавцы Озон, ВБ, Этси.", "Продавцы Озон, ВБ."),
+            ("Озон или Этси", "Озон"),
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(self.trim(text), expected)
+
+    def test_items_that_are_about_the_excluded_name_are_dropped(self):
+        for text in ("Продвижение на Этси", "Советы для Этси-магазинов", "Не продвигай Озон и Этси",
+                     "Кроме Этси везде"):
+            with self.subTest(text=text):
+                self.assertIsNone(self.trim(text))
+        self.assertEqual(self.trim("Увеличить переходы"), "Увеличить переходы")
+
+    def test_payload_exclusion_keeps_what_is_still_valid(self):
+        payload = {
+            "goals": ["Переходы на Озон, ВБ и Этси", "Рост на Этси"], "priorities": [], "content_directions": ["Кейсы Озон и Этси"],
+            "keyword_clusters": [{"name": "Платья", "keywords": ["linen dress", "etsy dress"]}, {"name": "Etsy", "keywords": ["x"]}],
+            "recommended_boards": [{"name": "Советы", "purpose": "для Озон, ВБ и Этси"}, {"name": "Этси-кейсы", "purpose": ""}],
+            "publishing_cadence": {}, "seasonal_plans": [{"period": "Лето", "idea": "Платья на Озон и Этси"}, {"period": "Зима", "idea": "Только Этси"}],
+            "rationale": [{"claim": "Аудитория на Озон, ВБ и Этси", "basis": ["profile:audience"]}],
+            "hypotheses": ["Спрос на Этси растёт"], "missing_data": [], "exclusions": [],
+        }
+        out = st.apply_exclusions(payload, ["этси", "etsy"])
+        self.assertEqual(out["goals"], ["Переходы на Озон, ВБ"])
+        self.assertEqual(out["content_directions"], ["Кейсы Озон"])
+        self.assertEqual(out["keyword_clusters"], [{"name": "Платья", "keywords": ["linen dress"]}])
+        self.assertEqual(out["recommended_boards"], [{"name": "Советы", "purpose": "для Озон, ВБ"}])
+        self.assertEqual(out["seasonal_plans"], [{"period": "Лето", "idea": "Платья на Озон"}])
+        self.assertEqual(out["rationale"], [{"claim": "Аудитория на Озон, ВБ", "basis": ["profile:audience"]}])
+        self.assertEqual(out["hypotheses"], [])

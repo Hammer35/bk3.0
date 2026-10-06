@@ -44,6 +44,20 @@ class StrategyPageTest(TestCase):
         self.client.force_login(self.owner)
         self.assertEqual(self.client.get(self.url).status_code, 200)
 
+    def test_profile_card_shows_real_business_facts_escaped(self):
+        self.business.website = "https://example.com/shop"
+        self.business.audience = "Женщины <i>25-45</i>"
+        self.business.save()
+        self.client.force_login(self.owner)
+        html = self.client.get(self.url).content.decode()
+        for part in ("Профиль бизнеса", "Одежда", "Женщины &lt;i&gt;25-45&lt;/i&gt;", 'href="https://example.com/shop"', "Трафик"):
+            self.assertIn(part, html)
+        self.assertNotIn("<i>25-45</i>", html)
+        Business.objects.filter(pk=self.business.pk).update(website="javascript:alert(1)")  # bypasses form validation
+        html = self.client.get(self.url).content.decode()
+        self.assertNotIn('href="javascript:', html)
+        self.assertIn("javascript:alert(1)", html)  # shown as plain text, never as a link
+
     def test_empty_state_explains_missing_profile(self):
         StrategyVersion.objects.all().delete()
         self.business.audience = ""

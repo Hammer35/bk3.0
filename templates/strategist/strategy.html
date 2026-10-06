@@ -11,6 +11,18 @@
 </header>
 
 <div class="strategy-page">
+    <section class="panel strategy-panel strategy-profile" aria-labelledby="profile-title">
+        <h2 class="panel-title" id="profile-title">{% trans "Профиль бизнеса" %}</h2>
+        <dl class="strategy-facts">
+            <div><dt>{% trans "Ниша" %}</dt><dd>{{ business.niche|default:"—" }}{% if business.subniche %} / {{ business.subniche }}{% endif %}</dd></div>
+            <div><dt>{% trans "Рынок" %}</dt><dd>{{ business.market|default:"—" }}</dd></div>
+            <div><dt>{% trans "Аудитория" %}</dt><dd>{{ business.audience|default:"—" }}</dd></div>
+            <div><dt>{% trans "Цели" %}</dt><dd>{{ business.goals|default:"—" }}</dd></div>
+            <div><dt>{% trans "Сайт" %}</dt><dd>{% if business.website|slice:":7" == "http://" or business.website|slice:":8" == "https://" %}<a href="{{ business.website }}" rel="noopener noreferrer">{{ business.website }}</a>{% elif business.website %}{{ business.website }}{% else %}—{% endif %}</dd></div>
+        </dl>
+        {% if profile_missing %}<p class="meta strategy-flag">{% blocktrans with fields=profile_missing|join:", " %}Для стратегии не хватает: {{ fields }}.{% endblocktrans %}</p>{% endif %}
+    </section>
+
     {% if not active and not draft %}
         <section class="panel strategy-panel">
             <h2 class="panel-title">{% trans "Стратегии пока нет" %}</h2>

@@ -170,16 +170,59 @@ def _mentions(value, terms) -> bool:
     return any(t.casefold() in text for t in terms)
 
 
+_NEGATION = re.compile(r"\b(?:не|без|кроме|исключ\w*)\b", re.I)
+
+
+def _trim(text: str, terms) -> str | None:
+    """Remove only an excluded name from an enumeration; None when the item must go entirely."""
+    if not _mentions(text, terms):
+        return text
+    if _NEGATION.search(text):  # removing a word from a negated phrase could flip its meaning
+        return None
+    for term in terms:
+        stem = re.escape(term.casefold())
+        word = rf"\S*{stem}[\w-]*"
+        end = r"(?P<end>[.!?;:]*)"
+        for pattern in (rf"\s+(?:и|или)\s+{word}{end}", rf",\s*{word}{end}",
+                        rf"{word},\s*{end}", rf"{word}\s+(?:и|или)\s+"):
+            text = re.sub(pattern, lambda m: m.groupdict().get("end") or "", text, flags=re.I)
+    text = " ".join(text.split()).strip(" ,;")
+    return text if text and not _mentions(text, terms) else None
+
+
+def _trim_all(items, terms) -> list[str]:
+    return [t for t in (_trim(i, terms) for i in items) if t]
+
+
 def apply_exclusions(payload: dict, exclusions) -> dict:
-    """Drop every proposed item that mentions something the user ruled out."""
+    """Remove what the user ruled out: trim an excluded name from lists, drop items about it."""
     terms = [e for e in exclusions if e]
     if not terms:
         return payload
     cleaned = dict(payload)
-    for section in ("goals", "priorities", "keyword_clusters", "recommended_boards",
-                    "content_directions", "seasonal_plans", "hypotheses"):
-        cleaned[section] = [i for i in payload[section] if not _mentions(i, terms)]
-    cleaned["rationale"] = [i for i in payload["rationale"] if not _mentions(i["claim"], terms)]
+    for section in ("goals", "priorities", "content_directions", "hypotheses"):
+        cleaned[section] = _trim_all(payload[section], terms)
+    clusters = []
+    for cluster in payload["keyword_clusters"]:
+        keywords = [k for k in cluster["keywords"] if not _mentions(k, terms)]
+        if keywords and not _mentions(cluster["name"], terms):
+            clusters.append({"name": cluster["name"], "keywords": keywords})
+    cleaned["keyword_clusters"] = clusters
+    cleaned["recommended_boards"] = [
+        {"name": b["name"], "purpose": _trim(b.get("purpose", ""), terms) or ""}
+        for b in payload["recommended_boards"] if not _mentions(b["name"], terms)]
+    seasons = []
+    for item in payload["seasonal_plans"]:
+        idea = None if _mentions(item["period"], terms) else _trim(item["idea"], terms)
+        if idea:
+            seasons.append({"period": item["period"], "idea": idea})
+    cleaned["seasonal_plans"] = seasons
+    rationale = []
+    for item in payload["rationale"]:
+        claim = _trim(item["claim"], terms)
+        if claim:
+            rationale.append({"claim": claim, "basis": item["basis"]})
+    cleaned["rationale"] = rationale
     if payload["publishing_cadence"] and _mentions(payload["publishing_cadence"], terms):
         cleaned["publishing_cadence"] = {}
     return cleaned

@@ -8,6 +8,11 @@
 .strategy-list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
 .strategy-list li { overflow-wrap: anywhere; padding-left: var(--space-3); border-left: var(--line-width) solid var(--line-strong); font-size: calc(14px * var(--interface-font-scale, 1)); }
 .strategy-source, .strategy-flag { color: var(--muted); font-family: var(--font-body); font-size: calc(12px * var(--interface-font-scale, 1)); }
+.strategy-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin: var(--space-3) 0 0; }
+.strategy-facts dt { color: var(--muted); font-family: var(--font-compact); font-size: calc(12px * var(--interface-font-scale, 1)); letter-spacing: .08em; text-transform: uppercase; }
+.strategy-facts dd { overflow-wrap: anywhere; margin: var(--space-1) 0 0; font-size: calc(14px * var(--interface-font-scale, 1)); }
+.strategy-facts a { text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+.strategy-facts a:hover { color: var(--accent-hover); }
 .strategy-table { display: grid; margin-top: var(--space-3); }
 .strategy-table-row { display: grid; grid-template-columns: minmax(110px, .5fr) minmax(110px, .5fr) minmax(130px, .6fr) minmax(0, 2fr); gap: var(--space-3); padding: var(--space-3) 0; border-bottom: var(--line-width) solid var(--line); font-size: calc(13px * var(--interface-font-scale, 1)); }
 .strategy-table-row:last-child { border-bottom: 0; }
