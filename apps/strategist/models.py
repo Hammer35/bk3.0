@@ -147,3 +147,26 @@ class ResearchSnapshot(BaseModel):
         ordering = ("-researched_at",)
         verbose_name = "снимок исследования"
         verbose_name_plural = "снимки исследований"
+
+
+class BusinessMemory(BaseModel):
+    """Confirmed business facts and decisions; never a copy of the chat history."""
+
+    class Kind(models.TextChoices):
+        FACT = "FACT", "Факт"
+        DECISION = "DECISION", "Решение"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="memory_items", verbose_name="бизнес")
+    kind = models.CharField(max_length=16, choices=Kind.choices, verbose_name="тип")
+    text = models.CharField(max_length=300, verbose_name="содержание")
+    reason = models.CharField(max_length=300, blank=True, verbose_name="причина")
+    source_ref = models.CharField(max_length=80, verbose_name="источник")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="подтвердил",
+    )
+
+    class Meta:
+        ordering = ("-created_at", "-id")
+        verbose_name = "запись памяти бизнеса"
+        verbose_name_plural = "память бизнеса"
+        indexes = [models.Index(fields=["business", "kind"], name="memory_business_kind_idx")]

@@ -4,8 +4,7 @@ import logging
 import re
 from types import SimpleNamespace
 
-from apps.workspaces.models import Membership
-
+from . import memory as mem
 from . import strategy as st
 from .models import AIMessage, StrategyVersion
 from .providers import GigaChatProvider
@@ -13,7 +12,6 @@ from .research import ResearchError, fresh_snapshot, render_snapshot, research_n
 
 logger = logging.getLogger(__name__)
 
-EDIT_ROLES = {Membership.Role.OWNER, Membership.Role.ADMIN, Membership.Role.EDITOR}
 _BUILD = re.compile(r"\b(построй|составь|сделай|создай|разработай|подготовь|предложи)\w*[\s,]+(?:[^\s,]+[\s,]+){0,3}стратеги", re.I)
 _CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(подтверждаю|утверждаю|принимаю|согласен|согласна|согласовано)"
                       r"(?:\s+(?:эту\s+)?(?:стратегию|версию))?[\s.!]*$", re.I)
@@ -65,14 +63,11 @@ def _exclusion_stem(message: str) -> str | None:
     return None
 
 
-def _actor_can_edit(business, actor) -> bool:
-    return bool(actor) and Membership.objects.filter(
-        workspace=business.workspace, user=actor, role__in=EDIT_ROLES).exists()
-
-
 def _ref_label(ref: str) -> str:
     if ref.startswith("profile:"):
         return "профиль: " + st.FIELD_LABELS.get(ref.split(":", 1)[1], ref)
+    if ref.startswith("memory:"):
+        return "память бизнеса"
     return "ваше сообщение" if ref.startswith("user_message:") else ref
 
 
@@ -114,9 +109,12 @@ def _reply(conversation, content, *, model="strategy-draft", completion=None) ->
     )
 
 
-def _generate(*, facts, user_texts, base=None, instruction="", provider, snapshot=None):
-    refs = set(facts) | set(user_texts)
+def _generate(*, facts, user_texts, base=None, instruction="", provider, snapshot=None, memory_texts=None):
+    memory_texts = memory_texts or {}
+    refs = set(facts) | set(user_texts) | set(memory_texts)
     request = {"profile": facts, "user_messages": {ref: text for ref, text in user_texts.items()}}
+    if memory_texts:
+        request["business_memory"] = memory_texts
     if snapshot is not None:
         refs.add(st.research_ref(snapshot))
         request["research"] = {"ref": st.research_ref(snapshot), "keywords": snapshot_phrases(snapshot)}
@@ -149,7 +147,7 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     revises = bool(_REVISE.search(text)) and bool(pending or st.active_version(business))
     if not (builds or confirms or exclusion or revises or researches):
         return None
-    if not _actor_can_edit(business, actor):
+    if not mem.actor_can_edit(business, actor):
         return _reply(conversation, "Менять и подтверждать стратегию могут владелец, администратор и редактор рабочего пространства.", model="strategy-denied")
     if researches and not (builds or confirms):
         try:
@@ -164,6 +162,8 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
             version = st.confirm_version(pending, actor)
         except st.StrategyError as error:
             return _reply(conversation, str(error), model="strategy-confirm-refused")
+        mem.record_decision(business, actor, f"Подтверждена стратегия, версия {version.number}",
+                            reason=version.change_note, source_ref=f"strategy_version:{version.pk}")
         return _reply(conversation, f"Стратегия, версия {version.number}, подтверждена и теперь действует. "
                       "Изменить её можно в любой момент: появится новая версия, прежняя сохранится.",
                       model="strategy-confirmed")
@@ -179,6 +179,8 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
         version = st.create_draft(business, actor, payload, sources=base_version.sources,
                                   change_note=f"Исключено по просьбе пользователя: {exclusion}",
                                   snapshots=list(base_version.research_snapshots.all()))
+        mem.record_decision(business, actor, f"Исключено из стратегии: {exclusion}…",
+                            reason="по просьбе пользователя", source_ref=f"user_message:{user_message.pk}")
         return _reply(conversation, "Убрал из стратегии всё, что связано с этим.\n\n" + render_version(version), model="strategy-revision")
     missing = st.missing_profile_fields(business)
     if missing and not base_version:
@@ -191,8 +193,10 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
     if base_version:
         base = {f: getattr(base_version, f) for f in ("goals", "priorities", "content_directions", "recommended_boards", "keyword_clusters")}
     snapshot = fresh_snapshot(business)
+    memory_items = mem.facts(business)
+    memory_texts = {mem.memory_ref(i): i.text for i in memory_items}
     raw, completion, allowed = _generate(
-        facts=facts, user_texts=user_texts, base=base, snapshot=snapshot,
+        facts=facts, user_texts=user_texts, base=base, snapshot=snapshot, memory_texts=memory_texts,
         instruction=text if revises else "", provider=provider)
     exclusions = base_version.exclusions if base_version else []
     try:
@@ -203,6 +207,7 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
         return _reply(conversation, "Не получилось собрать надёжный черновик стратегии. Попробуй ещё раз или уточни данные о бизнесе.", model="strategy-invalid", completion=completion)
     snapshots = [snapshot] if snapshot else []
     version = st.create_draft(business, actor, payload, sources=st.build_sources(
-        facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots),
+        facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots,
+        memory_items=memory_items),
         change_note=text[:500] if revises else "Первичный черновик", snapshots=snapshots)
     return _reply(conversation, render_version(version), completion=completion)

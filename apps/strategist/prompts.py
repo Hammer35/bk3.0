@@ -7,6 +7,7 @@ def build_strategist_system_prompt(
     *,
     knowledge_context: str = "",
     pinterest_accounts: list[dict] | None = None,
+    memory_facts: list[str] | None = None,
 ) -> str:
     """Build the sole system instruction for a Business strategist conversation."""
     profile = {
@@ -97,6 +98,13 @@ def build_strategist_system_prompt(
         f"{ADVICE_RULES}\n\n"
         "Профиль текущего бизнеса:\n"
         f"{business_context}"
+        + (
+            "\n\nФакты о бизнесе, которые пользователь попросил запомнить (это сведения пользователя, "
+            "а не проверенные внешние факты; не противоречь им без причины):\n"
+            + "\n".join(f"- {fact}" for fact in memory_facts)
+            if memory_facts
+            else ""
+        )
         + (
             "\n\nPinterest аккаунты этого бизнеса и их статусы:\n"
             f"{pinterest_context}\n"

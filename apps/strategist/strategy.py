@@ -51,9 +51,10 @@ def research_ref(snapshot) -> str:
     return f"research:{snapshot.public_id}"
 
 
-def build_sources(facts: dict[str, str], *, user_message_ids=(), snapshots=()) -> list[dict]:
+def build_sources(facts: dict[str, str], *, user_message_ids=(), snapshots=(), memory_items=()) -> list[dict]:
     sources = [{"ref": ref, "type": "business_profile", "value": value[:TEXT_LIMIT]} for ref, value in facts.items()]
     sources += [{"ref": f"user_message:{pk}", "type": "user_message"} for pk in user_message_ids]
+    sources += [{"ref": f"memory:{m.pk}", "type": "business_memory", "value": m.text[:TEXT_LIMIT]} for m in memory_items]
     sources += [{"ref": research_ref(s), "type": "research_snapshot", "researched_at": s.researched_at.isoformat()}
                 for s in snapshots]
     return sources

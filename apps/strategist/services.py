@@ -28,6 +28,7 @@ from .grounded_answers import grounded_pinterest_answer
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
+from . import memory
 from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
@@ -800,6 +801,9 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
             conversation=conversation, role=AIMessage.Role.ASSISTANT,
             content=numeric_answer, provider="calculation", model="user-metrics",
         )
+    memory_answer = memory.memory_reply(user_message=user_message, actor=actor)
+    if memory_answer:
+        return memory_answer
     strategy_answer = strategy_reply(user_message=user_message, actor=actor)
     if strategy_answer:
         return strategy_answer
@@ -1186,6 +1190,7 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
         conversation.business,
         knowledge_context=knowledge_context,
         pinterest_accounts=[] if community_rules_question else pinterest_context,
+        memory_facts=memory.prompt_lines(conversation.business),
     )
     if not community_rules_question and sum(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts) > 1:
         system_prompt += (
