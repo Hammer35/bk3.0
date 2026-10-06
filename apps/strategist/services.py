@@ -306,10 +306,72 @@ def _analytics_has_unavailable_days(result: dict | None) -> bool:
     return False
 
 
+_FULL_REPORT = re.compile(r"вс[ёе]\s+(?:показател|метрик|цифр)|вся\s+статистик|полн\w+\s+(?:отч[её]т|статистик)|подробн|отч[её]т|всю\s+статистик", re.I)
+_METRIC_REQUESTS = (
+    ("OUTBOUND_CLICK", re.compile(r"переход|исходящ|клик(?!\w*\s+по\s+пин)|на\s+(?:другие|внешние)\s+ресурс|на\s+сайт", re.I)),
+    ("IMPRESSION", re.compile(r"показ", re.I)),
+    ("SAVE", re.compile(r"сохран", re.I)),
+    ("PIN_CLICK", re.compile(r"открыти\w*\s+пин|клик\w*\s+по\s+пин", re.I)),
+    ("VIDEO", re.compile(r"видео|просмотр", re.I)),
+)
+_VIDEO_METRICS = ("VIDEO_START", "VIDEO_MRC_VIEW", "VIDEO_10S_VIEW", "QUARTILE_95_PERCENT_VIEW")
+
+
+def _requested_metrics(message: str) -> tuple[str, ...] | None:
+    """Metrics the user named; None means no specific metric, so the full report applies."""
+    if _FULL_REPORT.search(message):
+        return None
+    names = tuple(name for name, pattern in _METRIC_REQUESTS if pattern.search(message))
+    return names or None
+
+
+def _focused_analytics_text(*, heading, summary, previous, focus, issues, result, previous_period) -> str:
+    """Only the metrics the user asked for, with the data limits that affect them."""
+    names = []
+    for name in focus:
+        names.extend(_VIDEO_METRICS if name == "VIDEO" else (name,))
+    rates = {"PIN_CLICK": "PIN_CLICK_RATE", "SAVE": "SAVE_RATE"}
+    current, changes = [], []
+    for name in names:
+        value = _metric_value(summary, name)
+        if value is None:
+            continue
+        item = f"{ORGANIC_METRIC_LABELS[name].lower()} — {_format_metric_number(value)}"
+        rate = _metric_value(summary, rates.get(name, ""))
+        if rate is not None:
+            item += f" ({_format_metric_number(rate * 100)}%)"
+        current.append(item)
+        before = _metric_value(previous, name)
+        if previous_period and before is not None:
+            change = value - before
+            text = f"{_format_metric_number(before)} → {_format_metric_number(value)}"
+            if change:
+                delta = f"{'+' if change > 0 else ''}{_format_metric_number(change)}"
+                if before:
+                    delta += f"; {change / before * 100:+.{1 if name == 'IMPRESSION' else 2}f}%".replace(".", ",")
+                text += f" ({delta})"
+            changes.append(f"{ORGANIC_METRIC_LABELS[name].lower()} {text}")
+    if not current:
+        return heading + "\n\nPinterest API не вернул запрошенный показатель за выбранный период."
+    sections = [heading, "За период\n" + "\n".join(f"  • {i}" for i in current)]
+    if changes:
+        label = f"К предыдущему периоду {previous_period[0]} — {previous_period[1]}"
+        sections.append(label + (" (предварительное сравнение)" if issues else "") + "\n" + "\n".join(f"  • {i}" for i in changes))
+        if issues:
+            sections.append("Ограничения сравнения:\n" + "\n".join(f"  • {i}" for i in issues))
+    if _analytics_has_unavailable_days(result):
+        sections.append("В периоде есть недоступные даты; значения могут быть неполными.")
+    if any(n in _VIDEO_METRICS for n in names):
+        sections.append("Видеопоказатели отражают разные пороги просмотра; по ним нельзя оценить качество видео.")
+    sections.append("Показал только запрошенное. Остальную статистику выведу по просьбе: «покажи всю статистику».")
+    return "\n\n".join(sections)
+
+
 def _format_pinterest_analytics(
     *, account: PinterestAccount, result: dict, start_date: date, end_date: date,
     previous_result: dict | None = None, previous_period: tuple[date, date] | None = None,
     synced_at: str = "", business_goal: str = "", explanation_question: str = "",
+    focus: tuple[str, ...] | None = None,
 ) -> str:
     groups = [
         value for value in result.values()
@@ -350,6 +412,9 @@ def _format_pinterest_analytics(
 
     previous = _analytics_summary(previous_result) if previous_result else {}
     issues = comparison_issues(result, previous_result, (start_date, end_date), previous_period, today=timezone.now().date())
+    if focus and not explanation_question:
+        return _focused_analytics_text(heading=heading, summary=summary, previous=previous, focus=focus,
+                                       issues=issues, result=result, previous_period=previous_period)
     if explanation_question:
         metric = "OUTBOUND_CLICK" if re.search(r"переход|клик", explanation_question, re.I) else (
             "SAVE" if re.search(r"сохран", explanation_question, re.I) else (
@@ -450,7 +515,7 @@ def _format_pinterest_analytics(
     return "\n\n".join(sections)
 
 
-def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date, explanation_question: str = "") -> str:
+def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date, explanation_question: str = "", focus: tuple[str, ...] | None = None) -> str:
     period_error = _pinterest_period_error(start_date, end_date)
     if period_error:
         return period_error
@@ -508,6 +573,7 @@ def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount
         synced_at=synced_at,
         business_goal=business.goals or "",
         explanation_question=explanation_question,
+        focus=focus,
     )
 
 
@@ -699,6 +765,8 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             explanation_question=user_message.content if re.search(
                 r"почему|причин|что\s+проверить|один\s+(?:шаг|следующий)|коротко", user_message.content, re.I,
             ) else "",
+            focus=None if _FULL_REPORT.search(user_message.content) else (
+                _requested_metrics(user_message.content) or _requested_metrics(effective_message.content)),
         )
     return AIMessage.objects.create(
         conversation=user_message.conversation,
