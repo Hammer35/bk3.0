@@ -46,6 +46,9 @@ class CatalogTest(SimpleTestCase):
 
 
 class SwitchingTest(TestCase):
+    def setUp(self):
+        self.addCleanup(translation.activate, "ru")  # views activate a language per request; do not leak it
+
     def test_default_is_russian_and_accept_language_selects_english(self):
         ru = self.client.get(reverse("login")).content.decode()
         self.assertIn('lang="ru"', ru)
@@ -79,6 +82,7 @@ class SwitchingTest(TestCase):
 
 class EnglishPagesTest(TestCase):
     def setUp(self):
+        self.addCleanup(translation.activate, "ru")
         self.user = get_user_model().objects.create_user("i18n-owner")
         workspace = Workspace.objects.create(name="W", slug="w", created_by=self.user)
         Membership.objects.create(workspace=workspace, user=self.user, role=Membership.Role.OWNER)

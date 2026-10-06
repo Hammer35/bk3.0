@@ -12,6 +12,7 @@ from apps.pinterest.policy import pinterest_ai_transfer_enabled
 from . import memory as mem
 from . import strategy as st
 from .models import AIMessage, ContentPlan, ContentPlanItem, StrategyVersion
+from .provenance import PLAN_PROMPT_VERSION
 from .providers import GigaChatProvider
 
 logger = logging.getLogger(__name__)
@@ -118,9 +119,10 @@ def render_plan(plan: ContentPlan) -> str:
     return "\n".join(lines)
 
 
-def _reply(conversation, content, *, model="content-plan", completion=None) -> AIMessage:
+def _reply(conversation, content, *, model="content-plan", completion=None, prompt_version="", manifest=None) -> AIMessage:
     return AIMessage.objects.create(
         conversation=conversation, role=AIMessage.Role.ASSISTANT, content=content, provider="content-plan",
+        prompt_version=prompt_version, context_manifest=manifest or [],
         model=getattr(completion, "model", model), prompt_tokens=getattr(completion, "prompt_tokens", 0),
         completion_tokens=getattr(completion, "completion_tokens", 0), total_tokens=getattr(completion, "total_tokens", 0))
 
@@ -165,7 +167,8 @@ def content_plan_reply(*, user_message: AIMessage, actor=None, provider=None) ->
     except PlanError as error:
         logger.warning("Content plan rejected by validation for business %s", business.pk)
         return _reply(conversation, str(error), model="content-plan-invalid", completion=completion)
-    return _reply(conversation, render_plan(plan), completion=completion)
+    return _reply(conversation, render_plan(plan), completion=completion, prompt_version=PLAN_PROMPT_VERSION,
+                  manifest=[{"type": "strategy_version", "number": version.number}])
 
 
 def confirm_with_decision(plan: ContentPlan, user) -> ContentPlan:

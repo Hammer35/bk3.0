@@ -105,3 +105,10 @@ def strategist_reply(value: str) -> str:
     flush_paragraph()
     flush_list()
     return mark_safe("".join(blocks))
+
+
+@register.filter(name="provenance_lines")
+def provenance_lines(manifest) -> list[str]:
+    """Readable lines for the sources a reply was built from."""
+    from apps.strategist.provenance import describe
+    return describe(manifest)

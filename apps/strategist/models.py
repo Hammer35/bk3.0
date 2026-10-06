@@ -37,6 +37,8 @@ class AIMessage(BaseModel):
     prompt_tokens = models.PositiveIntegerField(default=0, verbose_name="токены запроса")
     completion_tokens = models.PositiveIntegerField(default=0, verbose_name="токены ответа")
     total_tokens = models.PositiveIntegerField(default=0, verbose_name="всего токенов")
+    prompt_version = models.CharField(max_length=64, blank=True, default="", verbose_name="версия промпта")
+    context_manifest = models.JSONField(default=list, blank=True, verbose_name="источники контекста (manifest)")
 
     class Meta:
         ordering = ("created_at",)

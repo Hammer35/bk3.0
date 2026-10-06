@@ -29,9 +29,11 @@ from .grounded_answers import grounded_pinterest_answer
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
+from .provenance import CHAT_PROMPT_VERSION, stamp
 from . import memory
 from .content_plan import content_plan_reply
 from .coverage import coverage_reply
+from .strategy import profile_facts
 from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
@@ -1130,6 +1132,7 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     ))
     knowledge_context = ""
     community_source_url = ""
+    knowledge_docs = []
     if community_rules_question:
         source_path = settings.BASE_DIR / "docs/ai-knowledge/knowledge/pinterest-community-guidelines.md"
         try:
@@ -1148,6 +1151,7 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
                     f"Источник: {', '.join(source.source_links)}"
                 )
                 community_source_url = source.source_links[0] if source.source_links else ""
+                knowledge_docs = [{"source_id": source.source_id, "title": source.title}]
         except (OSError, ValueError):
             logger.warning("Approved community guidelines could not be read.")
     else:
@@ -1177,11 +1181,14 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
                 knowledge_hits = []
 
         knowledge_context = format_knowledge_context(knowledge_hits)
+        knowledge_docs = [{"source_id": hit.source_id, "title": hit.title, "heading": hit.heading} for hit in knowledge_hits]
         if not knowledge_context:
             try:
                 knowledge_context = local_knowledge_context(
                     user_message.content, project_root=settings.BASE_DIR, today=timezone.now().date(),
                 )
+                if knowledge_context:
+                    knowledge_docs = [{"source_id": "approved-local", "title": "approved-local"}]
             except (OSError, ValueError):
                 logger.warning("Approved local knowledge could not be read.")
 
@@ -1197,11 +1204,12 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
             provider="knowledge", model="source-unavailable",
         )
 
+    memory_items = memory.facts(conversation.business)
     system_prompt = build_strategist_system_prompt(
         conversation.business,
         knowledge_context=knowledge_context,
         pinterest_accounts=[] if community_rules_question or not ai_transfer else pinterest_context,
-        memory_facts=memory.prompt_lines(conversation.business),
+        memory_facts=[item.text for item in memory_items],
     )
     if not ai_transfer and pinterest_accounts:
         system_prompt += "\n\n" + AI_TRANSFER_DISABLED_MESSAGE + " Не утверждай ничего о данных аккаунта Pinterest."
@@ -1259,6 +1267,16 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
             for item in history
         ],
     ]
+    prompt_version = stamp(CHAT_PROMPT_VERSION, system_prompt)
+    manifest = [{"type": "business_profile", "fields": [ref.split(":", 1)[1] for ref in profile_facts(conversation.business)]}]
+    if memory_items:
+        manifest.append({"type": "business_memory", "ids": [item.pk for item in memory_items]})
+    manifest.append({"type": "history", "messages": len(history)})
+    if knowledge_docs:
+        manifest.append({"type": "knowledge", "documents": knowledge_docs})
+    if isinstance(latest_product, dict) and latest_product.get("article"):
+        manifest.append({"type": "wb", "what": str(latest_product["article"])})
+    pinterest_calls = []
     asks_for_pinterest_data = bool(
         re.search(
             r"pinterest|пинтерест|аккаунт|профил|доск|пин|аналитик|статист|подписчик|просмотр|тренд",
@@ -1343,8 +1361,13 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
                 total_tokens=total_tokens,
+                prompt_version=prompt_version,
+                context_manifest=manifest,
             )
+        if call.get("name") == "read_wb_store_data" and not any(m["type"] == "wb" and m["what"] == "store" for m in manifest):
+            manifest.append({"type": "wb", "what": "store"})
         if call.get("name") == "read_pinterest_data":
+            pinterest_calls.append({"resource": str(arguments.get("resource", ""))[:40]})
             source_arguments = {key: value for key, value in arguments.items() if key not in {"bookmark", "page_size"}}
             source_arguments["account_key"] = str(source_arguments.get("account_key", "")).casefold()
             options = source_arguments.get("options") or {}
@@ -1384,6 +1407,7 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
             content="Список загружен не полностью: следующие страницы не получены. Точное общее количество неизвестно.",
             provider="data-read", model="pagination-incomplete",
             prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, total_tokens=total_tokens,
+            prompt_version=prompt_version, context_manifest=manifest,
         )
     reply_content = enforce_advice_boundaries(
         completion.content,
@@ -1393,6 +1417,8 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     reply_content = enforce_source_honesty(reply_content)
     if community_source_url and community_source_url not in reply_content:
         reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
+    if pinterest_calls:
+        manifest.append({"type": "pinterest_read", "calls": pinterest_calls})
     return AIMessage.objects.create(
         conversation=conversation,
         role=AIMessage.Role.ASSISTANT,
@@ -1402,4 +1428,6 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
         total_tokens=total_tokens,
+        prompt_version=prompt_version,
+        context_manifest=manifest,
     )

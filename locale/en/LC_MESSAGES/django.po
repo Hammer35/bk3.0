@@ -96,6 +96,11 @@ msgstr "Active business: %(workspace)s / %(name)s"
 msgid "Аудитория"
 msgstr "Audience"
 
+#: apps/strategist/provenance.py:71
+#, python-format
+msgid "База знаний: %(titles)s"
+msgstr "Knowledge base: %(titles)s"
+
 #: apps/businesses/views.py:23
 msgid "Бизнес добавлен."
 msgstr "Business added."
@@ -116,6 +121,10 @@ msgstr "Archived"
 #, python-format
 msgid "Версия %(number)s"
 msgstr "Version %(number)s"
+
+#: templates/strategist/_chat_messages.html
+msgid "Версия промпта"
+msgstr "Prompt version"
 
 #: templates/accounts/login.html
 #: templates/accounts/register.html
@@ -160,6 +169,16 @@ msgstr "Yes, delete the account"
 #, python-format
 msgid "Данные @%(name)s синхронизированы."
 msgstr "Data for @%(name)s synchronized."
+
+#: apps/strategist/provenance.py:74
+#, python-format
+msgid "Данные Pinterest через API: %(resources)s"
+msgstr "Pinterest data via API: %(resources)s"
+
+#: apps/strategist/provenance.py:76
+#, python-format
+msgid "Данные Wildberries: %(what)s"
+msgstr "Wildberries data: %(what)s"
 
 #: templates/strategist/strategy.html
 msgid "Действует"
@@ -237,6 +256,11 @@ msgstr "Change text size"
 msgid "Исключено по вашей просьбе"
 msgstr "Excluded at your request"
 
+#: apps/strategist/provenance.py:78
+#, python-format
+msgid "Исследование ниши от %(date)s"
+msgstr "Niche research dated %(date)s"
+
 #: templates/strategist/strategy.html
 msgid "История версий"
 msgstr "Version history"
@@ -244,6 +268,20 @@ msgstr "Version history"
 #: templates/strategist/strategy.html
 msgid "История версий стратегии"
 msgstr "Strategy version history"
+
+#: apps/strategist/provenance.py:68
+#, python-format
+msgid "История диалога: сообщений %(count)s"
+msgstr "Conversation history: %(count)s messages"
+
+#: templates/strategist/_chat_messages.html
+msgid "Источники ответа"
+msgstr "Sources of this answer"
+
+#: apps/strategist/provenance.py:82
+#, python-format
+msgid "Источники черновика: %(count)s"
+msgstr "Draft sources: %(count)s"
 
 #: templates/core/home.html
 msgid "Исходные данные для работы ИИ-стратега"
@@ -430,6 +468,11 @@ msgstr "Cancel"
 msgid "Отправить сообщение"
 msgstr "Send message"
 
+#: apps/strategist/provenance.py:66
+#, python-format
+msgid "Память бизнеса: фактов %(count)s"
+msgstr "Business memory: %(count)s facts"
+
 #: templates/workspaces/onboarding.html
 msgid "Первый шаг"
 msgstr "First step"
@@ -476,11 +519,11 @@ msgstr "Subniche"
 msgid "Подтвердить контент-план"
 msgstr "Confirm content plan"
 
-#: apps/strategist/content_plan.py:91
+#: apps/strategist/content_plan.py:94
 msgid "Подтвердить можно только актуальный черновик плана."
 msgstr "Only the current draft of the plan can be confirmed."
 
-#: apps/strategist/strategy.py:254
+#: apps/strategist/strategy.py:256
 msgid "Подтвердить можно только актуальный черновик."
 msgstr "Only the current draft can be confirmed."
 
@@ -500,6 +543,11 @@ msgstr "Confirm action"
 #: apps/pinterest/views.py:114
 msgid "Подтверждение отключения Pinterest недействительно."
 msgstr "Pinterest disconnection confirmation is invalid."
+
+#: apps/strategist/provenance.py:80
+#, python-format
+msgid "Подтверждённая стратегия, версия %(number)s"
+msgstr "Confirmed strategy, version %(number)s"
 
 #: templates/strategist/strategy.html
 msgid "Пока пусто. Напишите в чате «Запомни: …», чтобы сохранить факт о бизнесе."
@@ -558,6 +606,11 @@ msgstr "Business profile"
 #: templates/core/landing.html
 msgid "Профиль бизнеса, стратегия и контент в одной рабочей среде"
 msgstr "Business profile, strategy and content in one workspace"
+
+#: apps/strategist/provenance.py:64
+#, python-format
+msgid "Профиль бизнеса: %(fields)s"
+msgstr "Business profile: %(fields)s"
 
 #: templates/core/landing.html
 msgid "Публикации ведут к товарам там, где уже оформлена покупка."
@@ -767,7 +820,7 @@ msgstr "Strategy — BOOSTKLIENT®"
 msgid "Стратегия, версия %(number)s"
 msgstr "Strategy, version %(number)s"
 
-#: apps/strategist/content_plan.py:93
+#: apps/strategist/content_plan.py:96
 msgid "Стратегия, на которой построен план, уже заменена. Построй план заново."
 msgstr "The strategy this plan was built on has already been replaced. Build the plan again."
 
@@ -922,6 +975,34 @@ msgstr "board"
 msgid "ключ"
 msgstr "keyword"
 
+#: apps/strategist/strategy.py:22
+msgid "название"
+msgstr "name"
+
+#: apps/strategist/strategy.py:22
+msgid "ниша"
+msgstr "niche"
+
+#: apps/strategist/strategy.py:23
+msgid "подниша"
+msgstr "subniche"
+
 #: templates/strategist/_chat_messages.html
 msgid "продавец не указан"
 msgstr "seller not specified"
+
+#: apps/strategist/strategy.py:23
+msgid "рынок"
+msgstr "market"
+
+#: apps/strategist/strategy.py:22
+msgid "сайт"
+msgstr "website"
+
+#: apps/strategist/strategy.py:24
+msgid "целевая аудитория"
+msgstr "target audience"
+
+#: apps/strategist/strategy.py:24
+msgid "цели бизнеса"
+msgstr "business goals"

@@ -215,7 +215,7 @@ def strategy_page(request, workspace_slug, business_slug):
         "active": _version_view(active), "draft": _version_view(draft),
         "history": history, "plan": plan, "plan_weeks": sorted(weeks.items()),
         "plan_stale": bool(plan and plan.status == ContentPlan.Status.DRAFT and plan.strategy_version.status != StrategyVersion.Status.CONFIRMED),
-        "profile_missing": strategies.missing_profile_fields(business),
+        "profile_missing": [gettext(label) for label in strategies.missing_profile_fields(business)],
         "memory_facts": memory.facts(business),
         "snapshot_fresh": research.fresh_snapshot(business),
     })

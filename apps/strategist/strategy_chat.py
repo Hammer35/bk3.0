@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from . import memory as mem
 from . import strategy as st
 from .models import AIMessage, StrategyVersion
+from .provenance import RESEARCH_PROMPT_VERSION, STRATEGY_PROMPT_VERSION
 from .providers import GigaChatProvider
 from apps.pinterest.policy import pinterest_ai_transfer_enabled
 
@@ -96,9 +97,10 @@ def render_version(version: StrategyVersion) -> str:
     return "\n".join(lines)
 
 
-def _reply(conversation, content, *, model="strategy-draft", completion=None) -> AIMessage:
+def _reply(conversation, content, *, model="strategy-draft", completion=None, prompt_version="", manifest=None) -> AIMessage:
     return AIMessage.objects.create(
         conversation=conversation, role=AIMessage.Role.ASSISTANT, content=content,
+        prompt_version=prompt_version, context_manifest=manifest or [],
         provider="strategy", model=getattr(completion, "model", model),
         prompt_tokens=getattr(completion, "prompt_tokens", 0),
         completion_tokens=getattr(completion, "completion_tokens", 0),
@@ -159,7 +161,9 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
             return _reply(conversation, str(error), model="research-refused")
         return _reply(conversation, render_snapshot(snapshot), model="niche-research",
                       completion=SimpleNamespace(model="niche-research", prompt_tokens=0, completion_tokens=0,
-                                                 total_tokens=snapshot.total_tokens))
+                                                 total_tokens=snapshot.total_tokens),
+                      prompt_version=RESEARCH_PROMPT_VERSION,
+                      manifest=[{"type": "research_snapshot", "date": f"{snapshot.researched_at:%d.%m.%Y}"}])
     if confirms:
         try:
             version = st.confirm_with_decision(pending, actor)
@@ -221,4 +225,5 @@ def strategy_reply(*, user_message: AIMessage, actor=None, provider=None) -> AIM
         facts, user_message_ids=[int(r.split(":")[1]) for r in user_texts], snapshots=snapshots,
         memory_items=memory_items),
         change_note=text[:500] if revises else "Первичный черновик", snapshots=snapshots)
-    return _reply(conversation, render_version(version), completion=completion)
+    return _reply(conversation, render_version(version), completion=completion, prompt_version=STRATEGY_PROMPT_VERSION,
+                  manifest=[{"type": "sources", "refs": [src["ref"] for src in version.sources]}])

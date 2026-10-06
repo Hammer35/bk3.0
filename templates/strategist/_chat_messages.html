@@ -3,6 +3,13 @@
     <article{% if chat_message.public_id %} id="chat-message-{{ chat_message.public_id }}"{% endif %} class="chat-message chat-message-{{ chat_message.role|lower }}"{% if chat_message.role == "USER" %} tabindex="-1"{% endif %}>
         <strong>{% if chat_message.role == "USER" %}{% trans "Вы" %}{% else %}{% trans "ИИ-стратег" %}{% endif %}</strong>
         <div class="chat-message-content">{% if chat_message.role == "USER" %}{{ chat_message.content }}{% else %}{{ chat_message.content|strategist_reply }}{% endif %}</div>
+        {% if chat_message.role != "USER" %}{% with lines=chat_message.context_manifest|provenance_lines %}{% if lines %}
+            <details class="chat-provenance">
+                <summary>{% trans "Источники ответа" %}</summary>
+                <ul>{% for line in lines %}<li>{{ line }}</li>{% endfor %}</ul>
+                {% if chat_message.prompt_version %}<p class="meta">{% trans "Версия промпта" %}: {{ chat_message.prompt_version }}</p>{% endif %}
+            </details>
+        {% endif %}{% endwith %}{% endif %}
         {% if chat_message.assets.url %}
             <p><a href="{{ chat_message.assets.url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть карточку товара" %}</a></p>
         {% endif %}

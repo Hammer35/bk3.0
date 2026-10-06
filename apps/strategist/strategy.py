@@ -19,8 +19,9 @@ from .models import Strategy, StrategyVersion
 PROFILE_FIELDS = ("name", "website", "niche", "subniche", "market", "audience", "goals")
 REQUIRED_PROFILE_FIELDS = ("niche", "audience", "goals")
 FIELD_LABELS = {
-    "name": "название", "website": "сайт", "niche": "ниша", "subniche": "подниша",
-    "market": "рынок", "audience": "целевая аудитория", "goals": "цели бизнеса",
+    "name": gettext_noop("название"), "website": gettext_noop("сайт"), "niche": gettext_noop("ниша"),
+    "subniche": gettext_noop("подниша"), "market": gettext_noop("рынок"),
+    "audience": gettext_noop("целевая аудитория"), "goals": gettext_noop("цели бизнеса"),
 }
 LIST_SECTIONS = {
     "goals": 5, "priorities": 7, "content_directions": 10, "seasonal_plans": 8,
