@@ -57,3 +57,65 @@ class WBImageAnalysis(BaseModel):
     class Meta:
         verbose_name = "анализ изображения WB"
         verbose_name_plural = "анализы изображений WB"
+
+
+class Strategy(BaseModel):
+    """Logical strategy object; content lives only in immutable StrategyVersion rows."""
+
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Черновик"
+        ACTIVE = "ACTIVE", "Действует"
+        ARCHIVED = "ARCHIVED", "В архиве"
+
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="strategies", verbose_name="бизнес")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT, verbose_name="статус")
+    active_version = models.ForeignKey(
+        "StrategyVersion", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", verbose_name="действующая версия",
+    )
+    archived_at = models.DateTimeField(null=True, blank=True, verbose_name="дата архивации")
+
+    class Meta:
+        verbose_name = "стратегия"
+        verbose_name_plural = "стратегии"
+
+
+class StrategyVersion(BaseModel):
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Черновик"
+        CONFIRMED = "CONFIRMED", "Подтверждена"
+        SUPERSEDED = "SUPERSEDED", "Заменена"
+        REJECTED = "REJECTED", "Отклонена"
+
+    strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE, related_name="versions", verbose_name="стратегия")
+    number = models.PositiveIntegerField(verbose_name="номер версии")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT, verbose_name="статус")
+    goals = models.JSONField(default=list, blank=True, verbose_name="цели")
+    priorities = models.JSONField(default=list, blank=True, verbose_name="приоритеты")
+    keyword_clusters = models.JSONField(default=list, blank=True, verbose_name="группы ключевых слов")
+    recommended_boards = models.JSONField(default=list, blank=True, verbose_name="рекомендуемые доски")
+    content_directions = models.JSONField(default=list, blank=True, verbose_name="контентные направления")
+    publishing_cadence = models.JSONField(default=dict, blank=True, verbose_name="частота публикаций")
+    seasonal_plans = models.JSONField(default=list, blank=True, verbose_name="сезонные планы")
+    exclusions = models.JSONField(default=list, blank=True, verbose_name="исключения пользователя")
+    rationale = models.JSONField(default=list, blank=True, verbose_name="основания")
+    hypotheses = models.JSONField(default=list, blank=True, verbose_name="гипотезы")
+    missing_data = models.JSONField(default=list, blank=True, verbose_name="недостающие данные")
+    sources = models.JSONField(default=list, blank=True, verbose_name="источники (manifest)")
+    change_note = models.CharField(max_length=500, blank=True, verbose_name="что изменено")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+", verbose_name="создатель",
+    )
+    confirmed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT,
+        related_name="+", verbose_name="подтвердил",
+    )
+    confirmed_at = models.DateTimeField(null=True, blank=True, verbose_name="дата подтверждения")
+
+    class Meta:
+        ordering = ("strategy", "number")
+        verbose_name = "версия стратегии"
+        verbose_name_plural = "версии стратегии"
+        constraints = [
+            models.UniqueConstraint(fields=["strategy", "number"], name="unique_strategy_version_number"),
+        ]

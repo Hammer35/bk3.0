@@ -28,6 +28,7 @@ from .grounded_answers import grounded_pinterest_answer
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
+from .strategy_chat import strategy_reply
 from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
 from .wb_products import ProductReadError, product_link, read_product, read_product_seller_id
@@ -720,7 +721,7 @@ def conversation_slug(*, title: str, conversation: AIConversation) -> str:
     return f"{base_slug}-{conversation.public_id.hex[:8]}"
 
 
-def respond_to_message(*, user_message: AIMessage) -> AIMessage:
+def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     conversation = user_message.conversation
     numeric_history = conversation.messages.filter(
         role=AIMessage.Role.USER, created_at__lt=user_message.created_at,
@@ -731,6 +732,9 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             conversation=conversation, role=AIMessage.Role.ASSISTANT,
             content=numeric_answer, provider="calculation", model="user-metrics",
         )
+    strategy_answer = strategy_reply(user_message=user_message, actor=actor)
+    if strategy_answer:
+        return strategy_answer
     pinterest_accounts = list(
         PinterestAccount.objects.filter(
             business=conversation.business,

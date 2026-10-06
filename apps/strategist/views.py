@@ -71,7 +71,7 @@ def chat(request, workspace_slug, business_slug, session_slug=None):
         )
 
         try:
-            assistant_message = respond_to_message(user_message=user_message)
+            assistant_message = respond_to_message(user_message=user_message, actor=request.user)
         except GigaChatConfigurationError:
             error_message = _("Ключ GigaChat не настроен.")
         except GigaChatProviderError:
