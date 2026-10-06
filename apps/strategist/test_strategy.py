@@ -59,6 +59,19 @@ class CleanPayloadTest(SimpleTestCase):
         self.assertEqual(out["seasonal_plans"], [])
         self.assertNotIn("unknown_key", out)
 
+    def test_internal_field_names_never_reach_the_user(self):
+        raw = {**RAW,
+               "missing_data": ["Нет ключевых слов из research.keywords", "Нет данных об аккаунте"],
+               "hypotheses": ["Опираясь на profile:niche, спрос растёт", "Зимой спрос выше"],
+               "priorities": ["Платья", "Использовать allowed_refs"],
+               "rationale": [{"claim": "Берём business_memory как факт", "basis": ["profile:niche"]},
+                             {"claim": "Ниша — женская одежда", "basis": ["profile:niche"]}]}
+        out = st.clean_payload(raw, allowed_refs=REFS)
+        self.assertEqual(out["missing_data"], ["Нет данных об аккаунте"])
+        self.assertEqual(out["hypotheses"], ["Зимой спрос выше"])
+        self.assertEqual(out["priorities"], ["Платья"])
+        self.assertEqual([r["claim"] for r in out["rationale"]], ["Ниша — женская одежда"])
+
     def test_unusable_draft_is_refused(self):
         for raw in (None, [], "text", {}, {"goals": [], "content_directions": []}):
             with self.subTest(raw=raw), self.assertRaises(st.StrategyError):

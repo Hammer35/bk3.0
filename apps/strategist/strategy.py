@@ -61,13 +61,16 @@ def build_sources(facts: dict[str, str], *, user_message_ids=(), snapshots=(), m
     return sources
 
 
+_INTERNAL = re.compile(r"research\.|allowed_refs|business_memory|user_messages|\bprofile:|\bmemory:|\buser_message:|\bresearch:", re.I)
+
+
 def _text(value) -> str:
     return " ".join(value.split())[:TEXT_LIMIT] if isinstance(value, str) else ""
 
 
 def _text_items(value, limit: int) -> list[str]:
     items = value if isinstance(value, list) else []
-    return [t for t in (_text(i) for i in items) if t][:limit]
+    return [t for t in (_text(i) for i in items) if t and not _INTERNAL.search(t)][:limit]
 
 
 def _clusters(value) -> list[dict]:
@@ -117,7 +120,7 @@ def clean_payload(raw, *, allowed_refs, exclusions=(), user_stated_cadence: str 
         claim = _text(item.get("claim"))
         refs = [r for r in (item.get("basis") if isinstance(item.get("basis"), list) else [])
                 if isinstance(r, str) and r in allowed]
-        if not claim:
+        if not claim or _INTERNAL.search(claim):
             continue
         demand_claim = re.search(DEMAND_WORDS, claim, re.I)
         if refs and demand_claim and all(r.startswith("research:") for r in refs):
