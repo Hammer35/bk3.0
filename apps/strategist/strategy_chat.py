@@ -17,7 +17,12 @@ from .research import (ResearchError, deterministic_clusters, fresh_snapshot, re
 
 logger = logging.getLogger(__name__)
 
-_BUILD = re.compile(r"\b(построй|составь|сделай|создай|разработай|подготовь|предложи)\w*[\s,]+(?:[^\s,]+[\s,]+){0,3}стратеги", re.I)
+_BUILD = re.compile(
+    r"\b(?:построй|постро\w+|составь|состав\w+|сделай|сдела\w+|создай|созда\w+|разработай|разработ\w+|подготовь|подготов\w+|"
+    r"предложи|предлож\w+|сформируй|сформир\w+|продумай|продум\w+|придумай|придума\w+|настрой|настро\w+|запусти|запуст\w+)"
+    r"[\s,]+(?:[^\s,]+[\s,]+){0,3}стратеги|"
+    r"\b(?:нужн\w*|хочу|надо|давай)\b[^.?!\n]{0,14}стратеги", re.I)
+_INFO = re.compile(r"что\s+такое|расскаж\w+\s+(?:про|о)\b|объясни|как\s+(?:работает|выглядит|устроен\w*)|в\s+чём\s+разница", re.I)
 _CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(подтверждаю|утверждаю|принимаю|согласен|согласна|согласовано)"
                       r"(?:\s+(?:эту\s+)?(?:стратегию|версию))?[\s.!]*$", re.I)
 _EXPLICIT_CONFIRM = re.compile(r"^\s*(?:да[,.!\s]+)?(?:подтверждаю|утверждаю|принимаю)\s+(?:эту\s+)?(?:стратегию|версию)[\s.!]*$", re.I)
@@ -51,7 +56,7 @@ SYSTEM = (
 
 
 def _asks_for_strategy(message: str) -> bool:
-    return bool(_BUILD.search(message))
+    return bool(_BUILD.search(message)) and not _INFO.search(message)
 
 
 def _is_confirmation(message: str) -> bool:

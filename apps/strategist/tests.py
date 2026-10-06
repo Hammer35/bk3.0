@@ -197,8 +197,8 @@ class StrategistChatTest(TestCase):
         self.client.force_login(self.user)
         self.client.post(self.url, {"message": "Давай придумаем стратегию продвижения в Pinterest."})
         answer = AIMessage.objects.filter(role="ASSISTANT").latest("created_at")
-        self.assertEqual(answer.model, "missing-business-context")
-        self.assertIn("какой товар или услугу", answer.content)
+        self.assertEqual(answer.model, "strategy-needs-data")  # the structured strategy flow asks for the missing profile field
+        self.assertIn("ниша", answer.content)
         complete.assert_not_called()
 
     @patch("apps.strategist.services.local_knowledge_context", return_value="")

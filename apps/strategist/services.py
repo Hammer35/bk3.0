@@ -21,6 +21,7 @@ from .advice import (
     metric_value as _metric_value,
     format_metric_number as _format_metric_number,
     comparison_issues, analytics_followup_context, analytics_explanation, enforce_advice_boundaries,
+    enforce_no_fake_actions,
     enforce_source_honesty,
     enforce_creative_answer,
     local_knowledge_context,
@@ -1419,6 +1420,7 @@ def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     )
     reply_content = enforce_creative_answer(reply_content, request_message=user_message.content)
     reply_content = enforce_source_honesty(reply_content)
+    reply_content = enforce_no_fake_actions(reply_content)
     if community_source_url and community_source_url not in reply_content:
         reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
     if pinterest_calls:

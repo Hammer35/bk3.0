@@ -9,14 +9,14 @@ from types import SimpleNamespace
 
 from django.utils.translation import gettext as _
 
-CHAT_PROMPT_VERSION = "chat-2026-10-06.1"
+CHAT_PROMPT_VERSION = "chat-2026-10-06.2"
 STRATEGY_PROMPT_VERSION = "strategy-2026-10-06.1"
 PLAN_PROMPT_VERSION = "content-plan-2026-10-06.2"
 RESEARCH_PROMPT_VERSION = "research-2026-10-06.1"
 PIN_PROMPT_VERSION = "pin-2026-10-06.3"
 
 FINGERPRINTS = {
-    "chat-2026-10-06.1": "d4e0b7726f6b",
+    "chat-2026-10-06.2": "217b14366345",
     "strategy-2026-10-06.1": "5cfb5ea333b3",
     "content-plan-2026-10-06.2": "8cd5c05c0a5d",
     "research-2026-10-06.1": "be53792a2b51",

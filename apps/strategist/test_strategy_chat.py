@@ -43,6 +43,14 @@ class IntentTest(SimpleTestCase):
         for text in ("Подтверждаю, что у меня 5 досок и вопрос про стратегию", "да", "не согласен"):
             self.assertFalse(sc._is_confirmation(text), text)
 
+    def test_natural_phrasings_and_typos_start_the_strategy_flow(self):
+        for text in ("Настрой стратегия", "настрой стратегию для моего бизнеса", "Мне нужна стратегия", "хочу новую стратегию",
+                     "давай стратегию", "Запусти стратегию", "сформируй стратегию продвижения", "Продумай мне стратегию", "составь, пожалуйста, стратегию"):
+            self.assertTrue(sc._asks_for_strategy(text), text)
+        for text in ("Что такое стратегия в Pinterest?", "Расскажи про стратегию", "объясни, как работает стратегия",
+                     "Мне нужно понять, почему моя стратегия не работает", "Стратегия не сработала", "в чём разница между стратегией и планом"):
+            self.assertFalse(sc._asks_for_strategy(text), text)
+
     def test_exclusion_stem(self):
         self.assertEqual(sc._exclusion_stem("Не продвигай свадебные товары"), "свадебн")
         self.assertEqual(sc._exclusion_stem("убери детские платья из стратегии"), "детск")

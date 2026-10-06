@@ -400,3 +400,20 @@ def analytics_explanation(summary, previous, *, metric="OUTBOUND_CLICK", compara
     else:
         action = f"Одна проверка: сравните {label.lower()} на 100 показов у отдельных пинов одной темы, формата и возраста."
     return f"{fact}\n{limit}\n{action}"
+
+
+_FAKE_ACTION = re.compile(
+    r"(?:стратеги\w+|план\w*|контент\w*)\s+(?:уже\s+)?(?:запущен\w*|опубликован\w*|сохранен\w*|сохранён\w*)|"
+    r"\b(?:приступаю\s+к\s+реализации|запускаю\s+(?:стратегию|публикаци\w+)|начинаю\s+публикаци\w+|"
+    r"публикую\s+(?:пин\w*|контент)|запустил\w*\s+(?:стратегию|публикаци\w+))", re.I)
+FAKE_ACTION_NOTE = (
+    "Важно: я ничего не запускал, не публиковал и не сохранял. Это текст-рассуждение, а не созданная стратегия. "
+    "Чтобы получить сохранённую стратегию, напиши «Построй стратегию»."
+)
+
+
+def enforce_no_fake_actions(content):
+    """The chat model cannot launch or publish anything; correct replies that claim it did."""
+    if not isinstance(content, str) or FAKE_ACTION_NOTE in content or not _FAKE_ACTION.search(content):
+        return content
+    return f"{content.rstrip()}\n\n{FAKE_ACTION_NOTE}"
