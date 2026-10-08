@@ -29,7 +29,7 @@ def sha(path):
 
 
 def renderer():
-    import pinterest_course_lesson2_render as r
+    import pinterest_course_lesson15_render as r
     r.LESSON_ID = '3.6'
     r.V2 = False
     r.OUT = VIDEO
