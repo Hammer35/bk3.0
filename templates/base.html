@@ -1,14 +1,15 @@
-{% load static i18n %}
+{% load static i18n assets strategist_format %}
+{% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}BOOSTKLIENT® 3.0{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
-    <script src="{% static 'js/core/theme.js' %}"></script>
-    <script src="{% static 'js/core/sidebar.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <script src="{% asset 'js/core/theme.js' %}"></script>
+    <script src="{% asset 'js/core/sidebar.js' %}"></script>
+    <link rel="stylesheet" href="{% asset 'css/app.css' %}">
 </head>
 <body>
     {% if request.user.is_authenticated %}
@@ -23,9 +24,23 @@
                 </div>
                 <div id="app-sidebar" class="sidebar-content">
                     <nav class="sidebar-nav" aria-label="{% trans 'Разделы приложения' %}">
-                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}>
+                        <a href="{% url 'core:home' %}" class="nav-item"{% if request.resolver_match.url_name != 'strategy' and request.resolver_match.url_name != 'pins' and request.resolver_match.url_name != 'pin-generate' %}{% if request.resolver_match.namespace == 'core' or request.resolver_match.namespace == 'businesses' or request.resolver_match.namespace == 'strategist' or request.resolver_match.namespace == 'pinterest' %} aria-current="page"{% endif %}{% endif %}>
                             <span class="nav-item-full">{% trans "Мой бизнес" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "МБ" %}</span>
                         </a>
+                        {% if strategist_business %}
+                            <a href="{% url 'strategist:strategy' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'strategy' %} aria-current="page"{% endif %}>
+                                <span class="nav-item-full">{% trans "Стратегия" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "СТ" %}</span>
+                            </a>
+                            <a href="{% url 'strategist:pins' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'pins' %} aria-current="page"{% endif %}>
+                                <span class="nav-item-full">{% trans "Пины" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "ПН" %}</span>
+                            </a>
+                            {% can_edit_business strategist_business as strategist_can_edit %}
+                            {% if strategist_can_edit %}
+                                <a href="{% url 'strategist:pin-generate' strategist_business.workspace.slug strategist_business.slug %}" class="nav-item"{% if request.resolver_match.url_name == 'pin-generate' %} aria-current="page"{% endif %}>
+                                    <span class="nav-item-full">{% trans "Создание пинов" %}</span><span class="nav-item-compact" aria-hidden="true">{% trans "СП" %}</span>
+                                </a>
+                            {% endif %}
+                        {% endif %}
                     </nav>
                     {% if strategist_business %}
                         <section class="sidebar-sessions" aria-label="{% trans 'Сессии ИИ-стратега' %}">
@@ -78,6 +93,7 @@
                 <header class="topbar">
                     <span class="topbar-context">{% trans "Рабочая среда" %}</span>
                     <div class="topbar-actions">
+                        {% include "includes/language_switch.html" %}
                         <button type="button" class="button button-secondary button-small theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
                         {% include "includes/interface_scale_control.html" %}
                         <form method="post" action="{% url 'accounts:logout' %}">
@@ -91,6 +107,7 @@
         <header class="auth-header">
             <a href="{% url 'core:landing' %}" class="brand">BOOSTKLIENT®</a>
             <div class="auth-actions">
+                {% include "includes/language_switch.html" %}
                 <button type="button" class="button button-secondary button-small theme-toggle" data-theme-toggle data-theme-label-light="{% trans 'Светлая тема' %}" data-theme-label-dark="{% trans 'Тёмная тема' %}"><span data-theme-label>{% trans "Светлая тема" %}</span></button>
                 <a href="{% url 'login' %}" class="button button-secondary button-small">{% trans "Войти" %}</a>
             </div>
@@ -108,7 +125,7 @@
             </div>
         </div>
     {% endif %}
-    <script src="{% static 'js/core/interface-scale.js' %}" defer></script>
+    <script src="{% asset 'js/core/interface-scale.js' %}" defer></script>
     <dialog class="confirmation-dialog" data-form-confirmation data-confirmation-action="{% trans 'Продолжить' %}" data-confirmation-delete="{% trans 'Удалить аккаунт' %}" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
         <div class="confirmation-dialog-content">
             <span class="confirmation-dialog-kicker" data-confirmation-kicker>{% trans "Подтверждение действия" %}</span>
@@ -120,6 +137,6 @@
             </div>
         </div>
     </dialog>
-    <script src="{% static 'js/core/form-confirmation.js' %}" defer></script>
+    <script src="{% asset 'js/core/form-confirmation.js' %}" defer></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from datetime import date, timedelta
+from datetime import UTC, date, timedelta
 
 from django.conf import settings
 from django.utils import timezone
@@ -12,6 +12,7 @@ from apps.knowledge.embeddings import OpenRouterEmbeddingProvider, get_knowledge
 from apps.knowledge.services import format_knowledge_context, search_knowledge, search_knowledge_lexical
 from apps.knowledge.sources import load_source
 from apps.pinterest.models import PinterestAccount
+from apps.pinterest.policy import AI_TRANSFER_DISABLED_MESSAGE, PINTEREST_DERIVED_PROVIDERS, pinterest_ai_transfer_enabled
 from apps.pinterest.strategist_tools import pinterest_read_function, read_pinterest_data
 from apps.pinterest.sync import fresh_snapshot_resource, sync_pinterest_account
 
@@ -19,12 +20,24 @@ from .advice import (
     analytics_advice as _analytics_advice,
     metric_value as _metric_value,
     format_metric_number as _format_metric_number,
-    comparison_issues, analytics_followup_context, enforce_advice_boundaries,
+    comparison_issues, analytics_followup_context, analytics_explanation, enforce_advice_boundaries,
+    enforce_no_fake_actions,
+    enforce_source_honesty,
+    enforce_creative_answer,
     local_knowledge_context,
 )
+from .grounded_answers import grounded_pinterest_answer
 from .models import AIConversation, AIMessage
 from .pin_keywords import research_pin_keywords
 from .prompts import build_strategist_system_prompt
+from .provenance import CHAT_PROMPT_VERSION, stamp
+from . import memory
+from .content_plan import content_plan_reply
+from .coverage import coverage_reply
+from .pin_generation import pin_reply
+from .strategy import profile_facts
+from .strategy_chat import strategy_reply
+from .user_metrics import user_metrics_answer
 from .providers import GigaChatCompletion, GigaChatProvider, GigaChatProviderError
 from .wb_products import ProductReadError, product_link, read_product, read_product_seller_id
 from .wb_store import WBStoreError, read_store, store_link, wb_store_function, read_wb_store_data
@@ -77,13 +90,21 @@ def _account_for_pinterest_request(message: str, accounts: list[PinterestAccount
     requested_username = re.search(r"@([A-Za-z0-9._-]{1,100})", message)
     connected = [account for account in accounts if account.status == PinterestAccount.Status.CONNECTED]
     if requested_username:
-        username = requested_username.group(1).casefold()
+        username = requested_username.group(1).rstrip(".").casefold()
         return next((account for account in connected if account.username.casefold() == username), None)
     return connected[0] if len(connected) == 1 else None
 
 
 def _asks_for_keyword_research(message: str) -> bool:
     return bool(re.search(r"ключев|ключи|ключик|запрос|хвост|подбор\s+ключ|seo|сео", message, re.I))
+
+
+def _asks_why_yesterday_traffic(message: str) -> bool:
+    return (
+        bool(re.search(r"почему", message, re.I))
+        and bool(re.search(r"вчера\w*", message, re.I))
+        and bool(re.search(r"переход\w*", message, re.I))
+    )
 
 
 def _keyword_research_answer(result: dict) -> str:
@@ -154,6 +175,8 @@ def _read_all_pinterest_pages(*, business: Business, account: PinterestAccount, 
         if bookmark:
             arguments["bookmark"] = bookmark
         response = read_pinterest_data(business=business, arguments=arguments)
+        if not isinstance(response, dict):
+            return {"error": "Pinterest API вернул некорректный формат ответа."}
         if response.get("error"):
             return response
         page_items = response.get("items")
@@ -184,6 +207,44 @@ def _pinterest_board_answer(*, business: Business, account: PinterestAccount) ->
     lines.extend(f"• {name}" for name in names)
     if response.get("truncated"):
         lines.append("Список неполный: достигнут предел чтения страниц за один запрос.")
+    return "\n".join(lines)
+
+
+
+def _pinterest_top_pins_answer(*, business, account, start_date, end_date, count):
+    if not 1 <= count <= 50:
+        return "Для топа Pinterest укажи количество пинов от 1 до 50."
+    response = _read_pinterest_resource(business=business, account=account, resource="top_pins", options={
+        "start_date": start_date.isoformat(), "end_date": end_date.isoformat(),
+        "sort_by": "OUTBOUND_CLICK", "content_type": "ORGANIC", "num_of_pins": count,
+    })
+    if isinstance(response, dict) and response.get("error"):
+        return f"Не удалось получить лучшие пины @{account.username}: {response['error']}"
+    if not isinstance(response, dict) or not isinstance(response.get("pins"), list):
+        return "Pinterest API вернул топ пинов в неподдерживаемом формате."
+    pins = response["pins"][:count]
+    lines = [f"Органика @{account.username}: лучшие пины по исходящим кликам за {start_date} — {end_date}."]
+    if not pins:
+        lines.append("Pinterest API не вернул пины для этого периода и фильтров.")
+    for index, pin in enumerate(pins, 1):
+        if not isinstance(pin, dict) or not re.fullmatch(r"\d{1,30}", str(pin.get("pin_id", ""))):
+            return "Pinterest API вернул топ пинов без корректных идентификаторов."
+        metrics = pin.get("metrics")
+        statuses = pin.get("data_status")
+        clicks = metrics.get("OUTBOUND_CLICK") if isinstance(metrics, dict) else None
+        ready = isinstance(statuses, dict) and statuses.get("OUTBOUND_CLICK") == "READY"
+        value = str(clicks) if ready and type(clicks) is int and clicks >= 0 else "нет готовых данных"
+        url = f"https://www.pinterest.com/pin/{pin['pin_id']}/"
+        lines.append(f"{index}. [Пин {index}]({url}) — исходящие клики: {value}.")
+    availability = response.get("date_availability")
+    latest = availability.get("latest_available_timestamp") if isinstance(availability, dict) else None
+    if type(latest) in (int, float):
+        try:
+            available_until = timezone.datetime.fromtimestamp(latest / 1000, tz=UTC).date()
+        except (ValueError, OverflowError, OSError):
+            available_until = None
+        if available_until and available_until < end_date:
+            lines.append(f"Данные доступны только по {available_until}; топ за запрошенный период предварительный.")
     return "\n".join(lines)
 
 
@@ -253,10 +314,72 @@ def _analytics_has_unavailable_days(result: dict | None) -> bool:
     return False
 
 
+_FULL_REPORT = re.compile(r"вс[ёе]\s+(?:показател|метрик|цифр)|вся\s+статистик|полн\w+\s+(?:отч[её]т|статистик)|подробн|отч[её]т|всю\s+статистик", re.I)
+_METRIC_REQUESTS = (
+    ("OUTBOUND_CLICK", re.compile(r"переход|исходящ|клик(?!\w*\s+по\s+пин)|на\s+(?:другие|внешние)\s+ресурс|на\s+сайт", re.I)),
+    ("IMPRESSION", re.compile(r"показ", re.I)),
+    ("SAVE", re.compile(r"сохран", re.I)),
+    ("PIN_CLICK", re.compile(r"открыти\w*\s+пин|клик\w*\s+по\s+пин", re.I)),
+    ("VIDEO", re.compile(r"видео|просмотр", re.I)),
+)
+_VIDEO_METRICS = ("VIDEO_START", "VIDEO_MRC_VIEW", "VIDEO_10S_VIEW", "QUARTILE_95_PERCENT_VIEW")
+
+
+def _requested_metrics(message: str) -> tuple[str, ...] | None:
+    """Metrics the user named; None means no specific metric, so the full report applies."""
+    if _FULL_REPORT.search(message):
+        return None
+    names = tuple(name for name, pattern in _METRIC_REQUESTS if pattern.search(message))
+    return names or None
+
+
+def _focused_analytics_text(*, heading, summary, previous, focus, issues, result, previous_period) -> str:
+    """Only the metrics the user asked for, with the data limits that affect them."""
+    names = []
+    for name in focus:
+        names.extend(_VIDEO_METRICS if name == "VIDEO" else (name,))
+    rates = {"PIN_CLICK": "PIN_CLICK_RATE", "SAVE": "SAVE_RATE"}
+    current, changes = [], []
+    for name in names:
+        value = _metric_value(summary, name)
+        if value is None:
+            continue
+        item = f"{ORGANIC_METRIC_LABELS[name].lower()} — {_format_metric_number(value)}"
+        rate = _metric_value(summary, rates.get(name, ""))
+        if rate is not None:
+            item += f" ({_format_metric_number(rate * 100)}%)"
+        current.append(item)
+        before = _metric_value(previous, name)
+        if previous_period and before is not None:
+            change = value - before
+            text = f"{_format_metric_number(before)} → {_format_metric_number(value)}"
+            if change:
+                delta = f"{'+' if change > 0 else ''}{_format_metric_number(change)}"
+                if before:
+                    delta += f"; {change / before * 100:+.{1 if name == 'IMPRESSION' else 2}f}%".replace(".", ",")
+                text += f" ({delta})"
+            changes.append(f"{ORGANIC_METRIC_LABELS[name].lower()} {text}")
+    if not current:
+        return heading + "\n\nPinterest API не вернул запрошенный показатель за выбранный период."
+    sections = [heading, "За период\n" + "\n".join(f"  • {i}" for i in current)]
+    if changes:
+        label = f"К предыдущему периоду {previous_period[0]} — {previous_period[1]}"
+        sections.append(label + (" (предварительное сравнение)" if issues else "") + "\n" + "\n".join(f"  • {i}" for i in changes))
+        if issues:
+            sections.append("Ограничения сравнения:\n" + "\n".join(f"  • {i}" for i in issues))
+    if _analytics_has_unavailable_days(result):
+        sections.append("В периоде есть недоступные даты; значения могут быть неполными.")
+    if any(n in _VIDEO_METRICS for n in names):
+        sections.append("Видеопоказатели отражают разные пороги просмотра; по ним нельзя оценить качество видео.")
+    sections.append("Показал только запрошенное. Остальную статистику выведу по просьбе: «покажи всю статистику».")
+    return "\n\n".join(sections)
+
+
 def _format_pinterest_analytics(
     *, account: PinterestAccount, result: dict, start_date: date, end_date: date,
     previous_result: dict | None = None, previous_period: tuple[date, date] | None = None,
-    synced_at: str = "", business_goal: str = "",
+    synced_at: str = "", business_goal: str = "", explanation_question: str = "",
+    focus: tuple[str, ...] | None = None,
 ) -> str:
     groups = [
         value for value in result.values()
@@ -297,6 +420,19 @@ def _format_pinterest_analytics(
 
     previous = _analytics_summary(previous_result) if previous_result else {}
     issues = comparison_issues(result, previous_result, (start_date, end_date), previous_period, today=timezone.now().date())
+    if focus and not explanation_question:
+        return _focused_analytics_text(heading=heading, summary=summary, previous=previous, focus=focus,
+                                       issues=issues, result=result, previous_period=previous_period)
+    if explanation_question:
+        metric = "OUTBOUND_CLICK" if re.search(r"переход|клик", explanation_question, re.I) else (
+            "SAVE" if re.search(r"сохран", explanation_question, re.I) else (
+                "IMPRESSION" if re.search(r"показ", explanation_question, re.I) else "OUTBOUND_CLICK"
+            )
+        )
+        explanation = analytics_explanation(summary, previous, metric=metric, comparable=not issues)
+        if re.search(r"заказ|продаж", explanation_question, re.I):
+            explanation += "\nЧисло заказов неизвестно: клики не подтверждают покупки."
+        return heading + "\n\n" + explanation
     if previous_period:
         comparison = []
         for name in main_metrics:
@@ -387,7 +523,7 @@ def _format_pinterest_analytics(
     return "\n\n".join(sections)
 
 
-def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date) -> str:
+def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount, start_date: date, end_date: date, explanation_question: str = "", focus: tuple[str, ...] | None = None) -> str:
     period_error = _pinterest_period_error(start_date, end_date)
     if period_error:
         return period_error
@@ -444,6 +580,8 @@ def _pinterest_analytics_answer(*, business: Business, account: PinterestAccount
         previous_period=previous_period,
         synced_at=synced_at,
         business_goal=business.goals or "",
+        explanation_question=explanation_question,
+        focus=focus,
     )
 
 
@@ -545,8 +683,21 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             "минимум",
         )
     )
+    # Only a single current count: lists, comparisons and explanations stay in the tool loop.
+    is_follower_count_question = bool(re.fullmatch(
+        r"\s*(?:сколько(?:\s+всего)?|какое\s+количество)\s+подписчик\w*"
+        r"(?:\s+(?:у\s+)?@[a-z0-9._-]{1,100})?\s*[?.!]*\s*"
+        r"(?:ответь\s+(?:коротко|только\s+количеством(?:\s+и\s+укажи\s+профиль)?)\.?)?\s*",
+        normalized,
+    ))
+    is_top_pins_question = bool(
+        re.search(r"(?:лучш\w*\s+пин|топ\s*(?:\d+\s*)?пин)", normalized)
+        and "исходящ" in normalized and "клик" in normalized
+        and len(re.findall(r"@[A-Za-z0-9._-]{1,100}", effective_message.content)) <= 1
+        and not re.search(r"почему|причин|объясн|сравни", normalized)
+    )
     is_board_question = not is_analytics_question and ("доск" in normalized or "board" in normalized)
-    if not is_board_question and not is_analytics_question:
+    if not is_board_question and not is_analytics_question and not is_follower_count_question and not is_top_pins_question:
         return None
     if is_analytics_question and period is None and len(connected_accounts) == 1:
         recent_user_messages = user_message.conversation.messages.filter(
@@ -580,6 +731,25 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             names = ", ".join(f"@{item.username}" for item in connected)
             answer = f"Уточни профиль: {names}."
         content = answer
+    elif is_top_pins_question and period is not None:
+        count_match = re.search(r"\b(\d+)\s+(?:лучш\w*\s+)?пин|топ\s*(\d+)", normalized)
+        count = int(next(group for group in count_match.groups() if group)) if count_match else 5
+        content = _pinterest_top_pins_answer(
+            business=user_message.conversation.business, account=account,
+            start_date=period[0], end_date=period[1], count=count,
+        )
+    elif is_follower_count_question:
+        profile = _read_pinterest_resource(
+            business=user_message.conversation.business, account=account, resource="profile",
+        )
+        if isinstance(profile, dict) and profile.get("error"):
+            content = f"Не удалось прочитать число подписчиков @{account.username}: {profile['error']}"
+        else:
+            count = profile.get("follower_count") if isinstance(profile, dict) else None
+            if type(count) is int and count >= 0:
+                content = f"У профиля @{account.username} подписчиков: {count}."
+            else:
+                content = f"Pinterest API не вернул число подписчиков @{account.username}; точное количество неизвестно."
     elif is_board_question:
         content = _pinterest_board_answer(business=user_message.conversation.business, account=account)
     else:
@@ -600,6 +770,11 @@ def _direct_pinterest_answer(*, user_message: AIMessage, accounts: list[Pinteres
             account=account,
             start_date=period[0],
             end_date=period[1],
+            explanation_question=user_message.content if re.search(
+                r"почему|причин|что\s+проверить|один\s+(?:шаг|следующий)|коротко", user_message.content, re.I,
+            ) else "",
+            focus=None if _FULL_REPORT.search(user_message.content) else (
+                _requested_metrics(user_message.content) or _requested_metrics(effective_message.content)),
         )
     return AIMessage.objects.create(
         conversation=user_message.conversation,
@@ -622,8 +797,32 @@ def conversation_slug(*, title: str, conversation: AIConversation) -> str:
     return f"{base_slug}-{conversation.public_id.hex[:8]}"
 
 
-def respond_to_message(*, user_message: AIMessage) -> AIMessage:
+def respond_to_message(*, user_message: AIMessage, actor=None) -> AIMessage:
     conversation = user_message.conversation
+    numeric_history = conversation.messages.filter(
+        role=AIMessage.Role.USER, created_at__lt=user_message.created_at,
+    ).order_by("created_at", "pk").values("role", "content")
+    numeric_answer = user_metrics_answer(user_message.content, history=numeric_history)
+    if numeric_answer:
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=numeric_answer, provider="calculation", model="user-metrics",
+        )
+    memory_answer = memory.memory_reply(user_message=user_message, actor=actor)
+    if memory_answer:
+        return memory_answer
+    pin_answer = pin_reply(user_message=user_message, actor=actor)
+    if pin_answer:
+        return pin_answer
+    plan_answer = content_plan_reply(user_message=user_message, actor=actor)
+    if plan_answer:
+        return plan_answer
+    strategy_answer = strategy_reply(user_message=user_message, actor=actor)
+    if strategy_answer:
+        return strategy_answer
+    coverage_answer = coverage_reply(user_message=user_message, actor=actor)
+    if coverage_answer:
+        return coverage_answer
     pinterest_accounts = list(
         PinterestAccount.objects.filter(
             business=conversation.business,
@@ -813,6 +1012,69 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             model="pinterest-account-inventory",
         )
 
+    previous_user_message = conversation.messages.filter(
+        role=AIMessage.Role.USER,
+    ).exclude(pk=user_message.pk).order_by("-created_at").values_list("content", flat=True).first() or ""
+    asks_yesterday_traffic = _asks_why_yesterday_traffic(user_message.content)
+    previous_traffic_question = _asks_why_yesterday_traffic(previous_user_message)
+    traffic_followup = previous_traffic_question and bool(
+        re.search(r"без\s+данн\w*|точн\w*\s+причин\w*", user_message.content, re.I)
+    )
+    orders_followup = previous_traffic_question and bool(re.search(r"заказ\w*", user_message.content, re.I)) and bool(
+        re.search(r"вчера|сколько", user_message.content, re.I)
+    )
+    if (
+        not any(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts)
+        and (asks_yesterday_traffic or traffic_followup or orders_followup)
+    ):
+        if traffic_followup:
+            content = "Нет, без данных за вчера и сравнимого периода точную причину назвать нельзя."
+        elif orders_followup:
+            content = "Число заказов за вчера неизвестно без данных сайта или маркетплейса."
+        elif re.search(r"заказ\w*", user_message.content, re.I):
+            content = (
+                "Причину роста переходов за вчера установить нельзя: у меня нет показателей за вчера "
+                "и периода сравнения. Сколько было заказов, тоже неизвестно без данных сайта или маркетплейса."
+            )
+        else:
+            content = "Причину роста переходов за вчера установить нельзя без показателей за вчера и периода сравнения."
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=content, provider="database", model="traffic-orders-unavailable",
+        )
+    previous_assistant_message = conversation.messages.filter(role=AIMessage.Role.ASSISTANT).order_by("-created_at").values_list("content", flat=True).first() or ""
+    grounded_answer = grounded_pinterest_answer(
+        user_message.content, previous_user_message=previous_user_message,
+        previous_assistant_message=previous_assistant_message,
+    )
+    if grounded_answer:
+        return AIMessage.objects.create(
+            conversation=conversation,
+            role=AIMessage.Role.ASSISTANT,
+            content=grounded_answer,
+            provider="knowledge",
+            model="approved-source",
+        )
+
+    if (not conversation.business.niche.strip() and not previous_user_message and not previous_assistant_message
+            and re.search(r"стратег|создал\w*.*аккаунт", user_message.content, re.I)
+            and re.search(r"pinterest|пинтерест", user_message.content, re.I)
+            and not re.search(r"продаю|предлагаю|продвигаю", user_message.content, re.I)):
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content="Давай начнём с твоего бизнеса: какой товар или услугу будем продвигать в Pinterest?",
+            provider="database", model="missing-business-context",
+        )
+    if (conversation.business.niche.strip() and not previous_user_message and not previous_assistant_message
+            and re.search(r"новый\s+аккаунт|сегодня.*(?:создал|сделал)", user_message.content, re.I)
+            and re.search(r"pinterest|пинтерест", user_message.content, re.I)
+            and re.search(r"нет\s+досок|досок.*нет", user_message.content, re.I)):
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content="Предлагаю начать с доски по одной теме твоего бизнеса. Для первого пина возьми фото реального товара или пример услуги и добавь ссылку на соответствующую страницу. Затем оцени сохранения и исходящие клики, прежде чем расширять контент.",
+            provider="database", model="new-account-start",
+        )
+
     latest_product = conversation.messages.filter(
         role=AIMessage.Role.ASSISTANT,
         assets__article__isnull=False,
@@ -852,9 +1114,11 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     latest_store_assets = conversation.messages.filter(
         role=AIMessage.Role.ASSISTANT, assets__wb_store__isnull=False,
     ).order_by("-created_at").values_list("assets", flat=True).first()
-    history = list(
-        conversation.messages.order_by("-created_at").values("role", "content")[:12]
-    )
+    ai_transfer = pinterest_ai_transfer_enabled()
+    history_source = conversation.messages
+    if not ai_transfer:  # keep Pinterest API data (and what was built from it) out of the model's context
+        history_source = history_source.exclude(role=AIMessage.Role.ASSISTANT, provider__in=PINTEREST_DERIVED_PROVIDERS)
+    history = list(history_source.order_by("-created_at").values("role", "content")[:12])
     history.reverse()
     provider = GigaChatProvider()
     pinterest_context = [
@@ -873,6 +1137,7 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     ))
     knowledge_context = ""
     community_source_url = ""
+    knowledge_docs = []
     if community_rules_question:
         source_path = settings.BASE_DIR / "docs/ai-knowledge/knowledge/pinterest-community-guidelines.md"
         try:
@@ -891,6 +1156,7 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
                     f"Источник: {', '.join(source.source_links)}"
                 )
                 community_source_url = source.source_links[0] if source.source_links else ""
+                knowledge_docs = [{"source_id": source.source_id, "title": source.title}]
         except (OSError, ValueError):
             logger.warning("Approved community guidelines could not be read.")
     else:
@@ -920,19 +1186,38 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
                 knowledge_hits = []
 
         knowledge_context = format_knowledge_context(knowledge_hits)
+        knowledge_docs = [{"source_id": hit.source_id, "title": hit.title, "heading": hit.heading} for hit in knowledge_hits]
         if not knowledge_context:
             try:
                 knowledge_context = local_knowledge_context(
                     user_message.content, project_root=settings.BASE_DIR, today=timezone.now().date(),
                 )
+                if knowledge_context:
+                    knowledge_docs = [{"source_id": "approved-local", "title": "approved-local"}]
             except (OSError, ValueError):
                 logger.warning("Approved local knowledge could not be read.")
 
+    rule_request = bool(re.search(r"правил|официальн|обязательн|точн\w*.*лимит|запрещ|разреш|сколько\s+пин\w*.*(?:день|ежедневно)", user_message.content, re.I))
+    pinterest_topic = bool(re.search(r"pinterest|пинтерест|\bpin\w*\b|\bпин\w*\b", f"{user_message.content} {previous_user_message} {previous_assistant_message}", re.I))
+    if not knowledge_context and rule_request and pinterest_topic:
+        unavailable_content = "Сейчас у меня нет доступного проверенного источника по этому правилу Pinterest. Подтвердить норму или дать подтверждающую ссылку не могу."
+        if re.search(r"сколько\s+пин\w*.*(?:день|ежедневно)", user_message.content, re.I):
+            unavailable_content += " Практический темп можно подобрать экспериментом: сравнивать сохранения и исходящие клики при посильной подготовке оригинального контента."
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content=unavailable_content,
+            provider="knowledge", model="source-unavailable",
+        )
+
+    memory_items = memory.facts(conversation.business)
     system_prompt = build_strategist_system_prompt(
         conversation.business,
         knowledge_context=knowledge_context,
-        pinterest_accounts=[] if community_rules_question else pinterest_context,
+        pinterest_accounts=[] if community_rules_question or not ai_transfer else pinterest_context,
+        memory_facts=[item.text for item in memory_items],
     )
+    if not ai_transfer and pinterest_accounts:
+        system_prompt += "\n\n" + AI_TRANSFER_DISABLED_MESSAGE + " Не утверждай ничего о данных аккаунта Pinterest."
     if not community_rules_question and sum(account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts) > 1:
         system_prompt += (
             "\n\nУ бизнеса несколько подключённых Pinterest-аккаунтов. Для конкретного пина "
@@ -987,6 +1272,16 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             for item in history
         ],
     ]
+    prompt_version = stamp(CHAT_PROMPT_VERSION, system_prompt)
+    manifest = [{"type": "business_profile", "fields": [ref.split(":", 1)[1] for ref in profile_facts(conversation.business)]}]
+    if memory_items:
+        manifest.append({"type": "business_memory", "ids": [item.pk for item in memory_items]})
+    manifest.append({"type": "history", "messages": len(history)})
+    if knowledge_docs:
+        manifest.append({"type": "knowledge", "documents": knowledge_docs})
+    if isinstance(latest_product, dict) and latest_product.get("article"):
+        manifest.append({"type": "wb", "what": str(latest_product["article"])})
+    pinterest_calls = []
     asks_for_pinterest_data = bool(
         re.search(
             r"pinterest|пинтерест|аккаунт|профил|доск|пин|аналитик|статист|подписчик|просмотр|тренд",
@@ -999,7 +1294,8 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
     if asks_for_pinterest_data and not community_rules_question and any(
         account.status == PinterestAccount.Status.CONNECTED for account in pinterest_accounts
     ):
-        functions.append(pinterest_read_function())
+        if ai_transfer:
+            functions.append(pinterest_read_function())
     if isinstance(latest_store_assets, dict) and re.search(
         r"магазин|витрин|бренд|продавц|товар|ассортимент|каталог|артикул|wildberries|\bвб\b",
         user_message.content, re.IGNORECASE,
@@ -1007,6 +1303,7 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         functions.append(wb_store_function())
     completion: GigaChatCompletion | None = None
     prompt_tokens = completion_tokens = total_tokens = 0
+    pending_pages = set()
     for _ in range(6):
         completion = provider.complete(
             messages,
@@ -1034,14 +1331,26 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
             if not isinstance(arguments, dict):
                 raise ValueError("Invalid function arguments")
             if call.get("name") == "read_pinterest_data":
-                result = read_pinterest_data(
-                    business=conversation.business,
-                    arguments=arguments,
-                )
+                mentioned_accounts = re.findall(r"@[A-Za-z0-9._-]{1,100}", user_message.content)
+                requested_accounts = [_account_for_pinterest_request(name, pinterest_accounts) for name in mentioned_accounts]
+                requested_keys = {str(item.public_id) for item in requested_accounts if item is not None}
+                if mentioned_accounts and any(item is None for item in requested_accounts):
+                    result = {"error": "Указанный профиль не подключён к этому бизнесу. Выбери подключённый @профиль."}
+                elif mentioned_accounts and str(arguments.get("account_key", "")).casefold() not in requested_keys:
+                    result = {"error": "Инструмент выбрал профиль, который не указан в запросе. Данные другого профиля не прочитаны."}
+                elif not mentioned_accounts and len([item for item in pinterest_accounts if item.status == PinterestAccount.Status.CONNECTED]) > 1:
+                    result = {"error": "Уточни @имя Pinterest-профиля из подключённого списка."}
+                else:
+                    result = read_pinterest_data(
+                        business=conversation.business,
+                        arguments=arguments,
+                    )
             elif call.get("name") == "read_wb_store_data":
                 result = read_wb_store_data(latest_store_assets or {}, arguments)
             else:
                 result = {"error": "Эта функция недоступна."}
+            if not isinstance(result, dict):
+                result = {"error": "Источник вернул данные в неподдерживаемом формате."}
         except (TypeError, ValueError, json.JSONDecodeError):
             result = {"error": "Не удалось разобрать параметры чтения данных."}
         except Exception as error:
@@ -1054,7 +1363,25 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
                 content=f"Не удалось получить данные: {result['error']} Не буду делать выводы без источника.",
                 provider="data-read",
                 model="read-error",
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=total_tokens,
+                prompt_version=prompt_version,
+                context_manifest=manifest,
             )
+        if call.get("name") == "read_wb_store_data" and not any(m["type"] == "wb" and m["what"] == "store" for m in manifest):
+            manifest.append({"type": "wb", "what": "store"})
+        if call.get("name") == "read_pinterest_data":
+            pinterest_calls.append({"resource": str(arguments.get("resource", ""))[:40]})
+            source_arguments = {key: value for key, value in arguments.items() if key not in {"bookmark", "page_size"}}
+            source_arguments["account_key"] = str(source_arguments.get("account_key", "")).casefold()
+            options = source_arguments.get("options") or {}
+            source_arguments["options"] = json.loads(options) if isinstance(options, str) else options
+            source = json.dumps(source_arguments, sort_keys=True, ensure_ascii=False)
+            if result.get("bookmark"):
+                pending_pages.add(source)
+            else:
+                pending_pages.discard(source)
         messages.append(
             {
                 "role": "function",
@@ -1079,12 +1406,25 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         prompt_tokens += completion.prompt_tokens
         completion_tokens += completion.completion_tokens
         total_tokens += completion.total_tokens
+    if pending_pages:
+        return AIMessage.objects.create(
+            conversation=conversation, role=AIMessage.Role.ASSISTANT,
+            content="Список загружен не полностью: следующие страницы не получены. Точное общее количество неизвестно.",
+            provider="data-read", model="pagination-incomplete",
+            prompt_tokens=prompt_tokens, completion_tokens=completion_tokens, total_tokens=total_tokens,
+            prompt_version=prompt_version, context_manifest=manifest,
+        )
     reply_content = enforce_advice_boundaries(
         completion.content,
         request_message=user_message.content,
     )
+    reply_content = enforce_creative_answer(reply_content, request_message=user_message.content)
+    reply_content = enforce_source_honesty(reply_content)
+    reply_content = enforce_no_fake_actions(reply_content)
     if community_source_url and community_source_url not in reply_content:
         reply_content = f"{reply_content.rstrip()}\n\nИсточник: {community_source_url}"
+    if pinterest_calls:
+        manifest.append({"type": "pinterest_read", "calls": pinterest_calls})
     return AIMessage.objects.create(
         conversation=conversation,
         role=AIMessage.Role.ASSISTANT,
@@ -1094,4 +1434,6 @@ def respond_to_message(*, user_message: AIMessage) -> AIMessage:
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
         total_tokens=total_tokens,
+        prompt_version=prompt_version,
+        context_manifest=manifest,
     )

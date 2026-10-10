@@ -3,32 +3,39 @@
     <article{% if chat_message.public_id %} id="chat-message-{{ chat_message.public_id }}"{% endif %} class="chat-message chat-message-{{ chat_message.role|lower }}"{% if chat_message.role == "USER" %} tabindex="-1"{% endif %}>
         <strong>{% if chat_message.role == "USER" %}{% trans "Вы" %}{% else %}{% trans "ИИ-стратег" %}{% endif %}</strong>
         <div class="chat-message-content">{% if chat_message.role == "USER" %}{{ chat_message.content }}{% else %}{{ chat_message.content|strategist_reply }}{% endif %}</div>
+        {% if chat_message.role != "USER" %}{% with lines=chat_message.context_manifest|provenance_lines %}{% if lines %}
+            <details class="chat-provenance">
+                <summary>{% trans "Источники ответа" %}</summary>
+                <ul>{% for line in lines %}<li>{{ line }}</li>{% endfor %}</ul>
+                {% if chat_message.prompt_version %}<p class="meta">{% trans "Версия промпта" %}: {{ chat_message.prompt_version }}</p>{% endif %}
+            </details>
+        {% endif %}{% endwith %}{% endif %}
         {% if chat_message.assets.url %}
-            <p><a href="{{ chat_message.assets.url }}" target="_blank" rel="noopener noreferrer">Открыть карточку товара</a></p>
+            <p><a href="{{ chat_message.assets.url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть карточку товара" %}</a></p>
         {% endif %}
         {% if chat_message.assets.images %}
             <div class="chat-product-images">
                 {% for item in chat_message.assets.images %}
                     <figure>
-                        <img src="{{ item.url }}" alt="Фото товара {{ item.index }}" loading="lazy">
-                        <figcaption>Фото {{ item.index }}{% if item.description %}: {{ item.description }}{% if not item.reviewed %} (описание модели, не проверено){% endif %}{% endif %}</figcaption>
+                        <img src="{{ item.url }}" alt="{% blocktrans with index=item.index %}Фото товара {{ index }}{% endblocktrans %}" loading="lazy">
+                        <figcaption>{% blocktrans with index=item.index %}Фото {{ index }}{% endblocktrans %}{% if item.description %}: {{ item.description }}{% if not item.reviewed %} {% trans "(описание модели, не проверено)" %}{% endif %}{% endif %}</figcaption>
                     </figure>
                 {% endfor %}
             </div>
         {% endif %}
         {% if chat_message.assets.wb_store %}
             <details class="chat-store-catalog">
-                <summary>Каталог {% if chat_message.assets.wb_store.kind == "brand" %}бренда{% else %}продавца{% endif %}: {{ chat_message.assets.wb_store.loaded_total }} товаров{% if not chat_message.assets.wb_store.complete %} (неполный){% endif %}</summary>
+                <summary>{% if chat_message.assets.wb_store.kind == "brand" %}{% blocktrans with total=chat_message.assets.wb_store.loaded_total %}Каталог бренда: {{ total }} товаров{% endblocktrans %}{% else %}{% blocktrans with total=chat_message.assets.wb_store.loaded_total %}Каталог продавца: {{ total }} товаров{% endblocktrans %}{% endif %}{% if not chat_message.assets.wb_store.complete %} {% trans "(неполный)" %}{% endif %}</summary>
                 <ol>
                     {% for item in chat_message.assets.wb_store.products %}
-                        <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name|default:item.article }}</a> · {{ item.seller|default:"продавец не указан" }} · {{ item.article }}</li>
+                        <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name|default:item.article }}</a> · {{ item.seller|default:_("продавец не указан") }} · {{ item.article }}</li>
                     {% endfor %}
                 </ol>
             </details>
         {% endif %}
         {% if chat_message.assets.wb_seller_store %}
             <details class="chat-store-catalog">
-                <summary>Каталог продавца: {{ chat_message.assets.wb_seller_store.loaded_total }} товаров{% if not chat_message.assets.wb_seller_store.complete %} (неполный){% endif %}</summary>
+                <summary>{% blocktrans with total=chat_message.assets.wb_seller_store.loaded_total %}Каталог продавца: {{ total }} товаров{% endblocktrans %}{% if not chat_message.assets.wb_seller_store.complete %} {% trans "(неполный)" %}{% endif %}</summary>
                 <ol>
                     {% for item in chat_message.assets.wb_seller_store.products %}
                         <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name|default:item.article }}</a> · {{ item.article }}</li>

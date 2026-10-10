@@ -1,17 +1,18 @@
-{% load static i18n %}
+{% load static i18n assets %}
+{% get_current_language as LANGUAGE_CODE %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE|default:'ru' }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light" data-interface-font-scale="{{ interface_font_scale_percent|default:100 }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{% block meta_description %}{% trans 'BoostKlient превращает каталог маркетплейса в Pinterest-контент и органический трафик к товарам.' %}{% endblock %}">
     <title>{% block title %}BOOSTKLIENT®{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
-    <script src="{% static 'js/core/theme.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/landing.bundle.css' %}">
+    <script src="{% asset 'js/core/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% asset 'css/landing.bundle.css' %}">
 </head>
 <body class="landing-body">
     {% block body %}{% endblock %}
-    <script src="{% static 'js/core/interface-scale.js' %}" defer></script>
+    <script src="{% asset 'js/core/interface-scale.js' %}" defer></script>
 </body>
 </html>

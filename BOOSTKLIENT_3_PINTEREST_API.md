@@ -919,7 +919,9 @@ Feature gate до письменного authorization.
 5. Можно ли хранить external Pin ID и Board ID как operational references?
 6. Какой срок допустим для cache данных API?
 7. Разрешён ли competitor research для нашего продукта?
+   - **Статус: ответа нет, функция выключена** (`PINTEREST_COMPETITOR_RESEARCH_ENABLED=false`, `apps/pinterest/policy.py`); любой будущий вход обязан вызвать `require_competitor_research_enabled()` до обращения к данным. В версии 2.0 это закрыто так же (страница, API и задача отвечают 403).
 8. Разрешено ли использовать API data как transient LLM inference context без training/fine-tuning?
+   - **Статус (6 октября 2026, со слов владельца): Pinterest письменно подтвердил.** Документ подтверждения в репозиторий не добавлен. Условия остаются: без обучения, минимальный контекст, только inference. Отключается настройкой `PINTEREST_AI_DATA_TRANSFER_ENABLED=false` (тогда данные Pinterest не уходят модели: инструмент чтения не предлагается, фильтр релевантности исследования работает без ИИ, ключи стратегии собирает код).
 9. Доступен ли Trends API нашему типу Standard app?
 10. Какие Ads/Business/Billing permissions потребуют дополнительного review?
 11. Какие Lead Ads / Advanced Auction capabilities доступны нам?

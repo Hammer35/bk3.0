@@ -1,0 +1,53 @@
+version: 1
+indexed_in_rag: false
+cases:
+  - id: live_followers_selected
+    family: tool_call
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: followers
+    messages:
+      - "Прочитай через инструмент read_pinterest_data список подписчиков (followers) @fixture_alpha и назови их количество. Ответь одним предложением."
+    expected:
+      - "Фактический tool call followers для fixture_alpha; транспорт возвращает 2 подписчиков без следующей страницы."
+      - "Ответ сообщает 2, не смешивает с fixture_beta и не добавляет рекомендации."
+  - id: live_followers_failure
+    family: tool_failure
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: failure
+    messages:
+      - "Прочитай через инструмент read_pinterest_data подписчиков (followers) @fixture_alpha. Сколько их?"
+    expected:
+      - "Фактическая попытка чтения нужного профиля; отказ data-read/read-error после недоступности."
+      - "Не выдумывает число подписчиков; usage первого модельного вызова сохранён."
+  - id: live_followers_ambiguous
+    family: account_selection
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: followers
+    messages:
+      - "Прочитай через инструмент read_pinterest_data список подписчиков (followers) моего Pinterest. Сколько их?"
+    expected:
+      - "Уточняет профиль при двух аккаунтах; фактического чтения API нет."
+      - "Не выбирает fixture_alpha по порядку и не смешивает аккаунты."
+  - id: live_followers_unknown
+    family: account_selection
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: followers
+    messages:
+      - "Прочитай через инструмент read_pinterest_data список подписчиков (followers) @not_connected. Сколько их?"
+    expected:
+      - "Указывает отсутствие подключённого профиля или запрашивает доступный профиль; транспорт не вызывается."
+      - "Не подменяет неизвестный профиль другим и не выдумывает число."
+  - id: live_followers_missing_scope
+    family: tool_permission
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: missing_scope
+    messages:
+      - "Прочитай через инструмент read_pinterest_data подписчиков (followers) @fixture_beta. Сколько их?"
+    expected:
+      - "Распознаёт отсутствие разрешения, транспорт не вызывается."
+      - "Не выдумывает число и не предлагает обход доступа."
