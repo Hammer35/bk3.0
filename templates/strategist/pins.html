@@ -38,6 +38,35 @@
                 {% if card.version.keyword %}<div><dt>{% trans "Ключевая фраза" %}</dt><dd>{{ card.version.keyword }}</dd></div>{% endif %}
             </dl>
 
+            <section class="pin-image" aria-label="{% trans 'Изображение пина' %}">
+                {% if card.image %}
+                    <img class="pin-image-preview" src="{% url 'strategist:pin-image' business.workspace.slug business.slug card.pin.pk card.version.number %}" width="{{ card.image.width }}" height="{{ card.image.height }}" alt="{{ card.version.alt_text }}" loading="lazy">
+                    <p class="meta">{{ card.image.width }}×{{ card.image.height }} · {{ card.image.size|filesizeformat }}</p>
+                    {% if card.image_note %}<p class="meta">{% trans card.image_note %}</p>{% endif %}
+                {% else %}
+                    <p class="meta">{% trans "Изображения пока нет. Без него пин нельзя будет опубликовать." %}</p>
+                {% endif %}
+                {% if card.can_change_image and can_edit %}
+                    <form method="post" enctype="multipart/form-data" class="pin-image-form" action="{% url 'strategist:pin-image-upload' business.workspace.slug business.slug card.pin.pk %}">
+                        {% csrf_token %}
+                        <div class="form-field">
+                            <label for="image-{{ card.pin.pk }}">{% if card.image %}{% trans "Заменить изображение" %}{% else %}{% trans "Загрузить изображение" %}{% endif %}</label>
+                            <input id="image-{{ card.pin.pk }}" name="image" type="file" accept="image/jpeg,image/png,image/webp" required>
+                            <p class="meta">{% trans "JPEG, PNG или WebP, до 10 МБ. Лучше вертикальное изображение 2:3." %}</p>
+                        </div>
+                        <div class="pin-actions">
+                            <button type="submit" class="button button-secondary">{% trans "Сохранить изображение" %}</button>
+                        </div>
+                    </form>
+                    {% if card.image %}
+                        <form method="post" class="pin-image-form" action="{% url 'strategist:pin-image-delete' business.workspace.slug business.slug card.pin.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="button button-ghost">{% trans "Удалить изображение" %}</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </section>
+
             <details class="pin-checks">
                 <summary>{% trans "Результаты проверок" %}</summary>
                 <ul class="strategy-list">

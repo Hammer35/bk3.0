@@ -32,6 +32,10 @@ msgstr "Email"
 msgid "GigaChat временно недоступен. Повторите запрос."
 msgstr "GigaChat is temporarily unavailable. Please try again."
 
+#: templates/strategist/pins.html
+msgid "JPEG, PNG или WebP, до 10 МБ. Лучше вертикальное изображение 2:3."
+msgstr "JPEG, PNG or WebP, up to 10 MB. A vertical 2:3 image works best."
+
 #: templates/core/home.html
 #: templates/core/landing.html
 msgid "Pinterest"
@@ -57,6 +61,10 @@ msgstr "Pinterest accounts"
 #: templates/core/landing.html
 msgid "Pinterest для Wildberries, Ozon и Etsy"
 msgstr "Pinterest for Wildberries, Ozon and Etsy"
+
+#: apps/strategist/pin_images.py:67
+msgid "Pinterest лучше показывает вертикальные изображения с соотношением сторон около 2:3."
+msgstr "Pinterest displays vertical images with an aspect ratio of about 2:3 better."
 
 #: apps/pinterest/views.py:148
 msgid "Pinterest не вернул данные. Проверь разрешения аккаунта и повтори попытку позже."
@@ -138,7 +146,7 @@ msgid "В архиве"
 msgstr "Archived"
 
 #: apps/strategist/views.py:288
-#: apps/strategist/views.py:342
+#: apps/strategist/views.py:355
 msgid "В очереди"
 msgstr "Queued"
 
@@ -191,6 +199,10 @@ msgstr "Choose content plan items and settings. Some fields are filled in automa
 msgid "Выберите сессию слева или создайте новую."
 msgstr "Choose a session on the left or create a new one."
 
+#: apps/strategist/views.py:542
+msgid "Выберите файл с изображением."
+msgstr "Choose an image file."
+
 #: templates/strategist/pin_generate.html
 msgid "Выбрано пунктов"
 msgstr "Items selected"
@@ -203,11 +215,11 @@ msgstr "Select available"
 msgid "Выйти"
 msgstr "Sign out"
 
-#: apps/strategist/views.py:342
+#: apps/strategist/views.py:355
 msgid "Выполняется"
 msgstr "In progress"
 
-#: apps/strategist/views.py:424
+#: apps/strategist/views.py:438
 msgid "Генерация запущена. Результаты появятся на странице «Пины» по мере готовности."
 msgstr "Generation started. Results will appear on the \"Pins\" page as they are ready."
 
@@ -219,7 +231,7 @@ msgstr "Generating"
 msgid "Гипотезы (не подтверждены)"
 msgstr "Hypotheses (not confirmed)"
 
-#: apps/strategist/views.py:343
+#: apps/strategist/views.py:356
 msgid "Готово"
 msgstr "Done"
 
@@ -297,6 +309,10 @@ msgstr "Add your first business"
 msgid "Дополнительно"
 msgstr "Advanced"
 
+#: apps/strategist/pin_images.py:36
+msgid "Допустимы изображения JPEG, PNG и WebP."
+msgstr "Only JPEG, PNG and WebP images are allowed."
+
 #: templates/strategist/pin_generate.html
 msgid "Доска"
 msgstr "Board"
@@ -309,8 +325,8 @@ msgstr "Boards"
 msgid "Дружелюбный"
 msgstr "Friendly"
 
-#: apps/strategist/views.py:487
-#: apps/strategist/views.py:493
+#: apps/strategist/views.py:502
+#: apps/strategist/views.py:508
 msgid "Есть черновик, он ждёт подтверждения"
 msgstr "A draft exists and awaits confirmation"
 
@@ -318,7 +334,7 @@ msgstr "A draft exists and awaits confirmation"
 msgid "Ждёт одобрения"
 msgstr "Awaiting approval"
 
-#: apps/strategist/views.py:342
+#: apps/strategist/views.py:355
 msgid "Ждёт ответа"
 msgstr "Waiting for input"
 
@@ -330,6 +346,10 @@ msgstr "Awaiting confirmation"
 msgid "Заблокирован проверкой"
 msgstr "Blocked by a check"
 
+#: templates/strategist/pins.html
+msgid "Загрузить изображение"
+msgstr "Upload image"
+
 #: templates/strategist/chat.html
 msgid "Задайте первый вопрос о контенте или стратегии."
 msgstr "Ask your first question about content or strategy."
@@ -337,6 +357,10 @@ msgstr "Ask your first question about content or strategy."
 #: templates/strategist/pin_generate.html
 msgid "Задачи"
 msgstr "Jobs"
+
+#: templates/strategist/pins.html
+msgid "Заменить изображение"
+msgstr "Replace image"
 
 #: apps/strategist/pin_forms.py:37
 msgid "Запомнить эти настройки для бизнеса"
@@ -379,6 +403,30 @@ msgstr "From niche research dated %(date)s"
 #: templates/includes/interface_scale_control.html
 msgid "Изменить размер текста"
 msgstr "Change text size"
+
+#: templates/strategist/pins.html
+msgid "Изображение пина"
+msgstr "Pin image"
+
+#: apps/strategist/pin_images.py:38
+msgid "Изображение слишком большое по числу пикселей."
+msgstr "The image has too many pixels."
+
+#: apps/strategist/pin_images.py:40
+msgid "Изображение слишком маленькое: меньшая сторона должна быть не меньше 200 пикселей."
+msgstr "The image is too small: the shorter side must be at least 200 pixels."
+
+#: apps/strategist/views.py:551
+msgid "Изображение сохранено."
+msgstr "Image saved."
+
+#: apps/strategist/views.py:563
+msgid "Изображение удалено."
+msgstr "Image deleted."
+
+#: templates/strategist/pins.html
+msgid "Изображения пока нет. Без него пин нельзя будет опубликовать."
+msgstr "No image yet. The pin cannot be published without one."
 
 #: templates/strategist/_strategy_version.html
 msgid "Исключено по вашей просьбе"
@@ -426,6 +474,11 @@ msgstr "How we write"
 #: templates/core/landing.html
 msgid "Как это работает"
 msgstr "How it works"
+
+#: apps/strategist/views.py:538
+#: apps/strategist/views.py:560
+msgid "Картинку одобренного пина менять нельзя: создайте новую версию."
+msgstr "The image of a decided pin cannot be changed: create a new version."
 
 #: templates/core/landing.html
 msgid "Карточки товаров, фото и видео становятся исходными материалами."
@@ -504,7 +557,7 @@ msgstr "The content plan is ready. Review it and confirm."
 msgid "Контент-план строится по подтверждённой стратегии с контентными направлениями."
 msgstr "The content plan is built from a confirmed strategy that has content directions."
 
-#: apps/strategist/views.py:489
+#: apps/strategist/views.py:504
 msgid "Контент-плана пока нет"
 msgstr "No content plan yet"
 
@@ -614,6 +667,10 @@ msgstr "Could not send the message. Check your connection and try again."
 #: apps/pinterest/views.py:195
 msgid "Не удалось подключить Pinterest. Проверьте настройки и попробуйте снова."
 msgstr "Could not connect Pinterest. Check the settings and try again."
+
+#: apps/strategist/pin_images.py:56
+msgid "Не удалось прочитать изображение: файл повреждён или это не картинка."
+msgstr "Could not read the image: the file is damaged or is not a picture."
 
 #: templates/includes/interface_scale_control.html
 msgid "Не удалось сохранить размер текста. Попробуйте ещё раз."
@@ -729,11 +786,11 @@ msgstr "Open chat with the AI strategist"
 msgid "Отмена"
 msgstr "Cancel"
 
-#: apps/strategist/views.py:477
+#: apps/strategist/views.py:492
 msgid "Отмена запрошена: текущий пин будет дописан, остальные не обрабатываются."
 msgstr "Cancellation requested: the current pin will be finished, the rest are not processed."
 
-#: apps/strategist/views.py:343
+#: apps/strategist/views.py:356
 msgid "Отменена"
 msgstr "Cancelled"
 
@@ -759,7 +816,7 @@ msgid "Отправляется"
 msgstr "Publishing"
 
 #: apps/strategist/views.py:289
-#: apps/strategist/views.py:343
+#: apps/strategist/views.py:356
 msgid "Ошибка"
 msgstr "Failed"
 
@@ -856,7 +913,7 @@ msgstr "Confirm that you have read the remarks and know which checks were not pe
 msgid "Подтвердить контент-план"
 msgstr "Confirm content plan"
 
-#: apps/strategist/content_plan.py:101
+#: apps/strategist/content_plan.py:120
 msgid "Подтвердить можно только актуальный черновик плана."
 msgstr "Only the current draft of the plan can be confirmed."
 
@@ -873,7 +930,7 @@ msgstr "Confirm strategy"
 msgid "Подтверждена %(date)s"
 msgstr "Confirmed on %(date)s"
 
-#: apps/strategist/views.py:486
+#: apps/strategist/views.py:501
 #, python-format
 msgid "Подтверждена, версия %(number)s"
 msgstr "Confirmed, version %(number)s"
@@ -886,7 +943,7 @@ msgstr "Confirm action"
 msgid "Подтверждение отключения Pinterest недействительно."
 msgstr "Pinterest disconnection confirmation is invalid."
 
-#: apps/strategist/views.py:491
+#: apps/strategist/views.py:506
 msgid "Подтверждён"
 msgstr "Confirmed"
 
@@ -902,6 +959,10 @@ msgstr "Nothing here yet. Write \"Remember: …\" in the chat to save a fact abo
 #: templates/core/landing.html
 msgid "Попробовать бесплатно"
 msgstr "Try for free"
+
+#: apps/strategist/pin_images.py:59
+msgid "После обработки файл больше 10 МБ. Уменьшите изображение."
+msgstr "After processing the file is larger than 10 MB. Make the image smaller."
 
 #: templates/accounts/register.html
 msgid "После регистрации создадим рабочее пространство и профиль первого бизнеса."
@@ -1047,7 +1108,7 @@ msgstr "Mode"
 msgid "Результаты проверок"
 msgstr "Check results"
 
-#: apps/strategist/views.py:337
+#: apps/strategist/views.py:350
 msgid "Решение сохранено."
 msgstr "Decision saved."
 
@@ -1223,6 +1284,10 @@ msgstr "Building the content plan can take up to a minute."
 msgid "Сохранено"
 msgstr "Saved"
 
+#: templates/strategist/pins.html
+msgid "Сохранить изображение"
+msgstr "Save image"
+
 #: templates/includes/interface_scale_control.html
 msgid "Сохраняю…"
 msgstr "Saving…"
@@ -1267,7 +1332,7 @@ msgstr "The country or region where you sell. For example: \"Russia\", \"Kazakhs
 msgid "Стратег"
 msgstr "Strategist"
 
-#: apps/strategist/views.py:487
+#: apps/strategist/views.py:502
 #: templates/strategist/strategy.html
 msgid "Стратегии пока нет"
 msgstr "No strategy yet"
@@ -1295,7 +1360,7 @@ msgstr "Strategy — BOOSTKLIENT®"
 msgid "Стратегия, версия %(number)s"
 msgstr "Strategy, version %(number)s"
 
-#: apps/strategist/content_plan.py:103
+#: apps/strategist/content_plan.py:122
 msgid "Стратегия, на которой построен план, уже заменена. Построй план заново."
 msgstr "The strategy this plan was built on has already been replaced. Build the plan again."
 
@@ -1347,6 +1412,10 @@ msgstr "Delete Pinterest account"
 msgid "Удалить аккаунт"
 msgstr "Delete account"
 
+#: templates/strategist/pins.html
+msgid "Удалить изображение"
+msgstr "Delete image"
+
 #: templates/pinterest/confirm_disconnect.html
 msgid "Удалить подключение?"
 msgstr "Delete the connection?"
@@ -1374,6 +1443,14 @@ msgstr "Decrease text size"
 #: templates/core/home.html
 msgid "Управляйте профилем бизнеса, создавайте Pinterest-стратегию и запускайте следующий шаг."
 msgstr "Manage your business profile, create a Pinterest strategy and start the next step."
+
+#: apps/strategist/pin_images.py:28
+msgid "Файл больше 10 МБ."
+msgstr "The file is larger than 10 MB."
+
+#: apps/strategist/pin_images.py:26
+msgid "Файл пустой."
+msgstr "The file is empty."
 
 #: templates/strategist/_chat_messages.html
 #, python-format
@@ -1505,19 +1582,19 @@ msgstr "hypothesis, not confirmed by data"
 msgid "доска"
 msgstr "board"
 
-#: apps/strategist/views.py:345
+#: apps/strategist/views.py:358
 msgid "из аккаунта Pinterest"
 msgstr "from the Pinterest account"
 
-#: apps/strategist/views.py:346
+#: apps/strategist/views.py:359
 msgid "из ваших прошлых настроек"
 msgstr "from your earlier settings"
 
-#: apps/strategist/views.py:345
+#: apps/strategist/views.py:358
 msgid "из профиля бизнеса"
 msgstr "from the business profile"
 
-#: apps/strategist/views.py:345
+#: apps/strategist/views.py:358
 msgid "из стратегии"
 msgstr "from the strategy"
 
@@ -1541,7 +1618,7 @@ msgstr "niche"
 msgid "нужна оценка"
 msgstr "needs review"
 
-#: apps/strategist/views.py:346
+#: apps/strategist/views.py:359
 #: templates/strategist/pin_generate.html
 msgid "по умолчанию"
 msgstr "default"

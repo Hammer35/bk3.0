@@ -344,3 +344,21 @@ class GenerationPreset(BaseModel):
     class Meta:
         verbose_name = "настройки генерации пинов"
         verbose_name_plural = "настройки генерации пинов"
+
+
+class PinImage(BaseModel):
+    """The picture of one pin version. Stored in the database: private by construction, visible to the worker
+    that publishes, and removed with the business. Re-encoded on upload, so it is always a clean image."""
+
+    pin_version = models.OneToOneField(PinVersion, on_delete=models.CASCADE, related_name="image", verbose_name="версия пина")
+    data = models.BinaryField(editable=False, verbose_name="данные изображения")
+    content_type = models.CharField(max_length=20, verbose_name="тип")
+    width = models.PositiveIntegerField(verbose_name="ширина")
+    height = models.PositiveIntegerField(verbose_name="высота")
+    size = models.PositiveIntegerField(verbose_name="размер, байт")
+    sha256 = models.CharField(max_length=64, verbose_name="хеш")
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+", verbose_name="загрузил")
+
+    class Meta:
+        verbose_name = "изображение пина"
+        verbose_name_plural = "изображения пинов"

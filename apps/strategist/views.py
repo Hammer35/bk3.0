@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -12,11 +12,11 @@ from apps.businesses.models import Business
 from . import approvals, pin_jobs
 from . import pin_settings as ps
 from . import content_plan as plans
-from . import memory, research
+from . import memory, pin_images, research
 from . import strategy as strategies
 from .forms import StrategistMessageForm
 from .pin_forms import PinGenerationForm, initial_values
-from .models import AIConversation, AIJob, AIMessage, ContentPlan, GenerationPreset, Pin, StrategyVersion
+from .models import AIConversation, AIJob, AIMessage, Approval, ContentPlan, GenerationPreset, Pin, PinImage, StrategyVersion
 from .providers import GigaChatConfigurationError, GigaChatProviderError
 from .services import conversation_slug, create_conversation, respond_to_message
 
@@ -293,8 +293,19 @@ CHECK_LABELS = {"pass": _("пройдена"), "review": _("нужна оцен�
 DECISION_LABELS = {"APPROVED": _("Одобрен"), "REJECTED": _("Отклонён"), "REWORK": _("Отправлен на переделку")}
 
 
+IMAGE_LOCKED_STATUSES = (Pin.Status.APPROVED, Pin.Status.QUEUED, Pin.Status.PUBLISHING, Pin.Status.PUBLISHED)
+
+
+def _version_image(version):
+    """Metadata of the version's picture without loading its bytes."""
+    if version is None:
+        return None
+    return PinImage.objects.filter(pin_version=version).defer("data").first()
+
+
 def _pin_card(pin):
     version = pin.current_version
+    image = _version_image(version)
     approval = getattr(version, "approval", None) if version else None
     can_decide = version is not None and approval is None and pin.status in (Pin.Status.WAITING_APPROVAL, Pin.Status.REWORK)
     return {
@@ -305,6 +316,8 @@ def _pin_card(pin):
         "decision_label": DECISION_LABELS.get(approval.decision, "") if approval else "",
         "can_decide": can_decide, "can_approve": can_decide and pin.status == Pin.Status.WAITING_APPROVAL and version.verdict != "BLOCK",
         "link_is_web": bool(version and version.destination_url.startswith(("http://", "https://"))),
+        "image": image, "image_note": pin_images.ratio_note(image.width, image.height) if image else "",
+        "can_change_image": version is not None and approval is None and pin.status not in IMAGE_LOCKED_STATUSES,
     }
 
 
@@ -500,3 +513,64 @@ def _generation_steps(business):
     else:
         action = "confirm"
     return {"strategy": strategy_state, "plan": plan_state, "action": action}
+
+
+def _pin_redirect(business):
+    return redirect("strategist:pins", workspace_slug=business.workspace.slug, business_slug=business.slug)
+
+
+def _changeable_version(business, pin_id):
+    """The current version of a pin whose picture may still be changed: not decided, not published."""
+    pin = get_object_or_404(Pin.objects.select_related("current_version"), pk=pin_id, business=business)
+    version = pin.current_version
+    if version is None:
+        raise Http404
+    if Approval.objects.filter(pin_version=version).exists() or pin.status in IMAGE_LOCKED_STATUSES:
+        return None
+    return version
+
+
+@login_required
+def pin_image_upload(request, workspace_slug, business_slug, pin_id):
+    business = _editable_business(request, workspace_slug, business_slug)
+    version = _changeable_version(business, pin_id)
+    if version is None:
+        messages.error(request, _("Картинку одобренного пина менять нельзя: создайте новую версию."))
+        return _pin_redirect(business)
+    uploaded = request.FILES.get("image")
+    if uploaded is None:
+        messages.error(request, _("Выберите файл с изображением."))
+        return _pin_redirect(business)
+    try:
+        values = pin_images.process_upload(uploaded)
+    except pin_images.ImageError as error:
+        messages.error(request, gettext(str(error)))
+        return _pin_redirect(business)
+    with transaction.atomic():
+        PinImage.objects.update_or_create(pin_version=version, defaults={**values, "uploaded_by": request.user})
+    messages.success(request, _("Изображение сохранено."))
+    return _pin_redirect(business)
+
+
+@login_required
+def pin_image_delete(request, workspace_slug, business_slug, pin_id):
+    business = _editable_business(request, workspace_slug, business_slug)
+    version = _changeable_version(business, pin_id)
+    if version is None:
+        messages.error(request, _("Картинку одобренного пина менять нельзя: создайте новую версию."))
+    else:
+        PinImage.objects.filter(pin_version=version).delete()
+        messages.success(request, _("Изображение удалено."))
+    return _pin_redirect(business)
+
+
+@login_required
+def pin_image(request, workspace_slug, business_slug, pin_id, number):
+    """The stored picture, visible to everyone who can see the business; never cached by shared caches."""
+    business = _get_business(request, workspace_slug, business_slug)
+    image = get_object_or_404(PinImage, pin_version__pin__pk=pin_id, pin_version__pin__business=business, pin_version__number=number)
+    response = HttpResponse(bytes(image.data), content_type=image.content_type)
+    response["Cache-Control"] = "private, max-age=300"
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "default-src 'none'; sandbox"
+    return response
