@@ -702,11 +702,15 @@ def build(n, video=True, images=True):
         (root / 'Цели_урока.txt').write_text(g.replace('\n', '\r\n'), encoding='utf-8')
     if L.get('quiz'):
         q = [f"ПРОВЕРЬ СЕБЯ. УРОК {n}. {title_.upper()}", '', 'Выберите один вариант. Ответы и объяснения — в конце файла.', '']
+        keys = []
         for i, it in enumerate(L['quiz'], 1):
-            q += [f"{i}. {it['q']}"] + [f"   {'АБВГ'[j]}) {o}" for j, o in enumerate(it['options'])] + ['']
+            k = (n + i) % len(it['options'])          # deterministic shuffle: correct answer moves between letters
+            opts = it['options'][k:] + it['options'][:k]
+            keys.append('АБВГ'[opts.index(it['options'][it['answer'] - 1])])
+            q += [f"{i}. {it['q']}"] + [f"   {'АБВГ'[j]}) {o}" for j, o in enumerate(opts)] + ['']
         q += ['ОТВЕТЫ', '']
         for i, it in enumerate(L['quiz'], 1):
-            q.append(f"{i} — {'АБВГ'[it['answer'] - 1]}. {it['why']}")
+            q.append(f"{i} — {keys[i - 1]}. {it['why']}")
         (root / 'Проверь_себя.txt').write_text(('\n'.join(q) + '\n').replace('\n', '\r\n'), encoding='utf-8')
     if images:
         for i, tt in enumerate(y['thumbs']): yt_thumb(i, tt, S(i), n, P['YouTube'] / f"Обложка_{'ABC'[i]}.jpg")
