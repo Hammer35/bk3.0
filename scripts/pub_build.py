@@ -664,7 +664,7 @@ def load(n):
     L['goals'], L['quiz'] = E.get('goals', []), E.get('quiz', [])
     L['rutube_shorts'] = []
     for c, s in zip(clips(n)[:2], E.get('rutube_shorts', [])):
-        L['rutube_shorts'].append(dict(s, name=re.sub(r'^Клип_\d+_', '', c.stem).replace('_', ' ')))
+        L['rutube_shorts'].append(dict(s, name=s.get('cover') or re.sub(r'^Клип_\d+_', '', c.stem).replace('_', ' ')))
     return L
 
 def all_lessons(): return [load(int(p.stem)) for p in sorted(SRC.glob('[0-9][0-9].yaml'))]
@@ -718,7 +718,7 @@ def build(n, video=True, images=True):
         for i, tt in enumerate(v['covers']): wide_cover('vk', i, tt, S(i + 1), S(i + 2), n, P['VK_Видео'] / f"Обложка_{'AB'[i]}.jpg")
         for i, c in enumerate(L['vk_clips'], 1): tall_cover('vk_clip', c['cover'], T(i), n, P['VK_Клипы'] / f'Клип_{i}_обложка.jpg')
         for i, tt in enumerate(r['covers']): wide_cover('rutube', i, tt, S(i + 2), S(i + 3), n, P['Rutube'] / f"Обложка_{'AB'[i]}.jpg")
-        for i, s in enumerate(L['rutube_shorts'], 1): tall_cover('shorts', s['name'], T(i + 4), n, P['Rutube'] / f'Shorts_{i}_обложка.jpg')
+        for i, s in enumerate(L['rutube_shorts'], 1): tall_cover('shorts', s['name'], T(i - 1), n, P['Rutube'] / f'Shorts_{i}_обложка.jpg')
         for i, rr in enumerate(ig['reels'], 1): tall_cover('reel', rr['cover'], A(i + 1), n, P['Instagram'] / f'Reels_{i}_обложка.jpg')
         carousel(ig['carousel']['slides'], [A(i + 1) for i in range(len(sh))], n, P['Instagram'])
         threads_card(t['card'], S(3), P['Threads'] / 'Карточка.jpg')

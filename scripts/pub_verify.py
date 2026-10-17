@@ -77,7 +77,7 @@ def lesson(n):
 
 
 if __name__ == '__main__':
-    a, z = (int(sys.argv[1]), int(sys.argv[2])) if len(sys.argv) > 2 else (1, 40)
+    a, z = (int(sys.argv[1]), int(sys.argv[2])) if len(sys.argv) > 2 else (1, 42)
     allp = []
     for n in range(a, z + 1):
         allp += lesson(n)
