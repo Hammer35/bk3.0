@@ -278,7 +278,7 @@ def hook_png(platform, t, path):
     """Full-frame transparent overlay shown during the first seconds of a short."""
     W, H = 1080, 1920
     im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    style = {'reel': (BEIGE, INK, RED), 'shorts': (INK, YEL, YEL), 'vk_clip': (RED, WHITE, WHITE), 'video_pin': (YEL, INK, INK)}[platform]
+    style = {'reel': (BEIGE, INK, RED), 'shorts': (INK, YEL, YEL), 'vk_clip': (RED, WHITE, WHITE), 'video_pin': (YEL, INK, INK), 'rshorts': (INK, YEL, YEL)}[platform]
     box = (60, 560, 960, 520)
     d.rounded_rectangle((box[0], box[1], box[0] + box[2], box[1] + box[3]), 34, fill=style[0])
     d.rectangle((box[0] + 50, box[1] + 50, box[0] + 200, box[1] + 62), fill=style[2])
@@ -466,6 +466,8 @@ def creatives(L):
              r['tags'], 'поле «Теги»', [], 'Rutube хэштеги для поиска не использует — не нужны',
              [('Субтитры', 'загрузить Субтитры.srt из этой папки')] + ([('Комментарий под видео — задание к уроку (закрепить)', tk['rutube'])] if tk else []))
     o['Rutube']['Видео_16x9.txt'] = '\n'.join(m)
+    for i, s in enumerate(L['rutube_shorts'], 1):
+        o['Rutube'][f'Shorts_{i}.txt'] = '\n'.join(H(L, 'Rutube', f'Shorts_{i}.mp4', f'Обложка — Shorts_{i}_обложка.jpg. По справке Rutube вертикальное видео от 2 секунд до 3 минут попадает в Shorts. ') + kit(s['title'], s['description'], pick_tags(L, s['title'] + ' ' + s['description'], 6, U), 'поле «Теги»', [], 'не нужны: по справке Rutube хэштег #Shorts для попадания в раздел Shorts не требуется'))
     # Instagram
     for i, rr in enumerate(ig['reels'], 1):
         o['Instagram'][f'Reels_{i}.txt'] = '\n'.join(H(L, 'Instagram', f'Reels_{i}.mp4', f'Обложка — Reels_{i}_обложка.jpg. ') + kit('', rr['caption'].strip(), pick_tags(L, rr['caption'], 6, U), NOFIELD, rr['hashtags'], f'{END} (не больше 5)', [('Подпись для пробного показа (вариант Б)', rr['trial_caption'])]))
@@ -473,7 +475,7 @@ def creatives(L):
     alts = [(f'Альтернативный текст · Карусель_{i:02}.jpg', a) for i, a in enumerate(c['alts'], 1)] if c.get('alts') else [('Альтернативный текст · Карусель_01.jpg', c['alt'])]
     o['Instagram']['Карусель.txt'] = '\n'.join(H(L, 'Instagram', f'карусели Карусель_01.jpg … Карусель_{ns:02}.jpg', 'Все слайды — один пост. ') + kit('', c['caption'].strip(), pick_tags(L, c['caption'], 6, U), NOFIELD, c['hashtags'], f'{END} (не больше 5)', alts + ([('Первый комментарий — задание к уроку (закрепить)', tk['instagram'])] if tk else [])))
     # Threads
-    posts = [(f"Пост {i}{' · прикрепить Карточка.jpg' if i == 1 else ' · ответом в ветке'} ({len(pp.strip())}/500)", pp) for i, pp in enumerate(t['posts'], 1)]
+    posts = [(f"{'Описание — пост 1 · прикрепить Карточка.jpg' if i == 1 else f'Пост {i} · ответом в ветке'} ({len(pp.strip())}/500)", pp) for i, pp in enumerate(t['posts'], 1)]
     if tk: posts.append((f"Пост {len(t['posts']) + 1} — задание к уроку, ответом в ветке ({len(tk['threads'].strip())}/500)", tk['threads']))
     o['Threads']['Карточка.txt'] = '\n'.join(H(L, 'Threads', 'Карточка.jpg и ветки постов') + block('Название', 'у Threads поля названия нет') + block('Тема (одна, выбирается в поле «Добавить тему»)', t['topic']) + block('Теги / ключевые слова — ' + NOFIELD, ', '.join(pick_tags(L, ' '.join(t['posts']), 6, U))) + block('Хэштеги', 'не нужны: Threads вместо хэштегов использует одну тему поста') + sum((block(a_, b_) for a_, b_ in posts), []))
     # Pinterest
@@ -537,6 +539,9 @@ def units(L):
     for i, t in enumerate(r['titles']): u.append((f'{n}/Rutube/название {"AB"[i]}', t))
     for i, t in enumerate(r['covers']): u.append((f'{n}/Rutube/обложка {"AB"[i]}', t))
     u.append((f'{n}/Rutube/описание', r['description']))
+    for i, s in enumerate(L.get('rutube_shorts', []), 1): u += [(f'{n}/Rutube Shorts {i}/название', s['title']), (f'{n}/Rutube Shorts {i}/описание', s['description'])]
+    for i, g in enumerate(L.get('goals', []), 1): u.append((f'{n}/Цели/{i}', g))
+    for i, it in enumerate(L.get('quiz', []), 1): u.append((f'{n}/Тест/{i}', it['q'] + ' ' + ' '.join(it['options']) + ' ' + it['why']))
     ig = L['instagram']
     for i, rr in enumerate(ig['reels'], 1):
         u += [(f'{n}/Reels {i}/подпись', rr['caption']), (f'{n}/Reels {i}/пробная подпись', rr['trial_caption']), (f'{n}/Reels {i}/зацепка', rr['hook']), (f'{n}/Reels {i}/обложка', rr['cover'])]
@@ -605,6 +610,8 @@ def check(lessons, k=4):
     def legit(ws):
         # alt text must transcribe the lettering of its own image
         # fields of one and the same creative (title, description, alt, lettering) may share words
+        study = [w for w in ws if w.split('/')[1] in ('Цели', 'Тест')]
+        if study and len(study) < len(ws) and len({w.split('/')[0] for w in ws}) == 1: return True
         heads = {w.rsplit('/', 1)[0] for w in ws}
         if len(heads) == 1 and next(iter(heads)).split('/', 1)[1] in ('Pinterest A', 'Pinterest B', 'Видеопин') and {w.rsplit('/', 1)[1] for w in ws} <= {'название', 'описание', 'alt', 'картинка'}: return True
         if len(ws) != 2: return False
@@ -651,6 +658,13 @@ def load(n):
             L['pinterest']['pins'][1]['description'] = e['b']; L['pinterest']['video_pin']['description'] = e['v']
     if TASKS.exists():
         L['task'] = (yaml.safe_load(TASKS.read_text()) or {}).get(n)
+    # Rutube Shorts: the lesson's own clips; title from the clip name, description = the clip's narration
+    v3 = SRC / 'v3' / f'{n:02}.yaml'
+    E = yaml.safe_load(v3.read_text()) if v3.exists() else {}
+    L['goals'], L['quiz'] = E.get('goals', []), E.get('quiz', [])
+    L['rutube_shorts'] = []
+    for c, s in zip(clips(n)[:2], E.get('rutube_shorts', [])):
+        L['rutube_shorts'].append(dict(s, name=re.sub(r'^Клип_\d+_', '', c.stem).replace('_', ' ')))
     return L
 
 def all_lessons(): return [load(int(p.stem)) for p in sorted(SRC.glob('[0-9][0-9].yaml'))]
@@ -683,12 +697,24 @@ def build(n, video=True, images=True):
         (root / 'Задание.txt').write_text(body.replace('\n', '\r\n'), encoding='utf-8')
         old_ = root / 'Задание_к_уроку.txt'
         if old_.exists(): old_.unlink()
+    if L.get('goals'):
+        g = f"ЦЕЛИ УРОКА {n}. {title_.upper()}\n\nПосле урока вы сможете:\n" + ''.join(f"{i}. {x}\n" for i, x in enumerate(L['goals'], 1))
+        (root / 'Цели_урока.txt').write_text(g.replace('\n', '\r\n'), encoding='utf-8')
+    if L.get('quiz'):
+        q = [f"ПРОВЕРЬ СЕБЯ. УРОК {n}. {title_.upper()}", '', 'Выберите один вариант. Ответы и объяснения — в конце файла.', '']
+        for i, it in enumerate(L['quiz'], 1):
+            q += [f"{i}. {it['q']}"] + [f"   {'АБВГ'[j]}) {o}" for j, o in enumerate(it['options'])] + ['']
+        q += ['ОТВЕТЫ', '']
+        for i, it in enumerate(L['quiz'], 1):
+            q.append(f"{i} — {'АБВГ'[it['answer'] - 1]}. {it['why']}")
+        (root / 'Проверь_себя.txt').write_text(('\n'.join(q) + '\n').replace('\n', '\r\n'), encoding='utf-8')
     if images:
         for i, tt in enumerate(y['thumbs']): yt_thumb(i, tt, S(i), n, P['YouTube'] / f"Обложка_{'ABC'[i]}.jpg")
         for i, s in enumerate(y['shorts'], 1): tall_cover('shorts', s['cover'], T(i + 2), n, P['YouTube'] / f'Shorts_{i}_обложка.jpg')
         for i, tt in enumerate(v['covers']): wide_cover('vk', i, tt, S(i + 1), S(i + 2), n, P['VK_Видео'] / f"Обложка_{'AB'[i]}.jpg")
         for i, c in enumerate(L['vk_clips'], 1): tall_cover('vk_clip', c['cover'], T(i), n, P['VK_Клипы'] / f'Клип_{i}_обложка.jpg')
         for i, tt in enumerate(r['covers']): wide_cover('rutube', i, tt, S(i + 2), S(i + 3), n, P['Rutube'] / f"Обложка_{'AB'[i]}.jpg")
+        for i, s in enumerate(L['rutube_shorts'], 1): tall_cover('shorts', s['name'], T(i + 4), n, P['Rutube'] / f'Shorts_{i}_обложка.jpg')
         for i, rr in enumerate(ig['reels'], 1): tall_cover('reel', rr['cover'], A(i + 1), n, P['Instagram'] / f'Reels_{i}_обложка.jpg')
         carousel(ig['carousel']['slides'], [A(i + 1) for i in range(len(sh))], n, P['Instagram'])
         threads_card(t['card'], S(3), P['Threads'] / 'Карточка.jpg')
@@ -715,6 +741,7 @@ def build(n, video=True, images=True):
         jobs = []
         for i, c in enumerate(cl[:2]):
             jobs += [('shorts', y['shorts'][i]['hook'], 'safe916', P['YouTube'] / f'Shorts_{i + 1}.mp4', c),
+                     ('rshorts', L['rutube_shorts'][i]['name'], 'safe916', P['Rutube'] / f'Shorts_{i + 1}.mp4', c),
                      ('vk_clip', L['vk_clips'][i]['hook'], 'safe916', P['VK_Клипы'] / f'Клип_{i + 1}.mp4', c),
                      ('reel', ig['reels'][i]['hook'], 'safe916', P['Instagram'] / f'Reels_{i + 1}.mp4', c)]
         jobs.append(('video_pin', p['video_pin']['hook'], 'pin23', P['Pinterest'] / 'Видеопин.mp4', cl[0]))
