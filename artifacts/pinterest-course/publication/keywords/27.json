@@ -1,0 +1,2508 @@
+{
+ "lesson": 27,
+ "seeds": [
+  "аналитика пинтерест",
+  "пинтерест показы",
+  "пинтерест статистика",
+  "pinterest analytics"
+ ],
+ "must": [
+  "пинтерест",
+  "pinterest"
+ ],
+ "collected": "2026-10-17 11:20",
+ "keywords": [
+  {
+   "phrase": "pinterest analytics",
+   "score": 14.31,
+   "sources": [
+    "gg",
+    "ya",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест история",
+   "score": 6.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест",
+   "score": 5.74,
+   "sources": [
+    "gg",
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest statistics",
+   "score": 5.74,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика",
+   "score": 5.74,
+   "sources": [
+    "gg",
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics explained",
+   "score": 4.79,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics гайд",
+   "score": 4.0,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ",
+   "score": 4.0,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы айфон",
+   "score": 3.74,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics бесплатно",
+   "score": 3.74,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест вход",
+   "score": 3.14,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы директ",
+   "score": 3.08,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics видео",
+   "score": 3.08,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "что значит показы в пинтерест",
+   "score": 2.87,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "почему пинтерест показывает одно и тоже",
+   "score": 2.52,
+   "sources": [
+    "gg",
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вход",
+   "score": 2.39,
+   "sources": [
+    "gg",
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест аналитика",
+   "score": 1.87,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "статистика пинтерест",
+   "score": 1.87,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест бот",
+   "score": 1.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест трафик",
+   "score": 1.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest stats",
+   "score": 1.74,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "что такое показы в пинтерест",
+   "score": 1.64,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics overview",
+   "score": 1.64,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "как увеличить показы в пинтерест",
+   "score": 1.46,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest google analytics",
+   "score": 1.38,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "показы в пинтерест это",
+   "score": 1.22,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтереста",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест аналоги",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика в пинтерест",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест гайд",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест дизайн",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест еды",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показывают",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы асмр",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы бокс",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы в gta v",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы гуля",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы дома",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы еды",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает пины",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы бесплатно",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "показы в пинтерест",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы гугл",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы для рилс",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы еда",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает картинки",
+   "score": 1.0,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика аккаунта",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика бесплатно",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "статистика в пинтерест",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика гугл",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика для психологов",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика еды",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics айфон",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics взлом",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics для начинающих",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics аналоги",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics блог",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вакансии",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics дизайн",
+   "score": 1.0,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест история просмотров",
+   "score": 1.0,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест 2",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics гайд для новичк",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ русский",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест айфон",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "что загуглить в пинтерест",
+   "score": 1.0,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "analitik pinterest",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест аккаунт",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест бесплатно",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест видео",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест генератор",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест для бизнеса",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы буду",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы виде",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы года",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы дети",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы егэ",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest не показывает картинки",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы арт",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы без регистрации",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы вк",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы готовка еды",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы дп",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест заблокировали",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest как вести",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест стиль",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика аналитика",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика бесплатно онлайн",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика вход",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика групп",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика дота 2",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика евро",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics анимация",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics бот",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вывод денег",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics геншин",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics есть",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics extension",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics алгоритмы",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вопросы",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics гайд на русском",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics документация",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics ежедневник",
+   "score": 0.87,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест история 2",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест история создания",
+   "score": 0.87,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест 1",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics гайд 2023",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ 2023",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест одежда",
+   "score": 0.87,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест апи",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест бот телеграм",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест веб",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест гугл",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест для рекламы",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы аниме",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы есть",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает видео",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы анимация",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы без фона",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы веб",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы готовое видео",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest statistics 2025",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика блогеров",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика встреч",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика для инстаграм",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика ежедневник",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics андроид",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics графика",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics trends",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics аналитика",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics баг",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics где найти",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics дизайнер",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics евро 202",
+   "score": 0.77,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест история пк",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест история просмотра",
+   "score": 0.77,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест live",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика xiaomi",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ русский язык",
+   "score": 0.77,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест автоматически",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест бот в тг",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест возможности",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест группы",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы ее",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы актуальные",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы в ленте",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест видео",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest statistics 2026",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика бот",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика в инстаграм",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика для бизнеса",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics в россии",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics api",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics автор",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вопросы на русском",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics график",
+   "score": 0.69,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест история мем",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "есть ли в пинтерест история просмотров",
+   "score": 0.69,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест speed up",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика minecraft",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ химия",
+   "score": 0.69,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест в инстаграм",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает комментарии",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест показы видео",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "почему не показывает пинтерест",
+   "score": 0.62,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest stats extension",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика дота",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics reddit",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics вопросы на собеседовании",
+   "score": 0.62,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "история пинтерест как посмотреть",
+   "score": 0.62,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics как пользоваться",
+   "score": 0.62,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "аналитика пинтерест 4",
+   "score": 0.62,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика shorts",
+   "score": 0.62,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics егэ информатика",
+   "score": 0.62,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает доски",
+   "score": 0.57,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest stats checker",
+   "score": 0.57,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics online",
+   "score": 0.57,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "где в пинтерест история просмотров",
+   "score": 0.57,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "пинтерест статистика 2",
+   "score": 0.57,
+   "sources": [
+    "yt"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает сохраненные пины",
+   "score": 0.53,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest stats viewer",
+   "score": 0.53,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "есть ли в пинтерест история просмотра",
+   "score": 0.53,
+   "sources": [
+    "ya"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает мои пины",
+   "score": 0.49,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest statistik",
+   "score": 0.49,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics on ios",
+   "score": 0.49,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает мои доски",
+   "score": 0.45,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest stats 2025",
+   "score": 0.45,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics not working",
+   "score": 0.45,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "пинтерест не показывает лайки",
+   "score": 0.43,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest stats not showing",
+   "score": 0.43,
+   "sources": [
+    "gg"
+   ]
+  },
+  {
+   "phrase": "pinterest analytics chrome extension",
+   "score": 0.43,
+   "sources": [
+    "gg"
+   ]
+  }
+ ],
+ "raw": [
+  [
+   "yt",
+   "аналитика пинтерест",
+   "аналитика пинтереста"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест в",
+   "аналитика пинтерест вход"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест",
+   "аналитика пинтерест"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест",
+   "analitik pinterest"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест",
+   "аналитика пинтерест бот"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест а",
+   "аналитика пинтерест аналоги"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест а",
+   "аналитика пинтерест аккаунт"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест а",
+   "аналитика пинтерест апи"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест а",
+   "аналитика пинтерест автоматически"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест б",
+   "аналитика пинтерест бот"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест б",
+   "аналитика пинтерест бесплатно"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест б",
+   "аналитика пинтерест бот телеграм"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест б",
+   "аналитика пинтерест бот в тг"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика в пинтерест"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика пинтерест видео"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика пинтерест веб"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика пинтерест возможности"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика пинтерест в инстаграм"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест в",
+   "аналитика пинтерест вход"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест г",
+   "аналитика пинтерест гайд"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест г",
+   "аналитика пинтерест генератор"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест г",
+   "аналитика пинтерест гугл"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест г",
+   "аналитика пинтерест группы"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест д",
+   "аналитика пинтерест дизайн"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест д",
+   "аналитика пинтерест для бизнеса"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест д",
+   "аналитика пинтерест для рекламы"
+  ],
+  [
+   "gg",
+   "аналитика пинтерест е",
+   "аналитика пинтерест еды"
+  ],
+  [
+   "ya",
+   "аналитика пинтерест",
+   "аналитика пинтерест"
+  ],
+  [
+   "ya",
+   "аналитика пинтерест",
+   "пинтерест аналитика"
+  ],
+  [
+   "yt",
+   "пинтерест показы",
+   "пинтерест показывают"
+  ],
+  [
+   "yt",
+   "пинтерест показы а",
+   "пинтерест показы асмр"
+  ],
+  [
+   "yt",
+   "пинтерест показы а",
+   "пинтерест показы айфон"
+  ],
+  [
+   "yt",
+   "пинтерест показы а",
+   "пинтерест показы аниме"
+  ],
+  [
+   "yt",
+   "пинтерест показы б",
+   "пинтерест показы бокс"
+  ],
+  [
+   "yt",
+   "пинтерест показы б",
+   "пинтерест показы буду"
+  ],
+  [
+   "yt",
+   "пинтерест показы в",
+   "пинтерест показы в gta v"
+  ],
+  [
+   "yt",
+   "пинтерест показы в",
+   "пинтерест показы виде"
+  ],
+  [
+   "yt",
+   "пинтерест показы г",
+   "пинтерест показы гуля"
+  ],
+  [
+   "yt",
+   "пинтерест показы г",
+   "пинтерест показы года"
+  ],
+  [
+   "yt",
+   "пинтерест показы д",
+   "пинтерест показы дома"
+  ],
+  [
+   "yt",
+   "пинтерест показы д",
+   "пинтерест показы дети"
+  ],
+  [
+   "yt",
+   "пинтерест показы д",
+   "пинтерест показы директ"
+  ],
+  [
+   "yt",
+   "пинтерест показы е",
+   "пинтерест показы еды"
+  ],
+  [
+   "yt",
+   "пинтерест показы е",
+   "пинтерест показы егэ"
+  ],
+  [
+   "yt",
+   "пинтерест показы е",
+   "пинтерест показы есть"
+  ],
+  [
+   "yt",
+   "пинтерест показы е",
+   "пинтерест показы её"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает пины"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "pinterest не показывает картинки"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает видео"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "почему пинтерест показывает одно и тоже"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает комментарии"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает доски"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает сохраненные пины"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает мои пины"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает мои доски"
+  ],
+  [
+   "gg",
+   "пинтерест показы",
+   "пинтерест не показывает лайки"
+  ],
+  [
+   "gg",
+   "пинтерест показы а",
+   "пинтерест показы айфон"
+  ],
+  [
+   "gg",
+   "пинтерест показы а",
+   "пинтерест показы арт"
+  ],
+  [
+   "gg",
+   "пинтерест показы а",
+   "пинтерест показы анимация"
+  ],
+  [
+   "gg",
+   "пинтерест показы а",
+   "пинтерест показы актуальные"
+  ],
+  [
+   "gg",
+   "пинтерест показы б",
+   "пинтерест показы бесплатно"
+  ],
+  [
+   "gg",
+   "пинтерест показы б",
+   "пинтерест показы без регистрации"
+  ],
+  [
+   "gg",
+   "пинтерест показы б",
+   "пинтерест показы без фона"
+  ],
+  [
+   "gg",
+   "пинтерест показы в",
+   "показы в пинтерест"
+  ],
+  [
+   "gg",
+   "пинтерест показы в",
+   "пинтерест показы вк"
+  ],
+  [
+   "gg",
+   "пинтерест показы в",
+   "пинтерест показы веб"
+  ],
+  [
+   "gg",
+   "пинтерест показы в",
+   "пинтерест показы в ленте"
+  ],
+  [
+   "gg",
+   "пинтерест показы в",
+   "пинтерест показы видео"
+  ],
+  [
+   "gg",
+   "пинтерест показы г",
+   "пинтерест показы гугл"
+  ],
+  [
+   "gg",
+   "пинтерест показы г",
+   "пинтерест показы готовка еды"
+  ],
+  [
+   "gg",
+   "пинтерест показы г",
+   "пинтерест показы готовое видео"
+  ],
+  [
+   "gg",
+   "пинтерест показы д",
+   "пинтерест показы для рилс"
+  ],
+  [
+   "gg",
+   "пинтерест показы д",
+   "пинтерест показы дп"
+  ],
+  [
+   "gg",
+   "пинтерест показы д",
+   "пинтерест показы директ"
+  ],
+  [
+   "gg",
+   "пинтерест показы е",
+   "пинтерест показы еда"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "пинтерест не показывает картинки"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "что значит показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "что такое показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "как увеличить показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "почему не показывает пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "почему пинтерест показывает одно и тоже"
+  ],
+  [
+   "ya",
+   "пинтерест показы",
+   "показы в пинтерест это"
+  ],
+  [
+   "ya",
+   "пинтерест показы в",
+   "что значит показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы в",
+   "что такое показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы в",
+   "как увеличить показы в пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест показы в",
+   "показы в пинтерест это"
+  ],
+  [
+   "yt",
+   "пинтерест статистика",
+   "pinterest statistics"
+  ],
+  [
+   "yt",
+   "пинтерест статистика",
+   "pinterest stats"
+  ],
+  [
+   "yt",
+   "пинтерест статистика",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест статистика",
+   "пинтерест видео"
+  ],
+  [
+   "yt",
+   "пинтерест статистика а",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест статистика б",
+   "пинтерест трафик"
+  ],
+  [
+   "yt",
+   "пинтерест статистика б",
+   "пинтерест заблокировали"
+  ],
+  [
+   "yt",
+   "пинтерест статистика в",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест статистика в",
+   "pinterest как вести"
+  ],
+  [
+   "yt",
+   "пинтерест статистика в",
+   "пинтерест трафик"
+  ],
+  [
+   "yt",
+   "пинтерест статистика г",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест статистика д",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест статистика д",
+   "пинтерест стиль"
+  ],
+  [
+   "yt",
+   "пинтерест статистика е",
+   "пинтерест история"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "пинтерест статистика"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest statistics"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest statistics 2025"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest statistics 2026"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest stats extension"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest stats checker"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest stats viewer"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest statistik"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest stats 2025"
+  ],
+  [
+   "gg",
+   "пинтерест статистика",
+   "pinterest stats not showing"
+  ],
+  [
+   "gg",
+   "пинтерест статистика а",
+   "пинтерест статистика аккаунта"
+  ],
+  [
+   "gg",
+   "пинтерест статистика а",
+   "пинтерест статистика аналитика"
+  ],
+  [
+   "gg",
+   "пинтерест статистика б",
+   "пинтерест статистика бесплатно"
+  ],
+  [
+   "gg",
+   "пинтерест статистика б",
+   "пинтерест статистика бесплатно онлайн"
+  ],
+  [
+   "gg",
+   "пинтерест статистика б",
+   "пинтерест статистика блогеров"
+  ],
+  [
+   "gg",
+   "пинтерест статистика б",
+   "пинтерест статистика бот"
+  ],
+  [
+   "gg",
+   "пинтерест статистика в",
+   "статистика в пинтерест"
+  ],
+  [
+   "gg",
+   "пинтерест статистика в",
+   "пинтерест статистика вход"
+  ],
+  [
+   "gg",
+   "пинтерест статистика в",
+   "пинтерест статистика встреч"
+  ],
+  [
+   "gg",
+   "пинтерест статистика в",
+   "пинтерест статистика в инстаграм"
+  ],
+  [
+   "gg",
+   "пинтерест статистика г",
+   "пинтерест статистика гугл"
+  ],
+  [
+   "gg",
+   "пинтерест статистика г",
+   "пинтерест статистика групп"
+  ],
+  [
+   "gg",
+   "пинтерест статистика д",
+   "пинтерест статистика для психологов"
+  ],
+  [
+   "gg",
+   "пинтерест статистика д",
+   "пинтерест статистика дота 2"
+  ],
+  [
+   "gg",
+   "пинтерест статистика д",
+   "пинтерест статистика для инстаграм"
+  ],
+  [
+   "gg",
+   "пинтерест статистика д",
+   "пинтерест статистика для бизнеса"
+  ],
+  [
+   "gg",
+   "пинтерест статистика д",
+   "пинтерест статистика дота"
+  ],
+  [
+   "gg",
+   "пинтерест статистика е",
+   "пинтерест статистика еды"
+  ],
+  [
+   "gg",
+   "пинтерест статистика е",
+   "пинтерест статистика евро"
+  ],
+  [
+   "gg",
+   "пинтерест статистика е",
+   "пинтерест статистика ежедневник"
+  ],
+  [
+   "ya",
+   "пинтерест статистика",
+   "пинтерест статистика"
+  ],
+  [
+   "ya",
+   "пинтерест статистика",
+   "статистика пинтерест"
+  ],
+  [
+   "yt",
+   "pinterest analytics",
+   "pinterest analytics"
+  ],
+  [
+   "yt",
+   "pinterest analytics",
+   "pinterest analytics explained"
+  ],
+  [
+   "yt",
+   "pinterest analytics",
+   "pinterest analytics overview"
+  ],
+  [
+   "yt",
+   "pinterest analytics",
+   "pinterest google analytics"
+  ],
+  [
+   "yt",
+   "pinterest analytics а",
+   "pinterest analytics айфон"
+  ],
+  [
+   "yt",
+   "pinterest analytics а",
+   "pinterest analytics анимация"
+  ],
+  [
+   "yt",
+   "pinterest analytics а",
+   "pinterest analytics андроид"
+  ],
+  [
+   "yt",
+   "pinterest analytics б",
+   "pinterest analytics бесплатно"
+  ],
+  [
+   "yt",
+   "pinterest analytics б",
+   "pinterest analytics бот"
+  ],
+  [
+   "yt",
+   "pinterest analytics в",
+   "pinterest analytics взлом"
+  ],
+  [
+   "yt",
+   "pinterest analytics в",
+   "pinterest analytics вывод денег"
+  ],
+  [
+   "yt",
+   "pinterest analytics в",
+   "pinterest analytics видео"
+  ],
+  [
+   "yt",
+   "pinterest analytics в",
+   "pinterest analytics в россии"
+  ],
+  [
+   "yt",
+   "pinterest analytics в",
+   "pinterest analytics вход"
+  ],
+  [
+   "yt",
+   "pinterest analytics г",
+   "pinterest analytics гайд"
+  ],
+  [
+   "yt",
+   "pinterest analytics г",
+   "pinterest analytics геншин"
+  ],
+  [
+   "yt",
+   "pinterest analytics г",
+   "pinterest analytics графика"
+  ],
+  [
+   "yt",
+   "pinterest analytics д",
+   "pinterest analytics для начинающих"
+  ],
+  [
+   "yt",
+   "pinterest analytics е",
+   "pinterest analytics егэ"
+  ],
+  [
+   "yt",
+   "pinterest analytics е",
+   "pinterest analytics есть"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics extension"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics trends"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics api"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics reddit"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics online"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics explained"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics on ios"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics not working"
+  ],
+  [
+   "gg",
+   "pinterest analytics",
+   "pinterest analytics chrome extension"
+  ],
+  [
+   "gg",
+   "pinterest analytics а",
+   "pinterest analytics аналоги"
+  ],
+  [
+   "gg",
+   "pinterest analytics а",
+   "pinterest analytics алгоритмы"
+  ],
+  [
+   "gg",
+   "pinterest analytics а",
+   "pinterest analytics аналитика"
+  ],
+  [
+   "gg",
+   "pinterest analytics а",
+   "pinterest analytics автор"
+  ],
+  [
+   "gg",
+   "pinterest analytics б",
+   "pinterest analytics блог"
+  ],
+  [
+   "gg",
+   "pinterest analytics б",
+   "pinterest analytics бесплатно"
+  ],
+  [
+   "gg",
+   "pinterest analytics б",
+   "pinterest analytics баг"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics вакансии"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics вопросы"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics видео"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics вопросы на русском"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics вопросы на собеседовании"
+  ],
+  [
+   "gg",
+   "pinterest analytics в",
+   "pinterest analytics вход"
+  ],
+  [
+   "gg",
+   "pinterest analytics г",
+   "pinterest analytics гайд"
+  ],
+  [
+   "gg",
+   "pinterest analytics г",
+   "pinterest analytics гайд на русском"
+  ],
+  [
+   "gg",
+   "pinterest analytics г",
+   "pinterest analytics где найти"
+  ],
+  [
+   "gg",
+   "pinterest analytics г",
+   "pinterest analytics график"
+  ],
+  [
+   "gg",
+   "pinterest analytics д",
+   "pinterest analytics дизайн"
+  ],
+  [
+   "gg",
+   "pinterest analytics д",
+   "pinterest analytics документация"
+  ],
+  [
+   "gg",
+   "pinterest analytics д",
+   "pinterest analytics дизайнер"
+  ],
+  [
+   "gg",
+   "pinterest analytics е",
+   "pinterest analytics егэ"
+  ],
+  [
+   "gg",
+   "pinterest analytics е",
+   "pinterest analytics ежедневник"
+  ],
+  [
+   "gg",
+   "pinterest analytics е",
+   "pinterest analytics евро 202"
+  ],
+  [
+   "ya",
+   "pinterest analytics",
+   "pinterest analytics"
+  ],
+  [
+   "yt",
+   "пинтерест история ",
+   "пинтерест история"
+  ],
+  [
+   "yt",
+   "пинтерест история ",
+   "пинтерест история 2"
+  ],
+  [
+   "yt",
+   "пинтерест история ",
+   "пинтерест история пк"
+  ],
+  [
+   "yt",
+   "пинтерест история ",
+   "пинтерест история мем"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "пинтерест история просмотров"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "пинтерест история создания"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "пинтерест история просмотра"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "есть ли в пинтерест история просмотров"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "история пинтерест как посмотреть"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "где в пинтерест история просмотров"
+  ],
+  [
+   "ya",
+   "пинтерест история ",
+   "есть ли в пинтерест история просмотра"
+  ],
+  [
+   "yt",
+   "pinterest analytics ",
+   "pinterest analytics explained"
+  ],
+  [
+   "yt",
+   "pinterest analytics ",
+   "pinterest analytics overview"
+  ],
+  [
+   "yt",
+   "pinterest analytics ",
+   "pinterest analytics"
+  ],
+  [
+   "yt",
+   "pinterest analytics ",
+   "pinterest google analytics"
+  ],
+  [
+   "yt",
+   "pinterest analytics ",
+   "pinterest analytics как пользоваться"
+  ],
+  [
+   "ya",
+   "pinterest analytics ",
+   "pinterest analytics"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест ",
+   "аналитика пинтерест 2"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест ",
+   "аналитика пинтерест 1"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест ",
+   "аналитика пинтерест live"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест ",
+   "аналитика пинтерест speed up"
+  ],
+  [
+   "yt",
+   "аналитика пинтерест ",
+   "аналитика пинтерест 4"
+  ],
+  [
+   "ya",
+   "аналитика пинтерест ",
+   "пинтерест аналитика"
+  ],
+  [
+   "ya",
+   "аналитика пинтерест ",
+   "аналитика пинтерест"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "pinterest statistics"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "pinterest stats"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "пинтерест статистика xiaomi"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "пинтерест статистика minecraft"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "пинтерест статистика shorts"
+  ],
+  [
+   "yt",
+   "пинтерест статистика ",
+   "пинтерест статистика 2"
+  ],
+  [
+   "ya",
+   "пинтерест статистика ",
+   "статистика пинтерест"
+  ],
+  [
+   "ya",
+   "пинтерест статистика ",
+   "пинтерест статистика"
+  ],
+  [
+   "yt",
+   "pinterest analytics гайд ",
+   "pinterest analytics гайд для новичк"
+  ],
+  [
+   "yt",
+   "pinterest analytics гайд ",
+   "pinterest analytics гайд 2023"
+  ],
+  [
+   "yt",
+   "pinterest analytics егэ ",
+   "pinterest analytics егэ русский"
+  ],
+  [
+   "yt",
+   "pinterest analytics егэ ",
+   "pinterest analytics егэ 2023"
+  ],
+  [
+   "yt",
+   "pinterest analytics егэ ",
+   "pinterest analytics егэ русский язык"
+  ],
+  [
+   "yt",
+   "pinterest analytics егэ ",
+   "pinterest analytics егэ химия"
+  ],
+  [
+   "yt",
+   "pinterest analytics егэ ",
+   "pinterest analytics егэ информатика"
+  ],
+  [
+   "yt",
+   "пинтерест показы айфон ",
+   "пинтерест айфон"
+  ],
+  [
+   "yt",
+   "пинтерест показы айфон ",
+   "пинтерест одежда"
+  ],
+  [
+   "yt",
+   "что значит показы в пинтерест ",
+   "что загуглить в пинтерест"
+  ],
+  [
+   "ya",
+   "что значит показы в пинтерест ",
+   "что значит показы в пинтерест"
+  ]
+ ]
+}
