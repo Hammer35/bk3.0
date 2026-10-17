@@ -396,6 +396,96 @@ def md_pinterest(L, p):
     return '\n'.join(o)
 
 
+def H(L, platform, creative, note=''):
+    return [f"# {platform} · урок {L['n']} · {creative}", '',
+            f"Этот файл — только для {creative}. {note}Требования площадки — ПРАВИЛА_ПЛОЩАДОК.txt (папка КУРС_PINTEREST), раздел «{platform}».".replace('  ', ' '), '']
+
+def lesson_tags(L):
+    """Curated keyword phrases of the lesson (built from real search suggestions), no duplicates."""
+    out = []
+    for t in L['youtube']['tags'] + L['rutube']['tags']:
+        if t.lower() not in [x.lower() for x in out]: out.append(t)
+    return out
+
+def pick_tags(L, text, k=6, used=None):
+    """Lesson keyword phrases ranked by overlap with this creative's own text; avoids the set already used."""
+    stem = lambda w: KWN.get(w, w)[:5]
+    tw = {stem(w) for w in words(text)}
+    pool = lesson_tags(L)
+    sc = sorted(pool, key=lambda t: (-len({stem(w) for w in words(t)} & tw), pool.index(t)))
+    out = sc[:k]
+    if used is not None:
+        key = tuple(sorted(out))
+        while key in used and len(sc) > k:
+            sc = sc[1:] + sc[:1]; out = sc[:k]; key = tuple(sorted(out))
+        used.add(key)
+    return out
+
+NOFIELD = 'отдельного поля нет — ключевые слова уже стоят в названии и описании; список для контроля'
+
+def kit(title, desc, tags, tags_note, hts, ht_note, extra=()):
+    """Standard creative block: title, description, tags, hashtags (+ extras)."""
+    o = block(f'Название (символов: {len(title)})', title) if title else block('Название', 'у этого формата отдельного поля названия нет')
+    o += block(f'Описание (символов без хэштегов: {len(desc.strip())})', desc)
+    o += block(f'Теги / ключевые слова{" — " + tags_note if tags_note else ""}', ', '.join(tags))
+    o += block(f'Хэштеги ({len(hts)} шт.) — {ht_note}', hashtags(hts)) if hts else block('Хэштеги', ht_note)
+    for t_, x_ in extra: o += block(t_, x_)
+    return o
+
+def creatives(L):
+    """{platform_dir: {txt_name: markdown}} — one complete text file per creative, named after it."""
+    y, v, r, ig, t, p = L['youtube'], L['vk_video'], L['rutube'], L['instagram'], L['threads'], L['pinterest']
+    tk = L.get('task') or {}; TG = lesson_tags(L); U = set()
+    END = 'вставить в конец описания'
+    o = {k: {} for k in ['YouTube', 'VK_Видео', 'VK_Клипы', 'Rutube', 'Instagram', 'Threads', 'Pinterest']}
+    def ab(m, titles, size, letters):
+        m += ['## A/B-тест: название и обложка', '', f'| Вариант | Название | Обложка {size} |', '|---|---|---|']
+        for i, tt in enumerate(titles): m.append(f"| {letters[i]} | {tt} | Обложка_{letters[i]}.jpg |")
+        return m + ['', 'Ниже — вариант A; B/C подставляются вместо названия при тесте.', '']
+    # YouTube long
+    m = ab(H(L, 'YouTube', 'Видео_16x9.mp4'), y['titles'], '1280×720', 'ABC')
+    m += kit(y['titles'][0], y['description'].strip() + ('\n\nГлавы:\n' + chapter_block(L, y.get('chapters')) if y.get('chapters') else ''),
+             y['tags'], f"поле «Теги» ({len(', '.join(y['tags']))}/500)", y['hashtags'], END,
+             [('Субтитры', 'загрузить Субтитры.srt из этой папки')] + ([('Закреплённый комментарий — задание к уроку', tk['youtube']), ('Второй комментарий — вопрос зрителям', y['comment'])] if tk else [('Закреплённый комментарий', y['comment'])]))
+    o['YouTube']['Видео_16x9.txt'] = '\n'.join(m)
+    for i, s in enumerate(y['shorts'], 1):
+        tg = pick_tags(L, s['title'] + ' ' + s['description'], 6, U)
+        o['YouTube'][f'Shorts_{i}.txt'] = '\n'.join(H(L, 'YouTube', f'Shorts_{i}.mp4', f'Обложка — Shorts_{i}_обложка.jpg. ') + kit(s['title'], s['description'].strip(), tg, 'поле «Теги»', s['hashtags'], END))
+    # VK Video
+    m = ab(H(L, 'VK Видео', 'Видео_16x9.mp4'), v['titles'], '1920×1080', 'AB')
+    m += kit(v['titles'][0], v['description'].strip() + ('\n\nТаймкоды:\n' + chapter_block(L, v.get('chapters')) if v.get('chapters') else ''),
+             pick_tags(L, v['titles'][0] + ' ' + v['description'], 10, U), NOFIELD, v['hashtags'], END,
+             [('Субтитры', 'загрузить Субтитры.srt из этой папки'), ('Пост в сообществе с этим видео', v['post'])] + ([('Комментарий под видео — задание к уроку (закрепить)', tk['vk_video'])] if tk else []))
+    o['VK_Видео']['Видео_16x9.txt'] = '\n'.join(m)
+    for i, c in enumerate(L['vk_clips'], 1):
+        full = c['description'].strip() + ' ' + hashtags(c['hashtags'])
+        o['VK_Клипы'][f'Клип_{i}.txt'] = '\n'.join(H(L, 'VK Клипы', f'Клип_{i}.mp4', f'Обложка — Клип_{i}_обложка.jpg. ') + kit('', c['description'].strip(), pick_tags(L, c['description'], 5, U), NOFIELD, c['hashtags'], f'{END}; вместе с описанием {len(full)}/200'))
+    # Rutube
+    m = ab(H(L, 'Rutube', 'Видео_16x9.mp4'), r['titles'], '1920×1080', 'AB')
+    m += kit(r['titles'][0], r['description'].strip() + ('\n\nТайм-коды:\n' + chapter_block(L, r.get('chapters')) if r.get('chapters') else ''),
+             r['tags'], 'поле «Теги»', [], 'Rutube хэштеги для поиска не использует — не нужны',
+             [('Субтитры', 'загрузить Субтитры.srt из этой папки')] + ([('Комментарий под видео — задание к уроку (закрепить)', tk['rutube'])] if tk else []))
+    o['Rutube']['Видео_16x9.txt'] = '\n'.join(m)
+    # Instagram
+    for i, rr in enumerate(ig['reels'], 1):
+        o['Instagram'][f'Reels_{i}.txt'] = '\n'.join(H(L, 'Instagram', f'Reels_{i}.mp4', f'Обложка — Reels_{i}_обложка.jpg. ') + kit('', rr['caption'].strip(), pick_tags(L, rr['caption'], 6, U), NOFIELD, rr['hashtags'], f'{END} (не больше 5)', [('Подпись для пробного показа (вариант Б)', rr['trial_caption'])]))
+    c = ig['carousel']; ns = len(c['slides'])
+    alts = [(f'Альтернативный текст · Карусель_{i:02}.jpg', a) for i, a in enumerate(c['alts'], 1)] if c.get('alts') else [('Альтернативный текст · Карусель_01.jpg', c['alt'])]
+    o['Instagram']['Карусель.txt'] = '\n'.join(H(L, 'Instagram', f'карусели Карусель_01.jpg … Карусель_{ns:02}.jpg', 'Все слайды — один пост. ') + kit('', c['caption'].strip(), pick_tags(L, c['caption'], 6, U), NOFIELD, c['hashtags'], f'{END} (не больше 5)', alts + ([('Первый комментарий — задание к уроку (закрепить)', tk['instagram'])] if tk else [])))
+    # Threads
+    posts = [(f"Пост {i}{' · прикрепить Карточка.jpg' if i == 1 else ' · ответом в ветке'} ({len(pp.strip())}/500)", pp) for i, pp in enumerate(t['posts'], 1)]
+    if tk: posts.append((f"Пост {len(t['posts']) + 1} — задание к уроку, ответом в ветке ({len(tk['threads'].strip())}/500)", tk['threads']))
+    o['Threads']['Карточка.txt'] = '\n'.join(H(L, 'Threads', 'Карточка.jpg и ветки постов') + block('Название', 'у Threads поля названия нет') + block('Тема (одна, выбирается в поле «Добавить тему»)', t['topic']) + block('Теги / ключевые слова — ' + NOFIELD, ', '.join(pick_tags(L, ' '.join(t['posts']), 6, U))) + block('Хэштеги', 'не нужны: Threads вместо хэштегов использует одну тему поста') + sum((block(a_, b_) for a_, b_ in posts), []))
+    # Pinterest
+    PT = 'поле «Отмеченные темы»: вводите по слову и выбирайте совпадающие варианты из подсказок Pinterest'
+    for i, pin in enumerate(p['pins']):
+        k = 'AB'[i]; full = (pin['description'].strip() + ' ' + hashtags(pin.get('hashtags', []))).strip()
+        o['Pinterest'][f'Пин_{k}.txt'] = '\n'.join(H(L, 'Pinterest', f'Пин_{k}.jpg') + kit(pin['title'], pin['description'].strip(), pick_tags(L, pin['title'] + ' ' + pin['description'], 5, U), PT, pin.get('hashtags', []), f'{END}; вместе с описанием {len(full)}/500', [('Доска', pin['board']), (f"Альтернативный текст ({len(pin['alt'])}/500)", pin['alt']), ('Ссылка', 'не указывать, пока нет проверенной страницы урока')]))
+    vp = p['video_pin']; full = (vp['description'].strip() + ' ' + hashtags(vp.get('hashtags', []))).strip()
+    o['Pinterest']['Видеопин.txt'] = '\n'.join(H(L, 'Pinterest', 'Видеопин.mp4', 'Обложку выбрать из кадров при загрузке. ') + kit(vp['title'], vp['description'].strip(), pick_tags(L, vp['title'] + ' ' + vp['description'], 5, U), PT, vp.get('hashtags', []), f'{END}; вместе с описанием {len(full)}/500', [('Доска', vp['board']), ('Ссылка', 'не указывать, пока нет проверенной страницы урока')]))
+    return o
+
+
 def to_txt(md):
     """Plain-text rendering for people: no markup, opens in any editor."""
     out = []; in_block = False
@@ -514,12 +604,15 @@ def check(lessons, k=4):
         for g in grams(s, k): index[g].add(where)
     def legit(ws):
         # alt text must transcribe the lettering of its own image
+        # fields of one and the same creative (title, description, alt, lettering) may share words
+        heads = {w.rsplit('/', 1)[0] for w in ws}
+        if len(heads) == 1 and next(iter(heads)).split('/', 1)[1] in ('Pinterest A', 'Pinterest B', 'Видеопин') and {w.rsplit('/', 1)[1] for w in ws} <= {'название', 'описание', 'alt', 'картинка'}: return True
         if len(ws) != 2: return False
         a, b = sorted(ws)
         pa, pb = a.rsplit('/', 1), b.rsplit('/', 1)
         if pa[0] != pb[0]: return False
         x = {pa[1], pb[1]}
-        if x in ({'alt', 'картинка'}, {'alt', 'слайд 1'}): return True
+        if x in ({'alt', 'картинка'}, {'alt', 'слайд 1'}, {'описание', 'картинка'}): return True
         m = [t for t in x if t.startswith('alt слайда ')]
         return bool(m) and ('слайд ' + m[0].split()[-1]) in x
     kwg = {}
@@ -551,6 +644,11 @@ def load(n):
     if v2.exists(): L = merge(L, yaml.safe_load(v2.read_text()))
     for p_ in L['threads']['posts']: pass
     L['threads']['posts'] = [re.sub(r'\s*#\S+', '', p_).rstrip() for p_ in L['threads']['posts']]
+    pf = SRC / 'pins_full.yaml'
+    if pf.exists():
+        e = (yaml.safe_load(pf.read_text()) or {}).get(n)
+        if e:
+            L['pinterest']['pins'][1]['description'] = e['b']; L['pinterest']['video_pin']['description'] = e['v']
     if TASKS.exists():
         L['task'] = (yaml.safe_load(TASKS.read_text()) or {}).get(n)
     return L
@@ -595,12 +693,10 @@ def build(n, video=True, images=True):
         carousel(ig['carousel']['slides'], [A(i + 1) for i in range(len(sh))], n, P['Instagram'])
         threads_card(t['card'], S(3), P['Threads'] / 'Карточка.jpg')
         for i, pin in enumerate(p['pins']): pin_image(i, pin, T(i * 2) if i == 0 else S(1), n, P['Pinterest'] / f"Пин_{'AB'[i]}.jpg")
-    md = {'YouTube': md_youtube(L, y), 'VK_Видео': md_vk_video(L, v), 'VK_Клипы': md_vk_clips(L, L['vk_clips']),
-          'Rutube': md_rutube(L, r), 'Instagram': md_instagram(L, ig), 'Threads': md_threads(L, t), 'Pinterest': md_pinterest(L, p)}
-    for k, txt in md.items():
-        (P[k] / 'Публикация.txt').write_text(to_txt(txt), encoding='utf-8')
-        old = P[k] / 'Публикация.md'
-        if old.exists(): old.unlink()
+    for k, files in creatives(L).items():
+        for fn, txt in files.items(): (P[k] / fn).write_text(to_txt(txt), encoding='utf-8')
+        for old in [P[k] / 'Публикация.txt', P[k] / 'Публикация.md']:
+            if old.exists(): old.unlink()
     srt = d / '02_Текст_урока/Субтитры_полного_урока.srt'
     for k in ['YouTube', 'VK_Видео', 'Rutube']:
         dst = P[k] / 'Субтитры.srt'
