@@ -11,7 +11,7 @@ Usage:
 from pathlib import Path
 import sys, re, json, glob, subprocess, itertools, collections, os, math
 import yaml
-from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter, ImageStat
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'artifacts/pinterest-course/publication'
@@ -56,7 +56,9 @@ def shots(n):
         fs = [Path(f) for f in glob.glob(str(lesson_dir(n) / '05_Слайды/Реальные_скриншоты/*'))]
     good = []
     for f in fs:
-        w, h = Image.open(f).size
+        im = Image.open(f); w, h = im.size
+        # skip captures taken before the page loaded: content area is one flat colour
+        if ImageStat.Stat(im.convert('L').crop((w // 10, h // 10, w, h))).stddev[0] < 12: continue
         if w >= 700 and h >= 380: good.append((w * h, f))
     good.sort(key=lambda x: (-x[0], x[1].name))
     return [f for _, f in good] or [f for f in fs]
