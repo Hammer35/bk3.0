@@ -6,7 +6,7 @@ import { writeFileSync } from 'node:fs';
 
 const [cmd, arg] = process.argv.slice(2);
 const list = await (await fetch('http://127.0.0.1:9335/json/list')).json();
-const page = list.find((t) => t.type === 'page' && t.url.includes('google.com'));
+const page = list.find((t) => t.type === 'page' && t.url.includes('gemini.google.com'));
 if (!page) throw new Error('no gemini page');
 const ws = new WebSocket(page.webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener('open', r, { once: true }));
@@ -77,7 +77,7 @@ if (cmd === 'upload') {
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
     return true;
   };
-  const item = `()=>document.querySelector('button[aria-label^="Upload files"],button[aria-label^="Загрузить файлы"]')||[...document.querySelectorAll('[role=menu] *')].filter(e=>e.children.length==0&&[${JSON.stringify(arg)},'Файлы'].includes((e.innerText||'').trim())).map(e=>e.closest('button,[role=menuitem]')||e)[0]`;
+  const item = `()=>document.querySelector('button[aria-label^="Upload files"],button[aria-label^="Загрузить файлы"],button[aria-label^="Загрузка файлов"]')||[...document.querySelectorAll('[role=menu] *')].filter(e=>e.children.length==0&&[${JSON.stringify(arg)},'Файлы'].includes((e.innerText||'').trim())).map(e=>e.closest('button,[role=menuitem]')||e)[0]`;
   let p = null;
   for (let attempt = 0; attempt < 3 && !p; attempt++) {
     await tap(`()=>document.querySelector(${UP})`);

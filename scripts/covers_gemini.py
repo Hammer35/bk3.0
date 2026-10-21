@@ -10,7 +10,7 @@ Output: artifacts/pinterest-course/covers-v2/gemini/NN/<platform>/<file>, exact 
 """
 from pathlib import Path
 import sys, json, subprocess, time, shutil
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / 'artifacts/pinterest-course/covers-v2'
@@ -19,7 +19,8 @@ RAW = OUT / '_raw'
 TEXTS = json.loads((WORK / 'texts.json').read_text())
 CDP = ['node', str(ROOT / 'scripts/gemini_cdp.mjs')]
 ANNA = WORK / 'anna_face_ref.jpg'
-STYLE = WORK / 'references/ref_01.png'               # the user's reference (the old approved cover had the logo on Anna)
+REFS = sorted((WORK / 'references').glob('ref_*.png'))   # all of the user's reference covers ("инстансы")
+ATTACH = [ANNA] + REFS
 COURSE = ROOT / 'КУРС_PINTEREST'
 
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -31,14 +32,24 @@ TALL = (1080, 1920)
 
 # A/B/C must look different, not just carry another headline
 LOOKS = [
-    ('уверенно и доброжелательно улыбается, рот закрыт, смотрит прямо в камеру', 'красный акцент, плашка красная'),
-    ('спокойная уверенная полуулыбка эксперта, руки скрещены на груди, смотрит прямо в камеру', 'жёлтый акцент, плашка жёлтая с чёрным текстом'),
-    ('серьёзно и уверенно смотрит в камеру, указывает пальцем на заголовок', 'бело-красный акцент, плашка белая с красным текстом'),
+    ('уверенно и доброжелательно улыбается, рот закрыт, смотрит прямо в камеру, плечи расслаблены', 'красный акцент, плашка красная'),
+    ('спокойная уверенная полуулыбка эксперта, руки спокойно скрещены на груди, смотрит прямо в камеру', 'жёлтый акцент, плашка жёлтая с чёрным текстом'),
+    ('серьёзно и уверенно смотрит в камеру, одна рука на уровне груди открытой ладонью показывает в сторону заголовка', 'бело-красный акцент, плашка белая с красным текстом'),
 ]
 EXPERT = ('Она эксперт и преподаватель курса: спокойная, уверенная, доброжелательная, рот закрыт. '
           'ЗАПРЕЩЕНО: удивление, испуг, открытый рот, рука у щеки или у лица, гримасы. '
           'На женщине и перед ней НИЧЕГО нет: ни логотипа, ни карточек, ни строки поиска, ни предметов, ни текста — '
           'все предметы только в стороне от неё и не перекрывают её ни на миллиметр.')
+REF_TEXT = ('Прикреплено несколько изображений. ПЕРВОЕ — фото Анны: возьми с него только её лицо и внешность. '
+            'ОСТАЛЬНЫЕ — образцы профессиональных обложек: возьми с них уровень качества, яркость и насыщенность, объёмный 3D-шрифт с обводкой и тенью, '
+            'плашки, свечение, глубину и детализацию. Людей, лица и текст с образцов НЕ переносить. ')
+SERIES = ('Единый стиль всей серии курса: тёплый тёмно-красный фон с золотыми искрами и мягким боке, белые объёмные буквы с тенью, '
+          'вторая строка заголовка на плашке, жёлтая плашка «УРОК». ')
+PHOTO = ('Кадр — как профессиональная студийная фотосессия: объектив 85 мм, мягкий ключевой свет на лице, тёплый контровой свет по волосам, '
+         'резкие глаза, естественная кожа с текстурой, без пластикового и мультяшного вида. ')
+ANATOMY = ('Анатомия безупречная: естественные пропорции головы, шеи, плеч и рук; на каждой руке ровно пять пальцев нормальной длины; '
+           'указательный палец обычной длины, не вытянутый и не толстый; кисть меньше лица; руки не сливаются со свитером; '
+           'никаких лишних, сросшихся или изогнутых пальцев. ')
 
 def covers(n):
     """[(rel, headline, kind, look)]: video covers first, then posts and pins.
@@ -59,43 +70,44 @@ def dst(n, rel): return OUT / f'{n:02}' / rel
 POST = {'slide': ('ВЕРТИКАЛЬНЫЙ пост 4:5 (1080×1350)', (1080, 1350)), 'card': ('ВЕРТИКАЛЬНЫЙ пост 4:5 (1080×1350)', (1080, 1350)),
         'pin': ('ВЕРТИКАЛЬНЫЙ пин для Pinterest 2:3 (1000×1500)', (1000, 1500))}
 MARGIN = 'Весь текст держи внутри кадра с полями не меньше 8% от каждого края. '
+REAL = 'ИЛЛЮСТРАЦИИ — КАЧЕСТВЕННЫЕ И НАСТОЯЩИЕ: фотореалистичные предметы и карточки-пины с настоящими красивыми фотографиями (интерьер, еда, одежда, товары по теме), как в живой ленте Pinterest. ЗАПРЕЩЕНЫ заглушки: пустые карточки, серые полоски вместо текста, плоские мультяшные иконки (лампочки, компасы, лупы, графики-значки, документы-значки). '
 
 def post_prompt(n, rel, t, kind, var):
     T = TEXTS[str(n)]; prop = cv2.BRIEF[n][0]
     fmt = POST[kind][0]
-    style = ('Стиль, шрифт, обводка и объём букв, свечение — как на втором прикреплённом изображении (образец стиля); '
-             'ничего не копируй с него, кроме стиля. Тёмный насыщенный фон со свечением и искрами. ')
+    style = REF_TEXT + SERIES + PHOTO
     anna = (f'Женщина: с первого прикреплённого фото — то же лицо, каштановые волнистые волосы до плеч, горчичный вязаный свитер. '
-            f'Она {LOOKS[var % 3][0]}. {EXPERT} ')
-    exact = 'Текст — только этот, по-русски, без ошибок, буква в букву, каждое слово один раз; никакого другого текста, цифр и водяных знаков:\n'
+            f'Она {LOOKS[var % 3][0]}. {EXPERT} {ANATOMY}')
+    exact = 'Текст — только этот, по-русски, без ошибок, буква в букву, каждое слово один раз, НЕ добавляй своих слов и подзаголовков; никакого другого текста, цифр и водяных знаков; на предметах и строке поиска нет ни одной буквы:\n'
     if kind == 'slide':
         sl = T['carousel'][var - 1]; last = var == len(T['carousel'])
         if var == 1:
-            body = (f'Обложка карусели Instagram. {anna}Женщина крупно по грудь в нижней половине. Предметы по теме урока «{T["title"]}» в стороне: {prop}. '
+            body = (f'Обложка карусели Instagram. {anna}Женщина крупно по грудь в нижней половине; перед её телом, руками и лицом ничего нет. Предметы по теме урока «{T["title"]}» в стороне: {prop}. '
                     f'{exact}1) огромный заголовок вверху: «{sl["title"].upper()}»;\n2) под ним строка: «{sl["body"]}»;\n'
-                    f'3) маленькая жёлтая плашка: «УРОК {n}»;\n4) внизу справа маленькая надпись: «ЛИСТАЙТЕ →».')
+                    f'3) маленькая жёлтая плашка: «УРОК {n}» — у верхнего края кадра, НЕ на женщине;\n4) внизу справа маленькая надпись: «ЛИСТАЙТЕ →».')
         else:
-            head = 'ЗАДАНИЕ' if last else f'{var - 1:02}'
-            body = (f'Слайд {var} карусели Instagram, без людей. Небольшая 3D-иллюстрация по смыслу слайда внизу, в теме урока «{T["title"]}». '
-                    f'{exact}1) вверху крупно жёлтым: «{head}»;\n2) огромный заголовок: «{sl["title"].upper()}»;\n'
+            head = 'ЗАДАНИЕ' if last else f'УРОК {n}'          # no slide numbers: lessons are numbered, slides are not
+            body = (f'Слайд {var} карусели Instagram. {anna}Женщина по грудь в нижней правой части кадра, смотрит в камеру, рядом с текстом; '
+                    f'рядом с ней — наглядная фотореалистичная сцена по смыслу этого слайда в теме урока «{T["title"]}» (например, телефон с живой лентой Pinterest, настоящие фото-карточки, экран сайта), не перекрывает её. '
+                    f'{exact}1) вверху маленькая жёлтая плашка: «{head}»;\n2) огромный заголовок: «{sl["title"].upper()}»;\n'
                     f'3) под ним обычным белым текстом, крупно и читаемо: «{sl["body"]}»'
                     + (';\n4) внизу маленькая надпись: «СОХРАНИТЕ, ЧТОБЫ ВЕРНУТЬСЯ».' if last else '.'))
     elif kind == 'card':
-        body = (f'Карточка для поста в Threads. {anna}Женщина крупно по грудь в нижней половине. Предметы по теме в стороне: {prop}. '
-                f'{exact}1) огромный заголовок вверху: «{t.upper()}»;\n2) маленькая жёлтая плашка: «УРОК {n}».')
+        body = (f'Карточка для поста в Threads. {anna}Женщина крупно по грудь в нижней половине; перед её телом, руками и лицом ничего нет. Предметы по теме в стороне: {prop}. '
+                f'{exact}1) огромный заголовок вверху: «{t.upper()}»;\n2) маленькая жёлтая плашка: «УРОК {n}» — у верхнего края кадра, НЕ на женщине.')
     else:
         pn = T['pins'][var]
         if pn['points']:
             pts = '\n'.join(f'   {k}. «{x}»' for k, x in enumerate(pn['points'], 1))
-            body = (f'Пин-шпаргалка, без людей. Аккуратная инфографика: заголовок вверху, ниже нумерованный список в красных кружках с цифрами, '
-                    f'небольшая 3D-иллюстрация по теме внизу. {exact}1) заголовок: «{t.upper()}»;\n2) список:\n{pts}\n'
+            body = (f'Пин-шпаргалка. {anna}Женщина по грудь в нижней части кадра. Аккуратная инфографика над ней: заголовок вверху, ниже нумерованный список в красных кружках с цифрами; '
+                    f'список не перекрывает женщину. {exact}1) заголовок: «{t.upper()}»;\n2) список:\n{pts}\n'
                     f'3) маленькая подпись внизу: «КУРС ПО PINTEREST · УРОК {n}».')
         else:
-            body = (f'Пин для Pinterest. {anna}Женщина крупно по грудь в нижней половине. Предметы по теме в стороне: {prop}. '
-                    f'{exact}1) огромный заголовок вверху: «{t.upper()}»;\n2) маленькая жёлтая плашка: «УРОК {n}».')
-    logo_rule = ('Логотип Pinterest — ровно один, небольшой красный круглый, в верхнем углу кадра, далеко от женщины. '
-                 if kind != 'slide' or var == 1 else 'Без логотипов. ')
-    return f'Создай изображение: {fmt}, не квадрат и не горизонтальное. {style}{logo_rule}{MARGIN}\n\n{body}'
+            body = (f'Пин для Pinterest. {anna}Женщина крупно по грудь в нижней половине; перед её телом, руками и лицом ничего нет. Предметы по теме в стороне: {prop}. '
+                    f'{exact}1) огромный заголовок вверху: «{t.upper()}»;\n2) маленькая жёлтая плашка: «УРОК {n}» — у верхнего края кадра, НЕ на женщине.')
+    logo_rule = ('Логотип Pinterest — РОВНО ОДИН на всё изображение (не два и не больше), небольшой красный круглый, в верхнем левом углу кадра, далеко от женщины. '
+                 if kind != 'slide' or var == 1 else 'Логотип Pinterest — ровно один, маленький, в верхнем углу кадра, далеко от женщины. ')
+    return f'Создай изображение: {fmt}, не квадрат и не горизонтальное. {style}{logo_rule}{MARGIN}{REAL}\n\n{body}'
 
 def prompt(n, rel, t, kind, var):
     if kind in POST: return post_prompt(n, rel, t, kind, var)
@@ -111,23 +123,23 @@ def prompt(n, rel, t, kind, var):
     else:
         reels = 'Instagram/Reels' in rel
         frame = ('ВЕРТИКАЛЬНУЮ, строго 9:16 (1080×1920), не квадрат и не горизонтальную. Огромный заголовок в верхней трети, '
-                 'женщина крупно по грудь в нижней половине, предметы по теме вокруг'
+                 'женщина крупно по грудь в нижней половине; предметы по теме — только по бокам от её головы и выше, НИЧЕГО не проходит перед её телом, руками и лицом; её фигура доходит до самого нижнего края кадра, без обрезанного края и пустых полос'
                  + ('. ВАЖНО: верхняя 1/8 и нижняя 1/8 высоты кадра — только фон, без текста и плашек; весь текст, плашка «УРОК» и лицо — в центральной части кадра' if reels else ''))
     return f'''Создай изображение: обложку для видео, {frame}.
 
-Стиль, шрифт, качество, обводка и объём букв, свечение — точно как на втором прикреплённом изображении (это образец стиля), но человек, текст, композиция и предметы — свои, по описанию ниже; ничего не копируй со второго изображения, кроме стиля.
+{REF_TEXT}{SERIES}{PHOTO}
 
-Женщина: с первого прикреплённого фото — то же лицо, каштановые волнистые волосы до плеч, горчичный вязаный свитер. Она {face}. {EXPERT}
+Женщина: с первого прикреплённого фото — то же лицо, каштановые волнистые волосы до плеч, горчичный вязаный свитер. Она {face}. {EXPERT} {ANATOMY}
 
-Тема урока {n}: «{T['title']}». Предметы по теме: {prop}. Логотип Pinterest — ровно один, небольшой красный круглый, СТРОГО вплотную слева от плашки «УРОК» (на той же высоте), далеко от женщины. Логотип НЕ касается и НЕ перекрывает женщину: не на голове, не на волосах, не на лице, не на теле, не на одежде, не в руках и не рядом с ними.
+Тема урока {n}: «{T['title']}». Сцена подробно: {prop} — объекты крупные и детализированные, с отражениями, тенями и глубиной резкости. {REAL} Логотип Pinterest — ровно один, небольшой красный круглый, СТРОГО вплотную слева от плашки «УРОК» (на той же высоте), далеко от женщины; ни плашка, ни логотип не заходят на женщину. Логотип НЕ касается и НЕ перекрывает женщину: не на голове, не на волосах, не на лице, не на теле, не на одежде, не в руках и не рядом с ними.
 
-Оформление: {accent}. Тёмный насыщенный фон со свечением и искрами.
+Оформление: {accent}.
 
 Текст на обложке — только этот, по-русски, без ошибок, буква в букву:
 1) огромный заголовок «{head}» — ровно эти слова, каждое ровно один раз, ничего не добавлять и не повторять: {lines};
-2) маленькая жёлтая плашка: «УРОК {n}»;
+2) маленькая жёлтая плашка «УРОК {n}» — {'над заголовком, у верхнего края кадра' if kind == 't' else 'рядом с заголовком'}, НЕ на женщине;
 {'3) маленькая белая лента внизу: «' + ribbon + '».' if kind == 'w' else ''}
-Никакого другого текста, цифр и водяных знаков.'''
+Никакого другого текста, цифр и водяных знаков; строка поиска пустая, на карточках и предметах нет ни одной буквы, ни на каком языке.'''
 
 def cdp(*a, timeout=120):
     r = subprocess.run(CDP + list(a), capture_output=True, text=True, timeout=timeout)
@@ -136,30 +148,101 @@ def cdp(*a, timeout=120):
 
 class LimitError(RuntimeError): pass
 
-def gemini(p, raw_dir):
+FLOW = ['node', str(ROOT / 'scripts/flow_cdp.mjs')]
+ASPECT = {'w': '16:9', 't': '9:16', 'slide': '3:4', 'card': '3:4', 'pin': '3:4'}
+
+def flow(*a, timeout=120):
+    r = subprocess.run(FLOW + list(a), capture_output=True, text=True, timeout=timeout)
+    if r.returncode: raise RuntimeError(f'flow {a[0]}: ' + next((l for l in r.stderr.splitlines() if 'Error' in l), r.stderr.strip()[-200:]))
+    return r.stdout.strip()
+
+_aspect = None
+
+def flow_prompt(p, kind):
+    return p.replace('Создай изображение:', f'Сгенерируй ОДНО изображение (Нано Банан Про, формат {ASPECT[kind]}):')
+
+def flow_gen(p, raw_dir, kind='w'):
+    """One image from Google Flow (Nano Banana Pro, free there). Returns the downloaded file."""
+    before = {u for u, _ in json.loads(flow('images') or '[]')}
+    want = 'w' if kind == 'w' else 't'
+    global _aspect
+    if _aspect != ASPECT[kind]: flow('aspect', ASPECT[kind]); _aspect = ASPECT[kind]
+    flow('clear')
+    for f in ATTACH: flow('attach', f.name)
+    flow('prompt', flow_prompt(p, kind))
+    new = []
+    for _ in range(60):
+        time.sleep(5)
+        new = [u for u, o in json.loads(flow('images') or '[]') if u not in before and o == want]
+        st = json.loads(flow('state'))
+        if new and not st['busy']: break
+        if not st['busy'] and 'usage limit' in st['text']: raise LimitError('лимит Flow')
+    if not new: raise RuntimeError('flow: no image')
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    out = raw_dir / f'flow_{int(time.time())}.png'
+    flow('fetch', new[0], str(out))
+    return out
+
+MARK = {'flow': 98, 'app': 117}                    # sparkle centre offset from the bottom-right corner, at 768 px short side
+_mark = 'flow'
+
+def unmark(im):
+    """Flow draws a small sparkle ~98 px (at 768 px short side) from the bottom-right corner.
+    Cover it with the patch right above it, feathered, so nothing else in the frame changes."""
+    from PIL import ImageFilter
+    w, h = im.size; k = min(w, h) / 768
+    c, r = round(98 * k), round(40 * k)                 # Flow: centre offset from the corner, half-size of the patch
+    if _mark == 'app': c, r = 116, 50                   # Gemini app: fixed offset in source pixels whatever the aspect
+    x0, y0 = w - c - r, h - c - r
+    src = im.crop((x0, y0 - 2 * r - round(6 * k), x0 + 2 * r, y0 - round(6 * k)))
+    mask = Image.new('L', (2 * r, 2 * r), 0)
+    ImageDraw.Draw(mask).ellipse((round(4 * k), round(4 * k), 2 * r - round(4 * k), 2 * r - round(4 * k)), fill=255)
+    im = im.copy(); im.paste(src, (x0, y0), mask.filter(ImageFilter.GaussianBlur(5 * k)))
+    return im
+
+def app_gen(p, raw_dir, kind='w'):
+    """One image from the Gemini app tab (gemini.google.com)."""
     cdp('newchat')
-    cdp('upload', 'Files', str(ANNA), str(STYLE))
+    cdp('upload', 'Files', *map(str, ATTACH))
     cdp('eval', "(()=>{const e=document.querySelector('rich-textarea .ql-editor, [contenteditable=true]');e.focus();return !!e})()")
     cdp('type', p); time.sleep(1)
     cdp('eval', "[...document.querySelectorAll('button')].find(b=>/Send|Отправить/.test(b.getAttribute('aria-label')||'')).click()")
     for _ in range(60):
         time.sleep(5)
-        s = json.loads(json.loads(cdp('eval', "JSON.stringify({n:[...document.querySelectorAll('button')].filter(b=>/Download full size|полном размере|Скачать изображение/i.test(b.getAttribute('aria-label')||'')).length,busy:!![...document.querySelectorAll('button')].find(b=>/Stop|Остановить/.test(b.getAttribute('aria-label')||''))})")))
-        if s['n'] and not s['busy']: break
-        if not s['busy'] and 'лимит' in cdp('eval', "([...document.querySelectorAll('message-content')].pop()||{}).innerText||''"):
-            raise LimitError('лимит Gemini')
+        st = json.loads(json.loads(cdp('eval', "JSON.stringify({n:[...document.querySelectorAll('button')].filter(b=>/Download full size|полном размере/i.test(b.getAttribute('aria-label')||'')).length,busy:!![...document.querySelectorAll('button')].find(b=>/Stop|Остановить/.test(b.getAttribute('aria-label')||'')),t:(([...document.querySelectorAll('message-content')].pop()||{}).innerText||'').slice(0,200)})")))
+        if st['n'] and not st['busy']: break
+        if not st['busy'] and 'лимит' in st['t']: raise LimitError('лимит Gemini')
     else: raise RuntimeError('gemini: no image')
     raw_dir.mkdir(parents=True, exist_ok=True)
     before = set(raw_dir.iterdir())
-    cdp('download', str(raw_dir), timeout=90)
-    for _ in range(90):
-        new = [f for f in set(raw_dir.iterdir()) - before if not f.name.endswith('.crdownload')]
-        if new: return new[0]
-        time.sleep(1)
+    for attempt in range(3):                   # the full-size download is sometimes slow: retry the click, never regenerate
+        try: cdp('download', str(raw_dir), timeout=90)
+        except Exception: pass
+        for _ in range(150):
+            new = [f for f in set(raw_dir.iterdir()) - before if not f.name.endswith('.crdownload')]
+            if new:
+                for extra in new[1:]: extra.unlink()
+                return new[0]
+            time.sleep(1)
     raise RuntimeError('download failed')
+
+BACKENDS = [app_gen, flow_gen]
+_blocked = {}                                     # backend -> time it hit its limit
+
+def gemini(p, raw_dir, kind='w'):
+    """Try Flow, then the Gemini app; a backend that hit its limit rests 30 min."""
+    for b in BACKENDS:
+        if time.time() - _blocked.get(b, 0) < 1800: continue
+        try:
+            global _mark
+            out = b(p, raw_dir, kind); _mark = 'app' if b is app_gen else 'flow'; return out
+        except LimitError as e:
+            print(time.strftime('%H:%M'), e, '— переключаюсь', flush=True); _blocked[b] = time.time()
+    raise LimitError('лимит у всех генераторов')
 
 def fit_size(src, out, size):
     im = Image.open(src).convert('RGB')
+    im = unmark(im)
     im = ImageOps.fit(im, size, Image.Resampling.LANCZOS, centering=(0.5, 0.45))
     out.parent.mkdir(parents=True, exist_ok=True)
     for q in (93, 90, 86):
@@ -182,7 +265,7 @@ def reels_extend(src, out):
 def make(n, rel):
     item = next(c for c in covers(n) if c[0] == rel)
     _, t, kind, var = item
-    finish(n, rel, kind, gemini(prompt(n, rel, t, kind, var), RAW))
+    finish(n, rel, kind, gemini(prompt(n, rel, t, kind, var), RAW, kind))
 
 def finish(n, rel, kind, raw):
     w, h = Image.open(raw).size
@@ -204,6 +287,7 @@ def install(n):
     bak_root = ROOT / 'artifacts/pinterest-course/backup-covers-20261021' / folder
     for rel, *_ in covers(n):
         src, dstf = dst(n, rel), COURSE / folder / rel
+        if not src.exists(): continue                 # partial install: put in what is ready, the rest follows
         if dstf.exists() and not (bak_root / rel).exists():
             (bak_root / rel).parent.mkdir(parents=True, exist_ok=True); shutil.copy2(dstf, bak_root / rel)
         shutil.copy2(src, dstf)
@@ -214,13 +298,13 @@ def run(first=1, last=42):
         for rel, *_ in covers(n):
             if dst(n, rel).exists(): continue
             attempt = 0
-            while attempt < 3:
-                try: make(n, rel); break
+            while True:                                  # never give up: the user wants all 42 lessons
+                try: make(n, rel); install(n); break
                 except LimitError:
-                    print(time.strftime('%H:%M'), 'лимит Gemini, жду 10 минут', flush=True); time.sleep(600)
+                    print(time.strftime('%H:%M'), 'лимит у всех генераторов, жду 10 минут', flush=True); time.sleep(600)
                 except Exception as e:
-                    attempt += 1; print(f'ошибка {n} {rel}: {e}', flush=True); time.sleep(30)
-            else: sys.exit(f'остановлено на уроке {n} {rel}')
+                    attempt += 1; print(f'ошибка {n} {rel}: {e}', flush=True)
+                    time.sleep(30 if attempt < 3 else 300)
         install(n)
 
 if __name__ == '__main__':
