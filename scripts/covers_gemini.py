@@ -9,7 +9,7 @@ Style source: the approved cover (lesson 1, YouTube A) + Anna's portrait. Text i
 Output: artifacts/pinterest-course/covers-v2/gemini/NN/<platform>/<file>, exact platform size.
 """
 from pathlib import Path
-import sys, json, subprocess, time, shutil
+import sys, json, subprocess, time, shutil, re
 from PIL import Image, ImageOps, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -191,7 +191,7 @@ def flow_gen(p, raw_dir, kind='w'):
         new = [u for u, o in json.loads(flow('images') or '[]') if u not in before and o == want]
         st = json.loads(flow('state'))
         if new and not st['busy']: break
-        if not st['busy'] and 'usage limit' in st['text']: raise LimitError('лимит Flow')
+        if not st['busy'] and ('usage limit' in st['text'] or 'лимита использования' in st['text']): raise LimitError('лимит Flow')
     if not new: raise RuntimeError('flow: no image')
     raw_dir.mkdir(parents=True, exist_ok=True)
     out = raw_dir / f'flow_{int(time.time())}.png'
@@ -241,7 +241,39 @@ def app_gen(p, raw_dir, kind='w'):
             time.sleep(1)
     raise RuntimeError('download failed')
 
-BACKENDS = [app_gen, flow_gen]
+GROK = ['node', str(ROOT / 'scripts/grok_cdp.mjs')]
+GROK_ASPECT = {'w': '16:9', 't': '9:16', 'slide': '2:3', 'card': '2:3', 'pin': '2:3'}
+GROK_REFS = [ANNA, WORK / 'references/ref_01.png']           # the pair that gave the approved cover
+
+def grok(*a, timeout=180):
+    r = subprocess.run(GROK + list(a), capture_output=True, text=True, timeout=timeout)
+    if r.returncode: raise RuntimeError(f'grok {a[0]}: ' + next((l for l in r.stderr.splitlines() if 'Error' in l), r.stderr.strip()[-200:]))
+    return r.stdout.strip()
+
+def grok_gen(p, raw_dir, kind='w'):
+    """One image from Grok Imagine (the backend the user approved)."""
+    grok('new')
+    grok('upload', *map(str, GROK_REFS))
+    grok('aspect', GROK_ASPECT[kind])
+    grok('prompt', p.replace('ОСТАЛЬНЫЕ — образцы профессиональных обложек', 'ВТОРОЕ — образец профессиональной обложки'))
+    url = None
+    for _ in range(60):
+        time.sleep(5)
+        imgs = json.loads(grok('images') or '[]')
+        if imgs: url = imgs[0]; break
+        t = json.loads(grok('text'))
+        if re.search(r'лимит|limit|Upgrade|подписк', t, re.I): raise LimitError('лимит Grok')
+    if not url: raise RuntimeError('grok: no image')
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    before = set(raw_dir.iterdir())
+    grok('download', str(raw_dir), timeout=60)
+    for _ in range(30):
+        new = [f for f in set(raw_dir.iterdir()) - before if not f.name.endswith('.crdownload')]
+        if new: return new[0]
+        time.sleep(1)
+    raise RuntimeError('grok download failed')
+
+BACKENDS = [grok_gen]
 _blocked = {}                                     # backend -> time it hit its limit
 
 def gemini(p, raw_dir, kind='w'):
@@ -257,7 +289,6 @@ def gemini(p, raw_dir, kind='w'):
 
 def fit_size(src, out, size):
     im = Image.open(src).convert('RGB')
-    im = unmark(im)
     im = ImageOps.fit(im, size, Image.Resampling.LANCZOS, centering=(0.5, 0.45))
     out.parent.mkdir(parents=True, exist_ok=True)
     for q in (93, 90, 86):
@@ -284,7 +315,7 @@ def make(n, rel):
 
 def finish(n, rel, kind, raw):
     w, h = Image.open(raw).size
-    if (kind == 'w') != (w > h) or (kind in POST and w >= h):
+    if (kind == 'w') != (w > h) or (kind in POST and w >= h):  # wrong orientation
         raw.unlink(); raise RuntimeError(f'Gemini дал {w}×{h}, не тот формат — повтор')
     size = POST[kind][1] if kind in POST else next((s for k, s in SIZES.items() if rel.startswith(k)), TALL)
     out = dst(n, rel)
