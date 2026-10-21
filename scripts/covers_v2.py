@@ -148,6 +148,60 @@ def gen(n, force=False):
         print(f'урок {n} {fmt}{k}…', flush=True)
         generate(art_prompt(n, fmt, k), aspect, refs[:3], dst)
 
+# ---------------------------------------------------------------- GigaChat (Kandinsky) backend
+GIGA_ENV = ROOT / '.env'
+
+def giga_ctx():
+    import ssl
+    ctx = ssl.create_default_context()  # system roots + Russian Trusted Root CA used by Sber
+    ctx.load_verify_locations(ROOT / 'infra/certs/russian_trusted_root_ca_pem.crt')
+    return ctx
+
+def giga_token():
+    import re, uuid, urllib.parse
+    env = dict(re.findall(r'^(GIGACHAT_[A-Z_]+)=(.*)$', GIGA_ENV.read_text(), re.M))
+    key = env['GIGACHAT_API_TOKEN'].strip().strip('"\'')
+    scope = env.get('GIGACHAT_SCOPE', 'GIGACHAT_API_PERS').strip().strip('"\'')
+    req = urllib.request.Request('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', urllib.parse.urlencode({'scope': scope}).encode(),
+        {'Authorization': f'Basic {key}', 'RqUID': str(uuid.uuid4()), 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'})
+    with urllib.request.urlopen(req, timeout=60, context=giga_ctx()) as r: return json.loads(r.read())['access_token']
+
+def giga_generate(prompt, dst, model='GigaChat-2-Max'):
+    import re
+    tok = giga_token(); H = {'Authorization': f'Bearer {tok}', 'Content-Type': 'application/json'}
+    body = {'model': model, 'function_call': 'auto', 'messages': [
+        {'role': 'system', 'content': 'Ты — профессиональный иллюстратор обложек YouTube. Рисуй без текста и надписей.'},
+        {'role': 'user', 'content': prompt}]}
+    req = urllib.request.Request('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', json.dumps(body).encode(), H)
+    with urllib.request.urlopen(req, timeout=300, context=giga_ctx()) as r: resp = json.loads(r.read())
+    m = re.search(r'<img src="([^"]+)"', resp['choices'][0]['message']['content'])
+    if not m: print('  нет картинки:', resp['choices'][0]['message']['content'][:300]); return False
+    req = urllib.request.Request(f'https://gigachat.devices.sberbank.ru/api/v1/files/{m.group(1)}/content', headers={'Authorization': f'Bearer {tok}', 'Accept': 'application/jpg'})
+    with urllib.request.urlopen(req, timeout=300, context=giga_ctx()) as r: data = r.read()
+    dst.parent.mkdir(parents=True, exist_ok=True); dst.write_bytes(data); log(dst, prompt, resp.get('usage')); return True
+
+GIGA_BRIEF = {
+    1: ('большой красный круглый 3D-значок Pinterest и несколько летящих фотокарточек с интерьером и едой',
+        ('удивлённо приподняла брови и широко улыбается', 'уверенно улыбается и показывает пальцем на зрителя')),
+}
+
+def giga_prompt(n, fmt, k):
+    prop, moods = GIGA_BRIEF.get(n, (BRIEF[n][0], BRIEF[n][1]))
+    mood = moods[k % 2]
+    return ('Горизонтальный широкоформатный кадр 16:9, яркое превью для YouTube, крупный портрет по грудь, женщина в правой части кадра. Женщина 35 лет, каштановые волосы до плеч, '
+            f'горчичный свитер, золотые серьги-кольца, смотрит прямо в камеру, {mood}. '
+            f'За её плечом {prop}. Насыщенный тёмно-бордовый фон с красным свечением, '
+            'яркий контровой свет по волосам, студийное освещение лица, резкость, глянец. Без текста и надписей.')
+
+def gen_giga(n, only, force=False):
+    """Exactly one image per run: `giga 1 h0`."""
+    for fmt, k, _ in ART_SET:
+        if f'{fmt}{k}' != only: continue
+        dst = ART / f'{n:02}' / f'{fmt}{k}.jpg'
+        if dst.exists() and not force: print('уже есть:', dst); continue
+        print(f'урок {n} {fmt}{k}…', flush=True)
+        giga_generate(giga_prompt(n, fmt, k), dst)
+
 # ---------------------------------------------------------------- HTML composition
 PIN = (WORK / 'pinterest.svg').read_text().replace('<title>Pinterest</title>', '')
 
@@ -164,17 +218,18 @@ def split_headline(t, plate=13):
 CSS = '''
 @font-face{font-family:M;src:url(FONTS/Montserrat[wght].ttf)}
 @font-face{font-family:R;src:url(FONTS/Rubik[wght].ttf)}
+@font-face{font-family:O;src:url(FONTS/Oswald[wght].ttf)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:WPX;height:HPX;overflow:hidden;background:#111}
 .st{position:absolute;left:0;top:0;width:WPX;height:HPX;overflow:hidden}
 .art{position:absolute;inset:0;background-size:cover;background-position:var(--pos,70% 30%)}
 .shade{position:absolute;inset:0}
-.hl{position:absolute;font-family:M;font-weight:900;text-transform:uppercase;line-height:.98;letter-spacing:-.01em}
+.hl{position:absolute;font-family:O;font-weight:700;text-transform:uppercase;line-height:.95;letter-spacing:.005em}
 .hl .l{display:block;color:#fff;-webkit-text-stroke:var(--sw) #000;paint-order:stroke fill;
-  text-shadow:0 .06em 0 #000,0 .1em .18em rgba(0,0,0,.7)}
+  text-shadow:.012em .012em 0 #2a0006,.024em .024em 0 #2a0006,.036em .036em 0 #2a0006,.048em .048em 0 #2a0006,.06em .06em 0 #2a0006,.08em .1em .2em rgba(0,0,0,.8)}
 .hl .l.y{color:#ffd23f}
 .hl .acc{display:inline-block;background:linear-gradient(180deg,#ff3b3b,#c8102e);color:#fff;padding:.04em .22em .08em;
-  border-radius:.08em;transform:rotate(-2deg);box-shadow:0 .08em 0 #6d0010,0 .18em .4em rgba(0,0,0,.6);margin:.06em 0;
+  border-radius:.06em;transform:rotate(-2deg) skewX(-4deg);box-shadow:.03em .06em 0 #6d0010,0 .18em .4em rgba(0,0,0,.6);margin:.08em 0;
   -webkit-text-stroke:var(--sw2) #5b000c;paint-order:stroke fill;white-space:nowrap}
 .chip{position:absolute;font-family:M;font-weight:800;text-transform:uppercase;background:#ffd23f;color:#111;
   border-radius:.4em;padding:.25em .7em;box-shadow:0 .2em .5em rgba(0,0,0,.5);letter-spacing:.02em}
@@ -211,6 +266,11 @@ def headline(t, x, y, w, h, size, align='left', yellow_first=False, plate=13):
 def pin(x, y, d): return f'<div class="pin" style="left:{x}px;top:{y}px;width:{d}px;height:{d}px">{PIN}</div>'
 
 def art_div(p, pos='70% 30%'):
+    if p and p.exists() and abs(Image.open(p).width / Image.open(p).height - 1) < .05 and pos == '70% 30%':
+        u = p.as_uri()
+        return (f'<div class="art" style="background-image:url({u});background-size:cover;background-position:50% 50%;filter:blur(38px) brightness(.45) saturate(1.3);transform:scale(1.15)"></div>'
+                f'<div class="art" style="left:auto;width:820px;background-image:url({u});background-size:cover;background-position:60% 30%;'
+                '-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 32%);mask-image:linear-gradient(90deg,transparent 0%,#000 32%)"></div>')
     return f'<div class="art" style="background-image:url({p.as_uri()});--pos:{pos}"></div>' if p and p.exists() else \
            f'<div class="art" style="background:radial-gradient(circle at 75% 40%,#5a0f17,#121216 60%)"></div>'
 
@@ -219,11 +279,10 @@ def wide(variant, t, ribbon, n, art, shot):
     W, H = 1280, 720
     b = [art_div(art)]
     if variant == 0:     # big stacked headline left, chip, ribbon
-        b += ['<div class="shade" style="background:linear-gradient(90deg,rgba(8,8,10,.92) 0%,rgba(8,8,10,.75) 38%,rgba(8,8,10,0) 62%)"></div>',
-              f'<div class="chip" style="left:44px;top:36px;font-size:24px">Урок {n} · Pinterest</div>',
-              headline(t, 44, 100, 700, 450, 150),
-              f'<div class="rib" style="left:44px;top:600px;font-size:26px">{html.escape(ribbon)}</div>',
-              pin(640, 34, 96)]
+        b += ['<div class="shade" style="background:linear-gradient(90deg,rgba(8,8,10,.55) 0%,rgba(8,8,10,.3) 40%,rgba(8,8,10,0) 60%)"></div>',
+              f'<div class="chip" style="left:48px;top:40px;font-size:26px">Урок {n}</div>',
+              headline(t, 48, 110, 640, 470, 200),
+              f'<div class="rib" style="left:48px;top:610px;font-size:28px">{html.escape(ribbon)}</div>']
     elif variant == 1:   # headline bottom-left over gradient, yellow first line, real screenshot card
         b += ['<div class="shade" style="background:linear-gradient(0deg,rgba(8,8,10,.95) 0%,rgba(8,8,10,.55) 45%,rgba(8,8,10,0) 70%),linear-gradient(90deg,rgba(8,8,10,.7),rgba(8,8,10,0) 55%)"></div>',
               (f'<div class="shot" style="left:60px;top:44px;width:420px;height:262px"><img src="{Path(shot).as_uri()}"></div>' if shot else ''),
@@ -268,7 +327,8 @@ def shoot(html_text, path, W, H, scale):
 def plan(n):
     T = TEXTS[str(n)]; A = ART / f'{n:02}'; sh = T['shots']; title = T['title']
     S = lambda i: sh[i % len(sh)] if sh else None
-    h = lambda k: A / f'h{k}.png'; v = lambda k: A / f'v{k}.png'
+    pick = lambda name: next((p for p in (A / f'{name}.jpg', A / f'{name}.png') if p.exists()), A / f'{name}.png')
+    h = lambda k: pick(f'h{k}'); v = lambda k: pick(f'v{k}')
     P = {}
     for i, t in enumerate(T['yt']): P[f'YouTube/Обложка_{"ABC"[i]}.jpg'] = ('w', i, t, h(i), (S(i), title, 1))
     for i, t in enumerate(T['vk']): P[f'VK_Видео/Обложка_{"AB"[i]}.jpg'] = ('w', (i + 1) % 3, t, h((i + 1) % 3), (S(i + 1), title, 1.5))
@@ -282,8 +342,9 @@ def plan(n):
         if k.startswith('Rutube/Обложка_C') and not (COURSE / T['folder'] / k).exists(): P.pop(k)
     return P
 
-def render(n):
+def render(n, only=None):
     for rel, (kind, var, t, art, extra) in plan(n).items():
+        if only and rel != only: continue
         dst = OUT / f'{n:02}' / rel
         if kind == 'w':
             shot, title, scale = extra
@@ -328,11 +389,14 @@ def install(n):
 if __name__ == '__main__':
     cmd, *a = sys.argv[1:]
     force = '--force' in a; ns = [int(x) for x in a if x.isdigit()] or list(range(1, 43))
+    one = next((x for x in a if x[:1] in 'hv' and x[1:].isdigit()), None)
+    if cmd == 'giga' and (len(ns) != 1 or not one): sys.exit('одна картинка за запуск: covers_v2.py giga <урок> <h0|h1|h2|v0|v1>')
     if cmd == 'models':
         for m in api('models?pageSize=200')['models']:
             if 'image' in m['name']: print(m['name'], m.get('displayName'))
     for n in ns:
         if cmd == 'gen': gen(n, force)
-        elif cmd == 'render': render(n)
+        elif cmd == 'giga': gen_giga(n, one, force)
+        elif cmd == 'render': render(n, next((x for x in a if '/' in x), None))
         elif cmd == 'sheet': sheet(n)
         elif cmd == 'install': install(n)
