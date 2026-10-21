@@ -325,7 +325,7 @@ def shoot(html_text, path, W, H, scale):
 
 # cover file -> (kind, variant, text, art, extra)
 def plan(n):
-    T = TEXTS[str(n)]; A = ART / f'{n:02}'; sh = T['shots']; title = T['title']
+    T = TEXTS[str(n)]; A = ART / f'{n:02}'; sh = T.get('shots', []); title = T['title']
     S = lambda i: sh[i % len(sh)] if sh else None
     pick = lambda name: next((p for p in (A / f'{name}.jpg', A / f'{name}.png') if p.exists()), A / f'{name}.png')
     h = lambda k: pick(f'h{k}'); v = lambda k: pick(f'v{k}')

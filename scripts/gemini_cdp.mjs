@@ -16,6 +16,7 @@ ws.addEventListener('message', (e) => {
   const m = JSON.parse(e.data);
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
 });
+ws.addEventListener('close', () => { for (const r of pending.values()) r({ error: 'ws closed' }); pending.clear(); });
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 
 await send('Page.bringToFront');
@@ -44,8 +45,15 @@ if (cmd === 'download') {
   const done = new Promise((r) => ws.addEventListener('message', (e) => {
     const m = JSON.parse(e.data); if (m.method === 'Browser.downloadProgress' && m.params.state === 'completed') r(m.params);
   }));
-  await send('Runtime.evaluate', { userGesture: true, expression:
-    `[...document.querySelectorAll('button[aria-label="Download full size image"]')].pop().click()` });
+  // a real mouse click: the Russian UI ignores element.click() on this button
+  const r = await send('Runtime.evaluate', { returnByValue: true, expression:
+    `(()=>{const b=[...document.querySelectorAll('button')].filter(b=>/Download full size|полном размере|Скачать изображение/i.test(b.getAttribute('aria-label')||'')).pop();
+      b.scrollIntoView({block:'center'});const q=b.getBoundingClientRect();return [q.x+q.width/2,q.y+q.height/2]})()` });
+  const [x, y] = r.result.result.value;
+  await new Promise((res) => setTimeout(res, 500));
+  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
   const p = await Promise.race([done, new Promise((r) => setTimeout(() => r(null), 15000))]);
   console.log(p ? 'downloaded' : 'download timeout');
 }
@@ -57,11 +65,29 @@ if (cmd === 'upload') {
   const opened = new Promise((r) => ws.addEventListener('message', (e) => {
     const m = JSON.parse(e.data); if (m.method === 'Page.fileChooserOpened') r(m.params);
   }));
-  const js = (s) => send('Runtime.evaluate', { expression: s, userGesture: true, awaitPromise: true });
-  await js(`document.querySelector('button[aria-label="Upload & tools"]').click()`);
-  await new Promise((r) => setTimeout(r, 1200));
-  await js(`(()=>{const t=${JSON.stringify(arg)};const el=[...document.querySelectorAll('button,[role=menuitem]')].find(b=>(b.innerText||b.getAttribute('aria-label')||'').includes(t));el.click();return !!el})()`);
-  const p = await Promise.race([opened, new Promise((r) => setTimeout(() => r(null), 8000))]);
+  const js = (s) => send('Runtime.evaluate', { expression: s, userGesture: true, awaitPromise: true, returnByValue: true });
+  const UP = `'button[aria-label="Upload & tools"],button[aria-label="Загрузка и инструменты"]'`;
+  const where = (sel) => `(async()=>{let e=null;for(let i=0;i<40&&!e;i++){e=(${sel})();if(!e)await new Promise(r=>setTimeout(r,300))}
+    if(!e)return null;e.scrollIntoView({block:'center'});const q=e.getBoundingClientRect();return [q.x+q.width/2,q.y+q.height/2]})()`;
+  const tap = async (expr) => {
+    const r = await js(where(expr)); const xy = r.result?.result?.value; if (!xy) return false;
+    const [x, y] = xy;
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+    return true;
+  };
+  const item = `()=>document.querySelector('button[aria-label^="Upload files"],button[aria-label^="Загрузить файлы"]')||[...document.querySelectorAll('[role=menu] *')].filter(e=>e.children.length==0&&[${JSON.stringify(arg)},'Файлы'].includes((e.innerText||'').trim())).map(e=>e.closest('button,[role=menuitem]')||e)[0]`;
+  let p = null;
+  for (let attempt = 0; attempt < 3 && !p; attempt++) {
+    await tap(`()=>document.querySelector(${UP})`);
+    await new Promise((r) => setTimeout(r, 800));
+    await tap(item);
+    p = await Promise.race([opened, new Promise((r) => setTimeout(() => r(null), 8000))]);
+    if (!p) { await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+              await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+              await new Promise((r) => setTimeout(r, 1000)); }
+  }
   if (!p) throw new Error('file chooser did not open');
   await send('DOM.setFileInputFiles', { files, backendNodeId: p.backendNodeId });
   await new Promise((r) => setTimeout(r, 4000));
