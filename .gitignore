@@ -236,3 +236,6 @@ npm-debug.log*
 # Временные lock-файлы занятости, создаются скриптом agent.sh
 .kilo/agent-state/claims/
 .kilo/agent-state/runtime/
+
+# Скриншоты и логи браузера Playwright MCP
+.playwright-mcp/
