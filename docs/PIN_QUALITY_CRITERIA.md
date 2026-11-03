@@ -2,7 +2,7 @@
 
 Этот документ описывает проверку **конкретной версии** пина. Прохождение проверки не обещает показы, клики или покупки: результат оценивается после публикации по статистике.
 
-Основа: `pinterest_course_russian_final.md`, уроки 3.1–3.5, 5.2, 6.1 и 7.1–7.3; [рекомендации Pinterest по пинам](https://help.pinterest.com/en/business/article/pin-performance-and-distribution), [статистика отдельного пина](https://help.pinterest.com/en/business/article/pin-stats), [правила сообщества](https://policy.pinterest.com/en/community-guidelines).
+Основа: [рекомендации Pinterest по пинам](https://help.pinterest.com/en/business/article/pin-performance-and-distribution), [статистика отдельного пина](https://help.pinterest.com/en/business/article/pin-stats), [правила сообщества](https://policy.pinterest.com/en/community-guidelines).
 
 ## Обязательная проверка до создания визуала
 
