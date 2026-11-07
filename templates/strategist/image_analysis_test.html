@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Тест анализа изображений — BOOSTKLIENT®" %}{% endblock %}
+{% block content %}
+<header class="workbench-page-header">
+    <div>
+        <p class="eyebrow">{{ business.workspace.name }} / {{ business.name }}</p>
+        <h1>{% trans "Тест анализа изображений" %}</h1>
+        <p>{% trans "Фото из карточек WB и разбор каждого кадра для Pinterest." %}</p>
+    </div>
+</header>
+
+<section class="panel strategy-panel image-test-intro" aria-labelledby="image-test-how-title">
+    <h2 class="panel-title" id="image-test-how-title">{% trans "Оценка сохранённых фото" %}</h2>
+    <p class="meta">{% trans "Здесь собраны фото из карточек WB и разборы каждого кадра. Открытие страницы не запускает платный анализ." %}</p>
+    <p class="meta">{% trans "Рекомендация ниже — редакционная оценка пригодности фото для Pinterest, а не решение модерации Pinterest. Все исходники карточки имеют размер 900 × 1200 px (3:4); вертикальная композиция пригодна, а формат 2:3 обычно лучше использует место в ленте." %}</p>
+</section>
+
+{% for group in fixture_groups %}
+<section class="image-test-results" aria-labelledby="image-test-saved-{{ group.article }}">
+    <div class="image-test-results-heading">
+        <div>
+            <h2 id="image-test-saved-{{ group.article }}">{% trans "Фото карточки WB №" %} {{ group.article }} · {{ group.title }}</h2>
+            <p class="meta">{{ group.summary }}</p>
+        </div>
+        <a href="{{ group.url }}" rel="noopener noreferrer" target="_blank">{% trans "Открыть карточку WB" %}</a>
+    </div>
+    {% for item in group.items %}
+        <article class="image-test-result" aria-labelledby="saved-image-{{ group.article }}-{{ item.number }}">
+            <figure class="image-test-preview">
+                <img src="{{ item.preview }}" alt="{% blocktrans with number=item.number %}Фото {{ number }} из карточки WB{% endblocktrans %}">
+                <figcaption>{{ item.number }}. {{ item.name }} · {{ item.width }} × {{ item.height }}</figcaption>
+            </figure>
+            <div class="image-test-review">
+                <div class="image-test-verdict image-test-verdict-{{ item.status }}">
+                    <h3 id="saved-image-{{ group.article }}-{{ item.number }}">{{ item.label }}</h3>
+                </div>
+                <p><strong>{{ item.description_label }}:</strong> {{ item.review.description }}</p>
+                <ul class="image-test-reasons">
+                    {% for reason in item.reasons %}<li>{{ reason }}</li>{% endfor %}
+                </ul>
+                {% if item.cached_flags %}<p class="meta">{% trans "Ранее сохранённые флаги Vision" %}: {{ item.cached_flags|join:" · " }}</p>{% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <p class="meta">{% trans "Фото карточки пока недоступны в локальном хранилище." %}</p>
+    {% endfor %}
+</section>
+{% empty %}
+<section class="image-test-results"><p class="meta">{% trans "Фото карточек пока недоступны в локальном хранилище." %}</p></section>
+{% endfor %}
+
+{% if errors %}
+    <div class="form-errors image-test-errors" role="alert">
+        {% for error in errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+{% endif %}
+
+<details class="image-test-custom">
+<summary>{% trans "Проверить другие фотографии отдельно" %}</summary>
+<form class="panel strategy-panel image-test-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h2 class="panel-title">{% trans "Фото для проверки" %}</h2>
+    <div class="image-test-fields">
+        <label class="form-field" for="image-test-product">
+            <span>{% trans "Что за товар?" %}</span>
+            <input id="image-test-product" name="product_name" maxlength="200" required value="{{ product_name }}" autocomplete="off">
+        </label>
+        <label class="form-field" for="image-test-category">
+            <span>{% trans "Категория (необязательно)" %}</span>
+            <input id="image-test-category" name="category" maxlength="200" value="{{ category }}" autocomplete="off">
+        </label>
+        <label class="form-field image-test-upload" for="image-test-files">
+            <span>{% trans "Изображения JPEG, PNG или WebP — до 15 файлов, не больше 10 МБ каждый" %}</span>
+            <input id="image-test-files" type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required>
+        </label>
+    </div>
+    <p class="meta">{% trans "Запуск делает платный запрос для каждого выбранного фото. Максимум 15 фото за один запуск. Загруженные файлы не сохраняются в проекте." %}</p>
+    <button class="button button-primary" type="submit">{% trans "Проанализировать изображения" %}</button>
+</form>
+</details>
+
+{% if results %}
+    <section class="image-test-results" aria-labelledby="image-test-results-title">
+        <div class="image-test-results-heading">
+            <h2 id="image-test-results-title">{% trans "Результаты дополнительной проверки" %}</h2>
+            <p class="meta">{{ product_name }}{% if category %} · {{ category }}{% endif %}</p>
+        </div>
+        {% for item in results %}
+            <article class="image-test-result" aria-labelledby="image-test-result-{{ item.number }}">
+                <figure class="image-test-preview">
+                    <img src="{{ item.preview }}" alt="{% blocktrans with number=item.number %}Загруженное изображение {{ number }}{% endblocktrans %}">
+                    <figcaption>{{ item.number }}. {{ item.name }}{% if item.width %} · {{ item.width }} × {{ item.height }}{% endif %}</figcaption>
+                </figure>
+                <div class="image-test-review">
+                    <div class="image-test-verdict image-test-verdict-{{ item.status }}">
+                        <h3 id="image-test-result-{{ item.number }}">{{ item.label }}</h3>
+                        {% if item.score != None %}<span>{{ item.score }} / 100</span>{% endif %}
+                    </div>
+                    {% if item.review %}<p>{{ item.review.description }}</p>{% endif %}
+                    <ul class="image-test-reasons">
+                        {% for reason in item.reasons %}<li>{{ reason }}</li>{% endfor %}
+                    </ul>
+                    {% if item.review.flags %}<p class="meta">{% trans "Признаки" %}: {{ item.review.flags|join:", " }}</p>{% endif %}
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+{% endif %}
+{% endblock %}
