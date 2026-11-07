@@ -1662,3 +1662,84 @@ msgstr "— no board —"
 #: apps/strategist/pin_forms.py:13
 msgid "— не выбран —"
 msgstr "— not selected —"
+
+msgid "Серые и белые брюки: повтор обложки"
+msgstr "Grey and white trousers: repeated cover"
+
+msgid "Высокий риск однообразия"
+msgstr "High risk of repetition"
+
+msgid "Одинаковые модель, поза, фон и надписи; отличается цвет брюк."
+msgstr "The model, pose, background and text are the same; the trousers have different colours."
+
+msgid "Выберите разные ракурсы или разнесите публикации."
+msgstr "Choose different angles or space out the posts."
+
+msgid "Жёлтые и розовые брюки: повтор обложки"
+msgstr "Yellow and pink trousers: repeated cover"
+
+msgid "Совпадают модель, поза, обстановка и кадрирование; цвет брюк различается."
+msgstr "The model, pose, setting and framing match; the trousers have different colours."
+
+msgid "Используйте другие ракурсы или разнесите публикации."
+msgstr "Use different angles or space out the posts."
+
+msgid "Косметика: одинаковая подборка наборов"
+msgstr "Cosmetics: identical collection of sets"
+
+msgid "Точное совпадение файлов"
+msgstr "Exact file match"
+
+msgid "Один и тот же рекламный кадр присутствует в двух карточках."
+msgstr "The same promotional image appears in two product listings."
+
+msgid "Для товарного пина предпочтите фото соответствующего набора."
+msgstr "For a product Pin, choose a photo of the relevant set."
+
+msgid "Косметика: ещё одна одинаковая подборка"
+msgstr "Cosmetics: another identical collection"
+
+msgid "Изображение повторяется побайтно в двух карточках."
+msgstr "The image is byte-for-byte identical in two product listings."
+
+msgid "Не публикуйте одинаковые подборки подряд."
+msgstr "Avoid publishing identical collections consecutively."
+
+msgid "Косметика: похожее оформление"
+msgstr "Cosmetics: similar layout"
+
+msgid "Похожая композиция"
+msgstr "Similar composition"
+
+msgid "На обоих кадрах сетка из лиц с типами кожи; товары целиком не показаны."
+msgstr "Both images show a grid of faces and skin types; the products are not fully shown."
+
+msgid "Фирменный стиль сам по себе не означает спам. Для товарного пина выберите фото набора."
+msgstr "A consistent brand style alone does not mean spam. Choose a set photo for a product Pin."
+
+msgid "Шампунь и кондиционер VOIS"
+msgstr "VOIS shampoo and conditioner"
+
+msgid "Фирменный стиль"
+msgstr "Brand style"
+
+msgid "Карточка использует тот же логотип и текстовые плашки, но показывает другой набор товаров."
+msgstr "The listing uses the same logo and text labels, but shows a different product set."
+
+msgid "Фото набора можно чередовать с другими товарами и ракурсами."
+msgstr "Alternate the set photo with other products and angles."
+
+msgid "Сравнение фотографий карточек WB"
+msgstr "Comparing WB product listing photos"
+
+msgid "Редакционная оценка однообразия, а не решение модерации Pinterest. Проанализированы 109 фото семи карточек."
+msgstr "An editorial assessment of repetition, not a Pinterest moderation decision. 109 photos from seven listings were reviewed."
+
+msgid "Карточка WB %(article)s, фото %(number)s"
+msgstr "WB listing %(article)s, photo %(number)s"
+
+msgid "Фото отсутствует в локальном хранилище."
+msgstr "The photo is missing from local storage."
+
+msgid "фото"
+msgstr "photo"

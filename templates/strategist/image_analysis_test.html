@@ -35,7 +35,7 @@
                 <div class="image-test-verdict image-test-verdict-{{ item.status }}">
                     <h3 id="saved-image-{{ group.article }}-{{ item.number }}">{{ item.label }}</h3>
                 </div>
-                <p><strong>{{ item.description_label }}:</strong> {{ item.review.description }}</p>
+                {% if item.review.description %}<p><strong>{{ item.description_label }}:</strong> {{ item.review.description }}</p>{% endif %}
                 <ul class="image-test-reasons">
                     {% for reason in item.reasons %}<li>{{ reason }}</li>{% endfor %}
                 </ul>

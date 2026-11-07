@@ -12,6 +12,7 @@ from gigachat.models import Chat, Messages, MessagesRole
 
 from . import pin_images
 from .providers import GigaChatProvider
+from .wb_review_seven import REVIEWS as ADDITIONAL_WB_REVIEWS
 
 logger = logging.getLogger(__name__)
 
@@ -209,7 +210,25 @@ SAVED_WB_CARDS = {
         "reviews": SAVED_WB_REVIEW,
     },
 }
-SAVED_WB_ACTIVE_CARD = "1221114868"
+SAVED_WB_ACTIVE_CARDS = ("1221114868", "246438624", "280089359", "366505286", "366505285", "950377246", "950377247")
+for article, title, summary in (
+    ("246438624", "Набор шампунь и кондиционер", "27 изображений · уход за волосами"),
+    ("280089359", "Набор средств для очищения кожи", "17 изображений · очищающие средства"),
+    ("366505286", "Брюки парашюты", "11 изображений · серые"),
+    ("366505285", "Брюки парашюты", "12 изображений · белые"),
+    ("950377246", "Женские широкие брюки", "12 изображений · жёлтые"),
+    ("950377247", "Женские широкие брюки", "12 изображений · розовые"),
+):
+    labels = {"recommended": "Рекомендую", "acceptable": "Допустим", "not_recommended": "Не рекомендую"}
+    SAVED_WB_CARDS[article] = {
+        "title": title,
+        "summary": summary,
+        "url": f"https://www.wildberries.ru/catalog/{article}/detail.aspx",
+        "reviews": {
+            f"{number:02d}.webp": (status, labels[status], [reason], "")
+            for number, (status, reason) in enumerate(ADDITIONAL_WB_REVIEWS[article], 1)
+        },
+    }
 ALLOWED_FLAGS = {"watermark", "collage", "text_heavy", "low_quality"}
 SCORES = {
     "product_match": {"MATCH": 35, "UNCERTAIN": 15, "MISMATCH": 0},
@@ -363,7 +382,7 @@ def saved_wb_image_reviews():
     from .models import WBImageAnalysis
 
     groups = []
-    for article in (SAVED_WB_ACTIVE_CARD,):
+    for article in SAVED_WB_ACTIVE_CARDS:
         card = SAVED_WB_CARDS[article]
         directory = settings.MEDIA_ROOT / "image-analysis-test" / article
         inventory_path = directory / "inventory.csv"
