@@ -1663,83 +1663,113 @@ msgstr "— no board —"
 msgid "— не выбран —"
 msgstr "— not selected —"
 
-msgid "Серые и белые брюки: повтор обложки"
-msgstr "Grey and white trousers: repeated cover"
+msgid "Показана только деталь или ткань, целый товар не виден."
+msgstr "Only a detail or fabric is shown; the whole product is not visible."
 
-msgid "Высокий риск однообразия"
-msgstr "High risk of repetition"
+msgid "Размерная таблица или схема замеров не подходит для товарного пина."
+msgstr "A size chart or measurement diagram is unsuitable for a product Pin."
 
-msgid "Одинаковые модель, поза, фон и надписи; отличается цвет брюк."
-msgstr "The model, pose, background and text are the same; the trousers have different colours."
+msgid "Несколько ракурсов в одном изображении: выберите отдельное фото товара."
+msgstr "Multiple angles in one image: choose a single product photo."
 
-msgid "Выберите разные ракурсы или разнесите публикации."
-msgstr "Choose different angles or space out the posts."
+msgid "Сравнение перегружено текстом поверх фото или показано слишком мелкими вставками."
+msgstr "Text overlaps the comparison photos, or the comparison panels are too small."
 
-msgid "Жёлтые и розовые брюки: повтор обложки"
-msgstr "Yellow and pink trousers: repeated cover"
+msgid "Модель вернула неполную оценку. Результат не засчитан."
+msgstr "The model returned an incomplete assessment. The result was not accepted."
 
-msgid "Совпадают модель, поза, обстановка и кадрирование; цвет брюк различается."
-msgstr "The model, pose, setting and framing match; the trousers have different colours."
+msgid "Проверка остановлена после сбоя сервиса. Это фото не отправлялось."
+msgstr "Analysis stopped after a service failure. This photo was not sent."
 
-msgid "Используйте другие ракурсы или разнесите публикации."
-msgstr "Use different angles or space out the posts."
+msgid "Визуальный анализ отключён в настройках проекта."
+msgstr "Visual analysis is disabled in the project settings."
 
-msgid "Косметика: одинаковая подборка наборов"
-msgstr "Cosmetics: identical collection of sets"
+msgid "Добавьте хотя бы одно изображение."
+msgstr "Add at least one image."
 
-msgid "Точное совпадение файлов"
-msgstr "Exact file match"
+msgid "Загруженное изображение %(number)s"
+msgstr "Uploaded image %(number)s"
 
-msgid "Один и тот же рекламный кадр присутствует в двух карточках."
-msgstr "The same promotional image appears in two product listings."
+msgid "На каждое фото выполняется оценка, а для кандидатов — дополнительная проверка: до двух платных запросов. Максимум 15 фото за запуск. Загруженные файлы не сохраняются в проекте."
+msgstr "Each photo is assessed, and candidates receive an additional check: up to two paid requests. Maximum 15 photos per run. Uploaded files are not saved in the project."
 
-msgid "Для товарного пина предпочтите фото соответствующего набора."
-msgstr "For a product Pin, choose a photo of the relevant set."
+msgid "Здесь собраны фото из карточек WB и разборы каждого кадра. Открытие страницы не запускает платный анализ."
+msgstr "Photos from WB listings and a review of each image. Opening this page does not start paid analysis."
 
-msgid "Косметика: ещё одна одинаковая подборка"
-msgstr "Cosmetics: another identical collection"
+msgid "Изображения JPEG, PNG или WebP — до 15 файлов, не больше 10 МБ каждый"
+msgstr "JPEG, PNG or WebP images — up to 15 files, at most 10 MB each"
 
-msgid "Изображение повторяется побайтно в двух карточках."
-msgstr "The image is byte-for-byte identical in two product listings."
+msgid "Категория (необязательно)"
+msgstr "Category (optional)"
 
-msgid "Не публикуйте одинаковые подборки подряд."
-msgstr "Avoid publishing identical collections consecutively."
+msgid "Открыть карточку WB"
+msgstr "Open WB listing"
 
-msgid "Косметика: похожее оформление"
-msgstr "Cosmetics: similar layout"
+msgid "Оценка сохранённых фото"
+msgstr "Saved photo reviews"
 
-msgid "Похожая композиция"
-msgstr "Similar composition"
+msgid "Признаки"
+msgstr "Flags"
 
-msgid "На обоих кадрах сетка из лиц с типами кожи; товары целиком не показаны."
-msgstr "Both images show a grid of faces and skin types; the products are not fully shown."
+msgid "Проанализировать изображения"
+msgstr "Analyze images"
 
-msgid "Фирменный стиль сам по себе не означает спам. Для товарного пина выберите фото набора."
-msgstr "A consistent brand style alone does not mean spam. Choose a set photo for a product Pin."
+msgid "Проверить другие фотографии отдельно"
+msgstr "Review other photos separately"
 
-msgid "Шампунь и кондиционер VOIS"
-msgstr "VOIS shampoo and conditioner"
+msgid "Ранее сохранённые флаги Vision"
+msgstr "Previously saved Vision flags"
 
-msgid "Фирменный стиль"
-msgstr "Brand style"
+msgid "Результаты дополнительной проверки"
+msgstr "Additional review results"
 
-msgid "Карточка использует тот же логотип и текстовые плашки, но показывает другой набор товаров."
-msgstr "The listing uses the same logo and text labels, but shows a different product set."
+msgid "Рекомендация ниже — редакционная оценка пригодности фото для Pinterest, а не решение модерации Pinterest. Все исходники карточки имеют размер 900 × 1200 px (3:4); вертикальная композиция пригодна, а формат 2:3 обычно лучше использует место в ленте."
+msgstr "The recommendation below is an editorial assessment of suitability for Pinterest, not a Pinterest moderation decision. All source images are 900 × 1200 px (3:4); the portrait composition is suitable, while 2:3 generally uses feed space better."
 
-msgid "Фото набора можно чередовать с другими товарами и ракурсами."
-msgstr "Alternate the set photo with other products and angles."
+msgid "Тест анализа изображений"
+msgstr "Image analysis test"
 
-msgid "Сравнение фотографий карточек WB"
-msgstr "Comparing WB product listing photos"
+msgid "Тест анализа изображений — BOOSTKLIENT®"
+msgstr "Image analysis test — BOOSTKLIENT®"
 
-msgid "Редакционная оценка однообразия, а не решение модерации Pinterest. Проанализированы 109 фото семи карточек."
-msgstr "An editorial assessment of repetition, not a Pinterest moderation decision. 109 photos from seven listings were reviewed."
+msgid "Укажите, какой товар изображён."
+msgstr "Specify the product shown."
 
-msgid "Карточка WB %(article)s, фото %(number)s"
-msgstr "WB listing %(article)s, photo %(number)s"
+msgid "ФОТО"
+msgstr "PHOTOS"
 
-msgid "Фото отсутствует в локальном хранилище."
-msgstr "The photo is missing from local storage."
+msgid "Фото %(number)s из карточки WB"
+msgstr "Photo %(number)s from the WB listing"
 
-msgid "фото"
-msgstr "photo"
+msgid "Фото для проверки"
+msgstr "Photos to review"
+
+msgid "Фото из карточек WB и разбор каждого кадра для Pinterest."
+msgstr "Photos from WB listings and a Pinterest review of each image."
+
+msgid "Фото карточек пока недоступны в локальном хранилище."
+msgstr "Listing photos are not available in local storage yet."
+
+msgid "Фото карточки WB №"
+msgstr "Photos from WB listing No."
+
+msgid "Фото карточки пока недоступны в локальном хранилище."
+msgstr "Photos from this listing are not available in local storage yet."
+
+msgid "Что за товар?"
+msgstr "What is the product?"
+
+msgid "Проверка кандидата не дала полного ответа. Результат не засчитан."
+msgstr "The candidate check returned an incomplete answer. The result was not accepted."
+
+msgid "Расположение текста определено неоднозначно. Сравнение требует ручной проверки."
+msgstr "The text placement is uncertain. This comparison requires human review."
+
+msgid "Показана упаковка вместо самих товаров набора."
+msgstr "The packaging is shown instead of the products in the set."
+
+msgid "Показана только часть набора. Все товары комплекта должны быть видны."
+msgstr "Only part of the set is shown. All products in the set must be visible."
+
+msgid "Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра."
+msgstr "The first assessment found the whole product visible, while the second found it cropped. The image needs human review."

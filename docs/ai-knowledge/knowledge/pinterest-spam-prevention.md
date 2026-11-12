@@ -4,9 +4,9 @@ status: approved
 scope: global
 language: ru
 source_kind: official_public_policy_and_help
-source_checked: 2026-09-25
-rules_effective_until: 2026-11-11
-upcoming_policy_effective: 2026-11-12
+source_checked: 2026-11-12
+rules_effective_until: 2026-12-12
+rules_effective_from: 2026-11-12
 refresh_required: true
 ---
 
@@ -54,3 +54,5 @@ refresh_required: true
 - [Предотвращение блокировки из-за превышения ограничения скорости](https://help.pinterest.com/ru/article/rate-limit-blocks) — поведение при временных ограничениях частоты действий.
 - [Правила размещения коммерческого и брендированного контента](https://policy.pinterest.com/ru/commercial-and-branded-content-guidelines) — ценность, оригинальность и коммерческое раскрытие.
 - [Руководство по созданию Pins](https://help.pinterest.com/ru/guide/guide-to-creating-pins) — контроль данных перед публикацией.
+
+Повторно сверено 12 ноября 2026 по [новой редакции Правил сообщества](https://policy.pinterest.com/en/community-guidelines-preview), действующей с этой даты. Запреты обманных предложений, подмены назначения ссылки, искусственной вовлечённости и неразрешённой автоматизации сохранены. Срок 12 декабря относится к следующей локальной проверке.

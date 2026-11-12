@@ -1,0 +1,12 @@
+{
+  "selected": 11,
+  "completed": 11,
+  "errors": 0,
+  "empty_descriptions": 0,
+  "verdicts": {
+    "not_recommended": 6,
+    "recommended": 5
+  },
+  "owner_labels_confirmed": false,
+  "accuracy": null
+}

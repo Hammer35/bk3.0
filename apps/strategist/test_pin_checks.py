@@ -132,7 +132,12 @@ class ChecksTest(SimpleTestCase):
 
 class LimitsSourceTest(SimpleTestCase):
     def test_limits_come_from_the_approved_source(self):
-        from datetime import date
         from unittest.mock import patch
-        with patch("apps.strategist.grounded_answers.timezone.localdate", return_value=date(2026, 10, 6)):  # source validity window
+        from django.conf import settings
+        from apps.knowledge.sources import load_source
+        source = load_source(
+            settings.BASE_DIR / "docs/ai-knowledge/knowledge/pinterest-pin-text-specs.md",
+            project_root=settings.BASE_DIR,
+        )
+        with patch("apps.strategist.grounded_answers.timezone.localdate", return_value=source.source_checked):
             self.assertEqual(pin_text_limits(), {"title": 100, "description": 800})

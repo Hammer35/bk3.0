@@ -1,0 +1,12 @@
+Found 59 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+Image review file cleanup failed: RuntimeError
+.Manual image review failed for image 1: TimeoutError
+.....Image review provider is unavailable: RuntimeError
+.....................................................
+----------------------------------------------------------------------
+Ran 59 tests in 3.572s
+
+OK
+Destroying test database for alias 'default'...

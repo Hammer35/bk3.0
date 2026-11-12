@@ -1,0 +1,215 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WB 445965661 — исправленный отбор</title><link rel="stylesheet" href="report.css"><main>
+<h1>WB 445965661 · Исправленный отбор фото</h1>
+<p>13 ноября 2026. Новый живой прогон всех 16 фото через общий review_image(). Правила ручной проверки сохранены.</p>
+<p><strong>Все пять ошибочных автоматических одобрений устранены:</strong> №3, 9, 13 отправлены человеку, №14 и 16 отклонены как коллажи.</p>
+<table><tr><th>Вердикт</th><th>Количество</th><th>Фото</th></tr>
+<tr><td>Рекомендую</td><td>5</td><td>1, 8, 10, 11, 12</td></tr>
+<tr><td>Допустим — проверить человеку</td><td>6</td><td>2, 3, 4, 5, 9, 13</td></tr>
+<tr><td>Не рекомендую</td><td>5</td><td>6, 7, 14, 15, 16</td></tr>
+</table>
+<p>API, схема и очистка: ошибок нет. Автоматических повторов нет. Порог рейтинга и модель сохранены. Полная разметка этой карточки владельцем ещё не подтверждена; общая точность не вычислялась.</p>
+<p>Причина: общий вывод «товар целиком» мог противоречить изображению. Теперь вторая проверка называет нижнюю видимую часть человека и наличие фото-вставок, а код учитывает эти признаки при вынесении вердикта.</p>
+<div class="photos">
+<article id="photo-1"><h2>Фото №1 · Рекомендую</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/01.webp"><img src="photos/01.webp" alt="Фото товара №1" loading="lazy"></a>
+<ul><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии женщина в белой кофте и синих джинсах стоит в комнате.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;FEET&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-2"><h2>Фото №2 · Допустим — проверить человеку</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/02.webp"><img src="photos/02.webp" alt="Фото товара №2" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии изображена женщина в джинсах высокой посадки. Джинсы облегающие, темно-синего цвета. Женщина стоит в помещении, возможно, на кухне или в гостиной, рядом со столиком и стульями. Она одета в белый топ, открывающий живот.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-3"><h2>Фото №3 · Допустим — проверить человеку</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/03.webp"><img src="photos/03.webp" alt="Фото товара №3" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии изображена женщина в джинсах, стоящая спиной к камере. Джинсы темно-синего цвета, облегающие фигуру.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-4"><h2>Фото №4 · Допустим — проверить человеку</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/04.webp"><img src="photos/04.webp" alt="Фото товара №4" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии девушка сидит на диване в джинсах. Видна нижняя часть тела девушки.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-5"><h2>Фото №5 · Допустим — проверить человеку</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/05.webp"><img src="photos/05.webp" alt="Фото товара №5" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии девушка в джинсах стоит возле стены. Джинсы темно-синего цвета, плотно облегающие фигуру.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;THIGHS&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-6"><h2>Фото №6 · Не рекомендую</h2>
+<p>Было: Не рекомендую</p>
+<a href="photos/06.webp"><img src="photos/06.webp" alt="Фото товара №6" loading="lazy"></a>
+<ul><li>Размерная таблица или схема замеров не подходит для товарного пина.</li></ul>
+</article>
+<article id="photo-7"><h2>Фото №7 · Не рекомендую</h2>
+<p>Было: Не рекомендую</p>
+<a href="photos/07.webp"><img src="photos/07.webp" alt="Фото товара №7" loading="lazy"></a>
+<ul><li>Показана только деталь или ткань, целый товар не виден.</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На тёмном фоне крупным планом показана нижняя часть джинсов, сложенных пополам. Видна структура ткани и швы.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;FLAT&quot;,
+  &quot;lowest_visible&quot;: &quot;NO_PERSON&quot;,
+  &quot;waist_visible&quot;: false,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-8"><h2>Фото №8 · Рекомендую</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/08.webp"><img src="photos/08.webp" alt="Фото товара №8" loading="lazy"></a>
+<ul><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии девушка стоит в белой футболке и синих джинсах. Джинсы плотно облегают фигуру.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;FEET&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-9"><h2>Фото №9 · Допустим — проверить человеку</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/09.webp"><img src="photos/09.webp" alt="Фото товара №9" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии женщина в джинсах стоит в помещении.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-10"><h2>Фото №10 · Рекомендую</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/10.webp"><img src="photos/10.webp" alt="Фото товара №10" loading="lazy"></a>
+<ul><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На модели размер 40, рост 170 см, грудь 86 см, талия 63 см, бедра 90 см.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;FEET&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-11"><h2>Фото №11 · Рекомендую</h2>
+<p>Было: Допустим — проверить человеку</p>
+<a href="photos/11.webp"><img src="photos/11.webp" alt="Фото товара №11" loading="lazy"></a>
+<ul><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фото девушка в джинсах стоит боком в помещении. Джинсы сидят идеально.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;FEET&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-12"><h2>Фото №12 · Рекомендую</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/12.webp"><img src="photos/12.webp" alt="Фото товара №12" loading="lazy"></a>
+<ul><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии женщина стоит в джинсах, демонстрируя их посадку. Джинсы синего цвета, свободного кроя.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;FEET&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-13"><h2>Фото №13 · Допустим — проверить человеку</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/13.webp"><img src="photos/13.webp" alt="Фото товара №13" loading="lazy"></a>
+<ul><li>Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.</li><li>Соответствие товару — 35/35</li><li>Видимость товара — 25/25</li><li>Техническое качество — 20/20</li><li>Композиция — 10/10</li><li>Соответствие категории — 10/10</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На фотографии изображена женщина в джинсах, стоящая спиной к камере. Видно детали швов и фурнитуры.&quot;,
+  &quot;layout&quot;: &quot;PHOTO&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;THIGHS&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-14"><h2>Фото №14 · Не рекомендую</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/14.webp"><img src="photos/14.webp" alt="Фото товара №14" loading="lazy"></a>
+<ul><li>Несколько ракурсов в одном изображении: выберите отдельное фото товара.</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На левой стороне коллажа размещены несколько отдельных фотографий предметов одежды и аксессуаров.&quot;,
+  &quot;layout&quot;: &quot;COLLAGE&quot;,
+  &quot;presentation&quot;: &quot;FLAT&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+<article id="photo-15"><h2>Фото №15 · Не рекомендую</h2>
+<p>Было: Не рекомендую</p>
+<a href="photos/15.webp"><img src="photos/15.webp" alt="Фото товара №15" loading="lazy"></a>
+<ul><li>Несколько ракурсов в одном изображении: выберите отдельное фото товара.</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На коллаже представлена одежда и аксессуары.&quot;,
+  &quot;layout&quot;: &quot;COLLAGE&quot;,
+  &quot;presentation&quot;: &quot;FLAT&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: true
+}</pre></details>
+</article>
+<article id="photo-16"><h2>Фото №16 · Не рекомендую</h2>
+<p>Было: Рекомендую</p>
+<a href="photos/16.webp"><img src="photos/16.webp" alt="Фото товара №16" loading="lazy"></a>
+<ul><li>Несколько ракурсов в одном изображении: выберите отдельное фото товара.</li></ul>
+<details><summary>Наблюдения второй проверки</summary><pre>{
+  &quot;description&quot;: &quot;На белом фоне крупное фото женских джинсов темно-синего цвета, поверх которых свитер белого цвета. Сверху надпись \&quot;Outfit образ\&quot;. Слева от джинс коллаж из фотографий деталей образа: рукава свитера, детали обуви, сумочка, украшения. Справа фотография здания.&quot;,
+  &quot;layout&quot;: &quot;COLLAGE&quot;,
+  &quot;presentation&quot;: &quot;WORN&quot;,
+  &quot;lowest_visible&quot;: &quot;CALVES&quot;,
+  &quot;waist_visible&quot;: true,
+  &quot;complete_trousers&quot;: false
+}</pre></details>
+</article>
+</div>
+<p>На прежних подтверждённых джинсах: все пять хороших фото рекомендованы; таблица размеров отклонена, крупный план направлен человеку. Это проверка регрессии, не новая независимая оценка общей точности.</p>
+<p>image-review-v13-trouser-evidence · owner-rules-2026-11-13-v8-trouser-evidence</p></main></html>

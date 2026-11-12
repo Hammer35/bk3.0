@@ -571,6 +571,7 @@ html[data-sidebar-collapsed="true"] .nav-item-compact { display: inline; font-si
 .chat-provenance ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
 .chat-provenance .meta { margin-top: var(--space-1); overflow-wrap: anywhere; }
 
+/* components/image-analysis.css */
 .image-test-intro, .image-test-form { margin-bottom: var(--space-4); }
 .image-test-intro p:last-child { margin-bottom: 0; }
 .image-test-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-block: var(--space-4); }

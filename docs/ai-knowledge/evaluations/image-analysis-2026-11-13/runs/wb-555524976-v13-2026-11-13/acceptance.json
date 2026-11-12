@@ -1,0 +1,30 @@
+{
+  "article": "555524976",
+  "selected": 11,
+  "completed": 1,
+  "error_images": [
+    2
+  ],
+  "unprocessed": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "batch_aborted": true,
+  "automatic_retries": false,
+  "failure_stage": "verification",
+  "failure_type": "ResponseError",
+  "verdicts": {
+    "recommended": 0,
+    "acceptable": 0,
+    "not_recommended": 1
+  },
+  "labels_confirmed": false,
+  "accuracy": null
+}

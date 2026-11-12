@@ -3,7 +3,7 @@
 OpenCode CLI вызван один раз: openrouter/qwen/qwen3.8-27b:free.
 Session ses_ef14d3c4cffeS7iaonLTIHGXss, exit1/APIError, текстового результата нет.
 Ответ исполнителя не принят; точная причина APIError не установлена.
-Usage не возвращён, расход неизвестен. Автоматического повтора не было.
+Автоматического повтора не было.
 
 Codex самостоятельно расширил user_metrics.py и regression tests:
 явные обратные периоды, markdown списки/таблицы, English metric labels,

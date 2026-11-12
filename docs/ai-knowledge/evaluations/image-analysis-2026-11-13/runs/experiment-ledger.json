@@ -1,0 +1,146 @@
+[
+  {
+    "file": "max-v5-diagnostic-2026-11-12.json",
+    "images": 8,
+    "matches": 3,
+    "evaluated": 8,
+    "errors": 0,
+    "chat_calls": 8,
+    "tokens": 22187
+  },
+  {
+    "file": "owner-rules-v2-calibration-2026-11-12.json",
+    "images": 8,
+    "matches": 7,
+    "evaluated": 8,
+    "errors": 0,
+    "chat_calls": 8,
+    "tokens": 20965
+  },
+  {
+    "file": "owner-rules-v3-calibration-2026-11-12.json",
+    "images": 9,
+    "matches": 8,
+    "evaluated": 9,
+    "errors": 0,
+    "chat_calls": 9,
+    "tokens": 24213
+  },
+  {
+    "file": "owner-rules-v4-layout-2026-11-12.json",
+    "images": 5,
+    "matches": 4,
+    "evaluated": 5,
+    "errors": 0,
+    "chat_calls": 5,
+    "tokens": 13626
+  },
+  {
+    "file": "owner-rules-v5-holdout-2026-11-12.json",
+    "images": 11,
+    "matches": 7,
+    "evaluated": 11,
+    "errors": 0,
+    "chat_calls": 11,
+    "tokens": 30468
+  },
+  {
+    "file": "owner-rules-v5-layout-2026-11-12.json",
+    "images": 3,
+    "matches": 2,
+    "evaluated": 3,
+    "errors": 0,
+    "chat_calls": 3,
+    "tokens": 8354
+  },
+  {
+    "file": "pro-framing-diagnostic-2026-11-12.json",
+    "images": 4,
+    "matches": 4,
+    "evaluated": 4,
+    "errors": 0,
+    "chat_calls": 4,
+    "tokens": 8895
+  },
+  {
+    "file": "pro-v10-observations-2026-11-12.json",
+    "images": 8,
+    "matches": 6,
+    "evaluated": 7,
+    "errors": 1,
+    "chat_calls": 16,
+    "tokens": 32732
+  },
+  {
+    "file": "pro-v11-observations-2026-11-12.json",
+    "images": 8,
+    "matches": 7,
+    "evaluated": 8,
+    "errors": 0,
+    "chat_calls": 16,
+    "tokens": 30639
+  },
+  {
+    "file": "pro-v12-confirmed-final-2026-11-12.json",
+    "images": 11,
+    "matches": 9,
+    "evaluated": 11,
+    "errors": 0,
+    "chat_calls": 20,
+    "tokens": 46906
+  },
+  {
+    "file": "pro-v6-development-2026-11-12.json",
+    "images": 14,
+    "matches": 5,
+    "evaluated": 11,
+    "errors": 3,
+    "chat_calls": 14,
+    "tokens": 36090
+  },
+  {
+    "file": "pro-v7-two-stage-2026-11-12.json",
+    "images": 8,
+    "matches": 6,
+    "evaluated": 8,
+    "errors": 0,
+    "chat_calls": 15,
+    "tokens": 33590
+  },
+  {
+    "file": "pro-v8-two-stage-2026-11-12.json",
+    "images": 4,
+    "matches": 2,
+    "evaluated": 4,
+    "errors": 0,
+    "chat_calls": 7,
+    "tokens": 13984
+  },
+  {
+    "file": "pro-v9-confirmed-final-2026-11-12.json",
+    "images": 11,
+    "matches": 4,
+    "evaluated": 4,
+    "errors": 7,
+    "chat_calls": 20,
+    "tokens": 40774
+  },
+  {
+    "file": "pro-v9-observations-2026-11-12.json",
+    "images": 6,
+    "matches": 6,
+    "evaluated": 6,
+    "errors": 0,
+    "chat_calls": 11,
+    "tokens": 25734
+  },
+  {
+    "file": "pro-v9-unseen-final-2026-11-12.json",
+    "images": 12,
+    "matches": 5,
+    "evaluated": 8,
+    "errors": 4,
+    "chat_calls": 20,
+    "tokens": 45432
+  }
+]

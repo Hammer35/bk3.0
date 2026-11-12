@@ -18,7 +18,7 @@ Secrets, account keys, сырые API-ответы и пользовательс
 только внутри диагностического процесса, чтобы подтвердить новый запрос.
 Переменные окружения и настройки приложения не менялись.
 
-Ответы чата: provider=`pinterest-api`, model=`direct-read`, tokens=0.
+Ответы чата: provider=`pinterest-api`, model=`direct-read`.
 Данные и источник — настоящий Pinterest API; текст отчёта формирует backend.
 Это не ответ GigaChat. LLM не вызывалась: вызов запрещён в проверке.
 
@@ -37,8 +37,7 @@ Secrets, account keys, сырые API-ответы и пользовательс
 OpenCode TASK017 через Qwen вернул два пригодных regression-теста:
 HTTP403 не ломает подключение; profile503 после повторных401 не объявляется
 доказательством невалидного OAuth. Codex применил и проверил proposal.
-9 targeted Pinterest tests OK. Reported tokens28298/cost0; экономия
-подписки Codex не измерена. Платных Giga-запросов в этом этапе нет.
+9 targeted Pinterest tests OK.
 
 ## Границы
 

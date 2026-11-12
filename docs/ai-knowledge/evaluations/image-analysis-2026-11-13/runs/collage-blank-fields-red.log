@@ -1,0 +1,28 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+E
+======================================================================
+ERROR: test_collage_rejection_does_not_require_unrelated_trouser_fields (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_collage_rejection_does_not_require_unrelated_trouser_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/image_analysis_test.py", line 574, in review_image
+    raise ValueError
+ValueError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 60, in test_collage_rejection_does_not_require_unrelated_trouser_fields
+    result = self.review({"layout": "COLLAGE", "description": "", "presentation": ""})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/apps/strategist/test_image_analysis.py", line 43, in review
+    result = review_image(client, "image", product_name="Джинсы клеш", category=category, stages=[])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/apps/strategist/image_analysis_test.py", line 609, in review_image
+    raise ImageReviewError(gettext_noop("Проверка кандидата не дала полного ответа. Результат не засчитан."))
+apps.strategist.image_analysis_test.ImageReviewError: Проверка кандидата не дала полного ответа. Результат не засчитан.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (errors=1)
