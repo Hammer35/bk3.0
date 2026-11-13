@@ -1,0 +1,23 @@
+[
+ "/sergebulaev/youtube-skills/tree/main/.agents/plugins",
+ "/sergebulaev/youtube-skills/tree/main/.claude-plugin",
+ "/sergebulaev/youtube-skills/tree/main/.codex-marketplace/youtube-skills",
+ "/sergebulaev/youtube-skills/tree/main/.codex-plugin",
+ "/sergebulaev/youtube-skills/tree/main/.github",
+ "/sergebulaev/youtube-skills/tree/main/assets",
+ "/sergebulaev/youtube-skills/tree/main/lib",
+ "/sergebulaev/youtube-skills/tree/main/references",
+ "/sergebulaev/youtube-skills/tree/main/scripts",
+ "/sergebulaev/youtube-skills/tree/main/skills",
+ "/sergebulaev/youtube-skills/blob/main/.codexignore",
+ "/sergebulaev/youtube-skills/blob/main/.env.example",
+ "/sergebulaev/youtube-skills/blob/main/.gitignore",
+ "/sergebulaev/youtube-skills/blob/main/AGENTS.md",
+ "/sergebulaev/youtube-skills/blob/main/CLAUDE.md",
+ "/sergebulaev/youtube-skills/blob/main/LICENSE",
+ "/sergebulaev/youtube-skills/blob/main/README.md",
+ "/sergebulaev/youtube-skills/blob/main/SECURITY.md",
+ "/sergebulaev/youtube-skills/blob/main/SKILL.md",
+ "/sergebulaev/youtube-skills/blob/main/requirements-lock.txt",
+ "/sergebulaev/youtube-skills/blob/main/requirements.txt"
+]

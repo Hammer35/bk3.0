@@ -18,6 +18,7 @@ APP_SOURCES = (
     "components/strategy.css",
     "components/language-switch.css",
     "shell.css",
+    "components/image-analysis.css",
 )
 LANDING_SOURCES = ("components/interface-scale.css", "components/language-switch.css", "landing.css")
 

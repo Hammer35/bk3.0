@@ -4,9 +4,9 @@ status: approved
 scope: global
 language: ru
 source_kind: official_public_policy_and_help
-source_checked: 2026-10-02
-rules_effective_until: 2026-11-11
-upcoming_policy_effective: 2026-11-12
+source_checked: 2026-11-12
+rules_effective_until: 2026-12-12
+rules_effective_from: 2026-11-12
 refresh_required: true
 ---
 
@@ -33,3 +33,5 @@ refresh_required: true
 Источники: [эффективность и распространение пинов](https://help.pinterest.com/en/business/article/pin-performance-and-distribution), [правила коммерческого и брендированного контента](https://policy.pinterest.com/en/commercial-and-branded-content-guidelines).
 
 Этот документ не подтверждает существование списка «запрещённых слов» для CTA и не гарантирует одобрение публикации Pinterest.
+
+Повторно сверено 12 ноября 2026 по [новой редакции Правил сообщества](https://policy.pinterest.com/en/community-guidelines-preview), действующей с этой даты. Запреты обманных предложений, подмены назначения ссылки, искусственной вовлечённости и неразрешённой автоматизации сохранены. Срок 12 декабря относится к следующей локальной проверке.

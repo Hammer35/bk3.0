@@ -230,6 +230,12 @@ npm-debug.log*
 # Local browser profiles and diagnostics
 .yandex-localhost-*
 
+# Скриншоты и логи браузера Playwright MCP
+.playwright-mcp/
+
+# Замки агентов — локальные, в репозиторий не идут
+.locks/
+
 # Agent worktrees: полная вторая копия репозитория, коммитить её нельзя
 .kilo/worktrees/
 

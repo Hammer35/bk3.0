@@ -1,0 +1,26 @@
+{
+  "mode": "offline_rules_replay_not_new_vision_measurement",
+  "source": "/app/var/strategist-eval/image-analysis/wb-445965661-v13-2026-11-13/results.json",
+  "rows": [
+    {
+      "image_number": 3,
+      "actual": "acceptable"
+    },
+    {
+      "image_number": 9,
+      "actual": "acceptable"
+    },
+    {
+      "image_number": 13,
+      "actual": "acceptable"
+    },
+    {
+      "image_number": 14,
+      "actual": "not_recommended"
+    },
+    {
+      "image_number": 16,
+      "actual": "not_recommended"
+    }
+  ]
+}

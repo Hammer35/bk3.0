@@ -1,0 +1,23 @@
+[
+ "/AgriciDaniel/claude-repurpose/tree/main/.claude-plugin",
+ "/AgriciDaniel/claude-repurpose/tree/main/.github",
+ "/AgriciDaniel/claude-repurpose/tree/main/agents",
+ "/AgriciDaniel/claude-repurpose/tree/main/docs",
+ "/AgriciDaniel/claude-repurpose/tree/main/extensions/banana",
+ "/AgriciDaniel/claude-repurpose/tree/main/hooks",
+ "/AgriciDaniel/claude-repurpose/tree/main/scripts",
+ "/AgriciDaniel/claude-repurpose/tree/main/skills",
+ "/AgriciDaniel/claude-repurpose/blob/main/.gitignore",
+ "/AgriciDaniel/claude-repurpose/blob/main/CHANGELOG.md",
+ "/AgriciDaniel/claude-repurpose/blob/main/CLAUDE.md",
+ "/AgriciDaniel/claude-repurpose/blob/main/CONTRIBUTING.md",
+ "/AgriciDaniel/claude-repurpose/blob/main/Claude-repurpose-cover.jpg",
+ "/AgriciDaniel/claude-repurpose/blob/main/LICENSE",
+ "/AgriciDaniel/claude-repurpose/blob/main/README.md",
+ "/AgriciDaniel/claude-repurpose/blob/main/SECURITY.md",
+ "/AgriciDaniel/claude-repurpose/blob/main/install.ps1",
+ "/AgriciDaniel/claude-repurpose/blob/main/install.sh",
+ "/AgriciDaniel/claude-repurpose/blob/main/pyproject.toml",
+ "/AgriciDaniel/claude-repurpose/blob/main/requirements.txt",
+ "/AgriciDaniel/claude-repurpose/blob/main/uninstall.sh"
+]

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.db import transaction
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -474,6 +475,39 @@ def connected_accounts(business):
     from apps.pinterest.models import PinterestAccount
     return PinterestAccount.objects.filter(business=business, deleted_at__isnull=True,
                                            status=PinterestAccount.Status.CONNECTED).order_by("created_at")
+
+
+@login_required
+def image_analysis_test(request, workspace_slug, business_slug):
+    """Temporary, explicit-cost workbench for validating image recommendations."""
+    from .image_analysis_test import ImageReviewError, analyze_uploads, saved_wb_image_reviews
+
+    business = _editable_page_business(request, workspace_slug, business_slug)
+    results, errors = [], []
+    product_name = request.POST.get("product_name", "").strip()[:200] if request.method == "POST" else ""
+    category = request.POST.get("category", "").strip()[:200] if request.method == "POST" else ""
+    if request.method == "POST":
+        uploads = request.FILES.getlist("images")
+        if not product_name:
+            errors.append(gettext("Укажите, какой товар изображён."))
+        elif not uploads:
+            errors.append(gettext("Добавьте хотя бы одно изображение."))
+        elif not settings.STRATEGIST_PRODUCT_VISION_ENABLED:
+            errors.append(gettext("Визуальный анализ отключён в настройках проекта."))
+        else:
+            try:
+                results = analyze_uploads(uploads, product_name=product_name, category=category, business=business)
+            except ImageReviewError as error:
+                errors.append(gettext(str(error)))
+    return render(request, "strategist/image_analysis_test.html", {
+        "business": business,
+        "strategist_business": business,
+        "fixture_groups": saved_wb_image_reviews(),
+        "results": results,
+        "errors": errors,
+        "product_name": product_name,
+        "category": category,
+    })
 
 
 @login_required

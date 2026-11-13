@@ -1,0 +1,35 @@
+System check identified no issues (0 silenced).
+No changes detected
+Found 513 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+............................................................................Content plan rejected by validation for business 72 (attempt 1)
+.Content plan rejected by validation for business 73 (attempt 1)
+Content plan rejected by validation for business 73 (attempt 2)
+....Content plan rejected by validation for business 77 (attempt 1)
+Content plan rejected by validation for business 77 (attempt 1)
+Content plan rejected by validation for business 77 (attempt 2)
+.Content plan rejected by validation for business 78 (attempt 1)
+Content plan rejected by validation for business 78 (attempt 2)
+....Content plan rejected by validation for business 82 (attempt 1)
+Content plan rejected by validation for business 82 (attempt 2)
+.....................Image review file cleanup failed: RuntimeError
+.Manual image review failed for image 1: TimeoutError
+.....Image review provider is unavailable: RuntimeError
+.................................................................Pin generation failed for item 400: RuntimeError
+...........................................................Strategy draft rejected by validation for business 235
+Strategy draft rejected by validation for business 235
+Strategy draft rejected by validation for business 235
+........Strategy draft rejected by validation for business 243
+Strategy draft rejected by validation for business 243
+Strategy draft rejected by validation for business 243
+............................Strategist data read failed: RuntimeError
+...................Primary knowledge retrieval failed: RuntimeError
+..Primary knowledge retrieval failed: GigaChatProviderError
+........................................................................................................................................................................................................GigaChat model unavailable; trying fallback: GigaChat-2
+...................
+----------------------------------------------------------------------
+Ran 513 tests in 84.511s
+
+OK
+Destroying test database for alias 'default'...

@@ -4,8 +4,8 @@ status: approved
 scope: global
 language: ru
 source_kind: official_public_help
-source_checked: 2026-10-03
-rules_effective_until: 2026-11-02
+source_checked: 2026-11-12
+rules_effective_until: 2026-12-12
 refresh_required: true
 pin_title_max_characters: 100
 pin_description_max_characters: 800
@@ -20,3 +20,5 @@ pin_description_max_characters: 800
 Эти сведения относятся к форматам и полям, перечисленным в этой справке. Для другого интерфейса, рекламного формата или API следует проверить соответствующую спецификацию, а не автоматически переносить эти числа.
 
 Источник: [Review Pin specs — справка Pinterest](https://help.pinterest.com/en/article/review-pin-specs), разделы Image Pin specs и Video Pin specs.
+
+Повторно проверено 12 ноября 2026: максимумы 100/800 подтверждены. Дата 12 декабря — срок следующей локальной проверки, а не объявленная Pinterest дата окончания действия спецификации.

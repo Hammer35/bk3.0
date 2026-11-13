@@ -1,0 +1,302 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-12T11:05:52.244917+00:00",
+  "mode": "live",
+  "metric": "agreement_with_dataset_labels_not_population_accuracy",
+  "requested_model": "GigaChat-2-Pro",
+  "prompt_version": "diagnostic-framing-v1-not-production",
+  "rating_version": "owner-rules-2026-11-12-v2",
+  "dataset": null,
+  "dataset_sha256": null,
+  "automatic_retries": false,
+  "batch_aborted": false,
+  "cases": [
+    {
+      "case_id": "151286059:01",
+      "article": "151286059",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "9a9739a1e19e7152edb1c9f5607db37eeab14db6d451cd6e61c61385fca76ad1",
+      "expected": "recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Джинсы целиком видны спереди: хорошо читаются высокая посадка, прямой силуэт и длина. Чистый кадр без текста и лишних предметов; подходит как основной пин товара.",
+      "product_name": "Женские прямые джинсы с высокой посадкой",
+      "category": "clothing",
+      "prompt_sha256": "99fce46068a59b92f310c03c381daf228e79bd6df371854302e2c19174cf578e"
+    },
+    {
+      "case_id": "151286059:04",
+      "article": "151286059",
+      "image_number": 4,
+      "filename": "04.webp",
+      "sha256": "8a0e3639b98f46f27ae532bd639b0205e3483ccfa79b2ded8fbc44b2fd11ea1f",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Это крупный план пояса и кармана — целиком джинсы не видны. Как и в предыдущих примерах с отдельными деталями, кадр не объясняет внешний вид товара целиком; подпись на фото дополнительно отвлекает.",
+      "product_name": "Женские прямые джинсы с высокой посадкой",
+      "category": "clothing",
+      "prompt_sha256": "99fce46068a59b92f310c03c381daf228e79bd6df371854302e2c19174cf578e"
+    },
+    {
+      "case_id": "775851159:11",
+      "article": "775851159",
+      "image_number": 11,
+      "filename": "11.webp",
+      "sha256": "cd4812cc10829b7ee2d372a3f58bc57eac3a27205650adff2dea5188847bfbe8",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Крупный план показывает отдельный элемент товара — часть толстовки. По этому кадру нельзя оценить комплект целиком, поэтому для самостоятельного пина он не подходит.",
+      "product_name": "Спортивный костюм для мальчика",
+      "category": "clothing",
+      "prompt_sha256": "081ca323cc213a3935e39439f61a50ab9e00e8e893e052489caa697c951f078b"
+    },
+    {
+      "case_id": "775851159:15",
+      "article": "775851159",
+      "image_number": 15,
+      "filename": "15.webp",
+      "sha256": "902c354cd0fa425e025d7e1ae1dcc8c68490038d8ab9c0cd2f4fc38538368ae4",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "То же: крупный план отдельного элемента товара, видны рука и часть кармана. Комплект целиком не показан, поэтому кадр не подходит для самостоятельного пина.",
+      "product_name": "Спортивный костюм для мальчика",
+      "category": "clothing",
+      "prompt_sha256": "081ca323cc213a3935e39439f61a50ab9e00e8e893e052489caa697c951f078b"
+    }
+  ],
+  "prompts": {
+    "99fce46068a59b92f310c03c381daf228e79bd6df371854302e2c19174cf578e": {
+      "product_name": "Женские прямые джинсы с высокой посадкой",
+      "category": "clothing",
+      "text": "Товар: Женские прямые джинсы с высокой посадкой. Проверь только КАДРИРОВАНИЕ, не додумывай то, чего нет за краем изображения. Для брюк нужны пояс и низ обеих штанин; для костюма нужны куртка и брюки целиком. Если виден только воротник, рукав, карман, ткань или пояс — content_type=DETAIL, visibility=PARTIAL. В description перечисли видимые части товара и назови отсутствующие части. Верни JSON с полями: description, content_type (PRODUCT или DETAIL), visibility (MAIN если весь товар в кадре, иначе PARTIAL), product_match (MATCH или UNCERTAIN), technical_quality (GOOD), composition (STRONG), category_fit (STRONG), flags (пустой массив)."
+    },
+    "081ca323cc213a3935e39439f61a50ab9e00e8e893e052489caa697c951f078b": {
+      "product_name": "Спортивный костюм для мальчика",
+      "category": "clothing",
+      "text": "Товар: Спортивный костюм для мальчика. Проверь только КАДРИРОВАНИЕ, не додумывай то, чего нет за краем изображения. Для брюк нужны пояс и низ обеих штанин; для костюма нужны куртка и брюки целиком. Если виден только воротник, рукав, карман, ткань или пояс — content_type=DETAIL, visibility=PARTIAL. В description перечисли видимые части товара и назови отсутствующие части. Верни JSON с полями: description, content_type (PRODUCT или DETAIL), visibility (MAIN если весь товар в кадре, иначе PARTIAL), product_match (MATCH или UNCERTAIN), technical_quality (GOOD), composition (STRONG), category_fit (STRONG), flags (пустой массив)."
+    }
+  },
+  "rows": [
+    {
+      "case_id": "151286059:01",
+      "article": "151286059",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "9a9739a1e19e7152edb1c9f5607db37eeab14db6d451cd6e61c61385fca76ad1",
+      "expected": "recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Джинсы целиком видны спереди: хорошо читаются высокая посадка, прямой силуэт и длина. Чистый кадр без текста и лишних предметов; подходит как основной пин товара.",
+      "product_name": "Женские прямые джинсы с высокой посадкой",
+      "category": "clothing",
+      "prompt_sha256": "99fce46068a59b92f310c03c381daf228e79bd6df371854302e2c19174cf578e",
+      "actual": "recommended",
+      "score": 100,
+      "raw_response": "```json\n{\n    \"description\": \"На фотографии видны женские прямые джинсы с высокой посадкой. Видны обе штанины и пояс.\",\n    \"content_type\": \"PRODUCT\",\n    \"visibility\": \"MAIN\",\n    \"product_match\": \"MATCH\",\n    \"technical_quality\": \"GOOD\",\n    \"composition\": \"STRONG\",\n    \"category_fit\": \"STRONG\",\n    \"flags\": []\n}\n```",
+      "usage": {
+        "prompt_tokens": 2133,
+        "completion_tokens": 87,
+        "total_tokens": 2220
+      },
+      "error": null,
+      "response_model": "GigaChat-2-Pro:2.0.30.01",
+      "label": "Рекомендую",
+      "reasons": [
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "На фотографии видны женские прямые джинсы с высокой посадкой. Видны обе штанины и пояс.",
+        "content_type": "PRODUCT",
+        "visibility": "MAIN",
+        "product_match": "MATCH",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      },
+      "matches_editorial": true,
+      "seconds": 3.541
+    },
+    {
+      "case_id": "151286059:04",
+      "article": "151286059",
+      "image_number": 4,
+      "filename": "04.webp",
+      "sha256": "8a0e3639b98f46f27ae532bd639b0205e3483ccfa79b2ded8fbc44b2fd11ea1f",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Это крупный план пояса и кармана — целиком джинсы не видны. Как и в предыдущих примерах с отдельными деталями, кадр не объясняет внешний вид товара целиком; подпись на фото дополнительно отвлекает.",
+      "product_name": "Женские прямые джинсы с высокой посадкой",
+      "category": "clothing",
+      "prompt_sha256": "99fce46068a59b92f310c03c381daf228e79bd6df371854302e2c19174cf578e",
+      "actual": "not_recommended",
+      "score": 63,
+      "raw_response": "```json\n{\n    \"description\": \"На фотографии видны женские черные джинсы с высокой талией. Видна верхняя часть джинсов, включая карманы и молнию спереди.\",\n    \"content_type\": \"DETAIL\",\n    \"visibility\": \"PARTIAL\",\n    \"product_match\": \"UNCERTAIN\",\n    \"technical_quality\": \"GOOD\",\n    \"composition\": \"STRONG\",\n    \"category_fit\": \"STRONG\",\n    \"flags\": []\n}\n```",
+      "usage": {
+        "prompt_tokens": 2131,
+        "completion_tokens": 99,
+        "total_tokens": 2230
+      },
+      "error": null,
+      "response_model": "GigaChat-2-Pro:2.0.30.01",
+      "label": "Не рекомендую",
+      "reasons": [
+        "Показана только деталь или ткань, целый товар не виден."
+      ],
+      "review": {
+        "description": "На фотографии видны женские черные джинсы с высокой талией. Видна верхняя часть джинсов, включая карманы и молнию спереди.",
+        "content_type": "DETAIL",
+        "visibility": "PARTIAL",
+        "product_match": "UNCERTAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      },
+      "matches_editorial": true,
+      "seconds": 3.155
+    },
+    {
+      "case_id": "775851159:11",
+      "article": "775851159",
+      "image_number": 11,
+      "filename": "11.webp",
+      "sha256": "cd4812cc10829b7ee2d372a3f58bc57eac3a27205650adff2dea5188847bfbe8",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "Крупный план показывает отдельный элемент товара — часть толстовки. По этому кадру нельзя оценить комплект целиком, поэтому для самостоятельного пина он не подходит.",
+      "product_name": "Спортивный костюм для мальчика",
+      "category": "clothing",
+      "prompt_sha256": "081ca323cc213a3935e39439f61a50ab9e00e8e893e052489caa697c951f078b",
+      "actual": "not_recommended",
+      "score": 63,
+      "raw_response": "```json\n{\n    \"description\": \"Видна верхняя часть спортивного костюма: черный верх с белой молнией и белыми вставками на плечах.\",\n    \"content_type\": \"DETAIL\",\n    \"visibility\": \"PARTIAL\",\n    \"product_match\": \"UNCERTAIN\",\n    \"technical_quality\": \"GOOD\",\n    \"composition\": \"STRONG\",\n    \"category_fit\": \"STRONG\",\n    \"flags\": []\n}\n```",
+      "usage": {
+        "prompt_tokens": 2133,
+        "completion_tokens": 93,
+        "total_tokens": 2226
+      },
+      "error": null,
+      "response_model": "GigaChat-2-Pro:2.0.30.01",
+      "label": "Не рекомендую",
+      "reasons": [
+        "Показана только деталь или ткань, целый товар не виден."
+      ],
+      "review": {
+        "description": "Видна верхняя часть спортивного костюма: черный верх с белой молнией и белыми вставками на плечах.",
+        "content_type": "DETAIL",
+        "visibility": "PARTIAL",
+        "product_match": "UNCERTAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      },
+      "matches_editorial": true,
+      "seconds": 2.769
+    },
+    {
+      "case_id": "775851159:15",
+      "article": "775851159",
+      "image_number": 15,
+      "filename": "15.webp",
+      "sha256": "902c354cd0fa425e025d7e1ae1dcc8c68490038d8ab9c0cd2f4fc38538368ae4",
+      "expected": "not_recommended",
+      "rating_status": "owner_confirmed_2026-11-08",
+      "owner_confirmed": true,
+      "rating_reason": "То же: крупный план отдельного элемента товара, видны рука и часть кармана. Комплект целиком не показан, поэтому кадр не подходит для самостоятельного пина.",
+      "product_name": "Спортивный костюм для мальчика",
+      "category": "clothing",
+      "prompt_sha256": "081ca323cc213a3935e39439f61a50ab9e00e8e893e052489caa697c951f078b",
+      "actual": "not_recommended",
+      "score": 63,
+      "raw_response": "```json\n{\n    \"description\": \"Деталь спортивного костюма: рукава и манжеты.\",\n    \"content_type\": \"DETAIL\",\n    \"visibility\": \"PARTIAL\",\n    \"product_match\": \"UNCERTAIN\",\n    \"technical_quality\": \"GOOD\",\n    \"composition\": \"STRONG\",\n    \"category_fit\": \"STRONG\",\n    \"flags\": []\n}\n```",
+      "usage": {
+        "prompt_tokens": 2135,
+        "completion_tokens": 84,
+        "total_tokens": 2219
+      },
+      "error": null,
+      "response_model": "GigaChat-2-Pro:2.0.30.01",
+      "label": "Не рекомендую",
+      "reasons": [
+        "Показана только деталь или ткань, целый товар не виден."
+      ],
+      "review": {
+        "description": "Деталь спортивного костюма: рукава и манжеты.",
+        "content_type": "DETAIL",
+        "visibility": "PARTIAL",
+        "product_match": "UNCERTAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      },
+      "matches_editorial": true,
+      "seconds": 2.451
+    }
+  ],
+  "summary": {
+    "selected": 4,
+    "completed": 4,
+    "evaluated": 4,
+    "errors": 0,
+    "agreement": {
+      "matches": 4,
+      "evaluated": 4,
+      "ratio": 1.0
+    },
+    "confusion_matrix": {
+      "recommended": {
+        "recommended": 1,
+        "acceptable": 0,
+        "not_recommended": 0,
+        "error": 0
+      },
+      "acceptable": {
+        "recommended": 0,
+        "acceptable": 0,
+        "not_recommended": 0,
+        "error": 0
+      },
+      "not_recommended": {
+        "recommended": 0,
+        "acceptable": 0,
+        "not_recommended": 3,
+        "error": 0
+      }
+    },
+    "usage": {
+      "prompt_tokens": 8532,
+      "completion_tokens": 363,
+      "total_tokens": 8895
+    },
+    "usage_complete": true,
+    "label_groups": {
+      "owner_confirmed": {
+        "evaluated": 4,
+        "matches": 4,
+        "errors": 0
+      },
+      "editorial": {
+        "evaluated": 0,
+        "matches": 0,
+        "errors": 0
+      }
+    },
+    "recommendation_precision": 1.0,
+    "false_recommendations": 0,
+    "false_rejections": 0,
+    "manual_review_share": 0.0
+  }
+}

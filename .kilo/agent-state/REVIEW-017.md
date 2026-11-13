@@ -13,4 +13,4 @@ CONNECTED и сообщает неподтверждённое состояни�
 
 В текущем узком задании Qwen показал пригодный code proposal. Это не
 универсальная оценка модели и не выбор semantic judge. Subscription
-Codex расход не измерен. Product LLM остаётся GigaChat-2-Pro.
+Product LLM остаётся GigaChat-2-Pro.

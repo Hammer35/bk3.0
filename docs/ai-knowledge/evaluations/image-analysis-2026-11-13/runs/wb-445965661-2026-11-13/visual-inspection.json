@@ -1,0 +1,38 @@
+{
+  "reviewer": "Codex, визуальный просмотр оригиналов",
+  "owner_confirmed": false,
+  "accuracy": null,
+  "findings": [
+    {
+      "image_number": 3,
+      "actual": "recommended",
+      "suggested": "not_recommended",
+      "observation": "Низ штанин находится за нижним краем кадра. Обе проверки ошибочно сочли джинсы целыми."
+    },
+    {
+      "image_number": 9,
+      "actual": "recommended",
+      "suggested": "not_recommended",
+      "observation": "Виден крупный план бёдер и верхней части штанин; низ штанин отсутствует. Получено ошибочное автоматическое одобрение."
+    },
+    {
+      "image_number": 13,
+      "actual": "recommended",
+      "suggested": "not_recommended",
+      "observation": "Виден крупный план задних карманов; низ штанин отсутствует. Получено ошибочное автоматическое одобрение."
+    },
+    {
+      "image_number": 14,
+      "actual": "recommended",
+      "suggested": "not_recommended",
+      "observation": "Коллаж с отдельными фото-вставками слева. Проверки ошибочно сочли его одиночным товарным фото (frames_count=1)."
+    },
+    {
+      "image_number": 16,
+      "actual": "recommended",
+      "suggested": "not_recommended",
+      "observation": "Коллаж с отдельными фото-вставками слева. Проверки ошибочно сочли его одиночным товарным фото (frames_count=1)."
+    }
+  ],
+  "limitation": "Это разбор видимых нарушений подтверждённых правил. Полная разметка 16 кадров владельцем не подтверждена; общая точность не вычислялась."
+}
