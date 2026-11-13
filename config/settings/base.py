@@ -197,3 +197,9 @@ PINTEREST_APP_CREATED_BEFORE_CONTINUOUS_REFRESH = (
     in {"1", "true", "yes"}
 )
 PINTEREST_TOKEN_ENCRYPTION_KEY = os.getenv("PINTEREST_TOKEN_ENCRYPTION_KEY", "")
+# Policy switches. Competitor research stays off until Pinterest authorizes it in writing.
+# Transient use of Pinterest API data as LLM context was confirmed by Pinterest in writing
+# (owner statement, 2026-10-06); the switch lets it be turned off without a deploy of code.
+PINTEREST_COMPETITOR_RESEARCH_ENABLED = os.getenv("PINTEREST_COMPETITOR_RESEARCH_ENABLED", "false").lower() in {"1", "true", "yes"}
+PINTEREST_AI_DATA_TRANSFER_ENABLED = os.getenv("PINTEREST_AI_DATA_TRANSFER_ENABLED", "true").lower() in {"1", "true", "yes"}
+RESEARCH_SNAPSHOT_RETENTION_DAYS = int(os.getenv("RESEARCH_SNAPSHOT_RETENTION_DAYS", "30"))

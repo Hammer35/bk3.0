@@ -14,6 +14,7 @@ urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url="/static/images/favicon.svg", permanent=True)),
     path("admin/", admin.site.urls),
     path("login/", LoginView.as_view(), name="login"),
+    path("i18n/", include("django.conf.urls.i18n")),
     path("auth/", include("apps.accounts.urls")),
     path("accounts/login/", RedirectView.as_view(pattern_name="login", permanent=False)),
     path("accounts/register/", RedirectView.as_view(pattern_name="accounts:register", permanent=False)),

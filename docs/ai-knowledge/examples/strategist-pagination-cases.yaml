@@ -1,0 +1,34 @@
+version: 1
+indexed_in_rag: false
+cases:
+  - id: followers_all_pages
+    family: pagination
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: paginated
+    messages:
+      - "Прочитай через инструмент список подписчиков (followers) @fixture_alpha со всех страниц и скажи точное количество. Коротко."
+    expected:
+      - "Два tool calls для fixture_alpha/followers; второй передаёт bookmark synthetic_next_page."
+      - "Без повторных страниц, в итоге 3 подписчика."
+  - id: followers_second_page_failure
+    family: pagination_failure
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: page_failure
+    messages:
+      - "Прочитай через инструмент список подписчиков (followers) @fixture_alpha со всех страниц и скажи точное количество. Коротко."
+    expected:
+      - "Первую страницу не выдаёт за полный список; попытка второй заканчивается ошибкой."
+      - "Точное количество неизвестно, не утверждает всего2; backend сохраняет потраченный usage."
+  - id: followers_profile_switch
+    family: dialogue_account_selection
+    business_profile: known
+    knowledge_mode: unavailable
+    tool_fixture: followers
+    messages:
+      - "Прочитай через инструмент подписчиков (followers) @fixture_alpha. Сколько их? Одно предложение."
+      - "А теперь то же самое для @fixture_beta. Одно предложение."
+    expected:
+      - "Первый ответ2 для alpha, второй1 для beta; каждый по новым данным правильного профиля."
+      - "Не переносит count2 с alpha и не требует служебного UUID."

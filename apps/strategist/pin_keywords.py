@@ -9,6 +9,7 @@ import requests
 from django.core.cache import cache
 from django.utils import timezone
 
+from apps.pinterest.policy import AI_TRANSFER_DISABLED_MESSAGE, pinterest_ai_transfer_enabled, require_pinterest_ai_transfer
 from apps.pinterest.strategist_tools import read_pinterest_data
 
 from .providers import GigaChatProvider
@@ -196,6 +197,7 @@ def _collect(*, business, account, seeds: list[str]) -> tuple[list[dict], list[s
 
 def _select(*, candidates: list[dict], product: dict, business, provider: GigaChatProvider) -> tuple[list[dict], int]:
     """Use one bounded model call to check relevance and translate source phrases."""
+    require_pinterest_ai_transfer()
     if not candidates:
         return [], 0
     indexed = [{"id": index, "phrase": item["original"]} for index, item in enumerate(candidates)]
@@ -324,6 +326,8 @@ def _pin_sets(keywords: list[dict], count: int) -> list[dict]:
 
 def research_pin_keywords(*, business, account, product: dict, pin_count: int = 90) -> dict:
     """Research current Pinterest phrases for the selected business and product."""
+    if not pinterest_ai_transfer_enabled():  # the phrase review and translation are model calls on Pinterest data
+        return {"error": AI_TRANSFER_DISABLED_MESSAGE}
     if account.business_id != business.id or not account.is_connected:
         return {"error": "Подключённый Pinterest-аккаунт не относится к этому бизнесу."}
     if not product.get("title") and not product.get("category"):

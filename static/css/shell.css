@@ -101,3 +101,16 @@ html[data-sidebar-collapsed="true"] .nav-item-compact { display: inline; font-si
     html[data-sidebar-collapsed="true"] .app-shell { grid-template-columns: 1fr; }
     .sidebar-sessions { max-height: 35vh; }
 }
+
+.chat-product-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+.chat-product-images figure { margin: 0; }
+.chat-product-images img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: contain; background: var(--surface); }
+.chat-product-images figcaption { margin-top: var(--space-2); font-size: 0.85em; overflow-wrap: anywhere; }
+.chat-store-catalog { margin-top: var(--space-3); border-top: var(--line-width) solid var(--line); padding-top: var(--space-2); }
+.chat-store-catalog summary { cursor: pointer; font-weight: 600; }
+.chat-store-catalog ol { max-height: 440px; overflow-y: auto; margin: var(--space-2) 0 0; padding-left: var(--space-5); }
+.chat-store-catalog li { padding: var(--space-1) 0; overflow-wrap: anywhere; }
+.chat-provenance { margin-top: var(--space-2); font-size: calc(12px * var(--interface-font-scale, 1)); color: var(--muted); }
+.chat-provenance summary { cursor: pointer; }
+.chat-provenance ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
+.chat-provenance .meta { margin-top: var(--space-1); overflow-wrap: anywhere; }

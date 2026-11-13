@@ -66,7 +66,7 @@ def comparison_issues(current, previous, period, previous_period, *, today):
     return issues
 
 
-FOLLOWUP = re.compile(r"вывод|что\s+(?:делать|хорошо|плохо|с\s+этим)|как\s+улучш|где\s+(?:ответ|статист)|рекомендац", re.I)
+FOLLOWUP = re.compile(r"вывод|что\s+(?:делать|хорошо|плохо|с\s+этим)|как\s+улучш|где\s+(?:ответ|статист)|рекомендац|что\s+проверить|почему\s+(?:вырос|упал|сниз|стало|больше|меньше)\w*\s+(?:показ|клик|переход|сохран)|причин\w*[^.!?]{0,30}(?:показ|клик|переход|сохран)", re.I)
 
 
 def analytics_followup_context(message, history):
@@ -151,6 +151,112 @@ def enforce_advice_boundaries(content, *, request_message=None):
         else:
             parts.append(paragraph)
     return "\n\n".join(parts)
+
+def enforce_creative_answer(content, *, request_message):
+    """Keep a single proposed caption when the model adds unsolicited commentary."""
+    if (not re.search(r"^(?:предложи|придумай|напиши|дай|составь)\b", request_message, re.I)
+            or not re.search(r"\bcta\b|подпис\w*", request_message, re.I)
+            or re.search(r"правил|запрещ|разреш|проверь|вариант|несколько|можно", request_message, re.I)
+            or re.search(r"не могу|нельзя|не рекомендую|не используй|запрещ", content, re.I)):
+        return content
+    # Only the familiar intro + quoted proposal shape; leave refusals and
+    # unstructured responses intact instead of extracting an arbitrary quote.
+    proposal = re.search(r"^(?:Вот|Предлагаю)[^\n]*\n\s*[«\"]([^»\"\n]{1,400})[»\"]", content)
+    return proposal.group(1) if proposal else content
+
+
+def enforce_source_honesty(content):
+    """Correct unsupported claims without deleting warnings or quoted examples.
+
+    This gate covers a bounded set of recurring errors, not factual verification
+    of arbitrary model answers. Official text limits use a fresh approved source.
+    """
+    from .grounded_answers import approved_pin_text_limits
+
+    limits = approved_pin_text_limits()
+    parts = []
+    for paragraph in re.split(r"\n\s*\n", content):
+        def replace_uniqueness(match):
+            sentence = match.group(0)
+            if re.search(r'не\s+(?:обещ|пиши|пишите|утвержд|использ)|избег|нельзя|без\s+доказ|[«"“]', sentence, re.I):
+                return sentence
+            return re.match(r"\s*", sentence).group(0) + "Уникальность товара без сравнения с аналогами не подтверждена."
+
+        paragraph = _UNSUPPORTED_UNIQUENESS.sub(replace_uniqueness, paragraph)
+        paragraph = re.sub(r"\bуникальн\w+\s+(товар\w*|продукт\w*|издели\w*)", r"\1", paragraph, flags=re.I)
+        sentences = re.split(r"(?<=[.!?])(\s+)", paragraph)
+        corrected = []
+        for sentence in sentences:
+            if _LENGTH_NORM.search(sentence) and _NORM_FRAMING.search(sentence) and not _NORM_CAVEAT_PRESENT.search(paragraph):
+                # A recommendation about an ideal length is never a maximum.
+                official_max = False
+                numbers = re.findall(r"\b\d+\b", sentence)
+                for field, maximum in limits.items():
+                    if (re.search(field, sentence, re.I) and numbers == [str(maximum)]
+                            and re.search(r"до\s+\d|максим|лимит", sentence, re.I)
+                            and not re.search(r"оптимальн|идеальн|рекоменду|лучшая", sentence, re.I)):
+                        official_max = True
+                if not official_max:
+                    if re.search(r"Pinterest|пинтерест|официальн|требован|правил", sentence, re.I):
+                        sentence = "Не могу подтвердить эту длину как официальное требование Pinterest."
+                    sentence = f"{sentence.rstrip()} {_LENGTH_NORM_CAVEAT}"
+            corrected.append(sentence)
+        paragraph = "".join(corrected)
+        if (_PERMISSION_VERDICT.search(paragraph) and _WORDING_TOPIC.search(paragraph)
+                and not _VERDICT_LIMIT.search(paragraph)
+                and not re.search(r"длин|лимит|символ|спам", paragraph, re.I)):
+            paragraph = f"{paragraph.rstrip()}\n\n{_CTA_VERDICT_LIMIT}"
+        parts.append(paragraph)
+    return "\n\n".join(parts)
+
+
+_CTA_VERDICT_LIMIT = (
+    "Это вывод из опубликованных правил, а не решение модерации Pinterest по конкретной "
+    "фразе: правила могут измениться, а текст до публикации никто не проверял."
+)
+
+_UNSUPPORTED_UNIQUENESS = re.compile(
+    r"[^.!?\n]*\b(?:нет ни у кого|не имеет аналогов|аналогов нет|"
+    r"единственн(?:ый|ая|ое|ые|ую)\s+в\s+(?:мире|стране|каталоге|сервисе))[^.!?\n]*[.!?]?",
+    re.I,
+)
+
+_PERMISSION_VERDICT = re.compile(
+    r"(?:Pinterest|пинтарест)\s+(?:разрешает|одобряет|не\s+запрещает|запрещает)|"
+    r"\bне\s+запрещ[её]н\b|\bможно\s+(?:использовать|писать|указывать)\b",
+    re.I,
+)
+
+_VERDICT_LIMIT = re.compile(
+    r"вывод из|не (?:решение|одобрение|одобрения)|не подтвержда[её]т одобрени|"
+    r"никто не проверял|может измениться",
+    re.I,
+)
+
+
+_LENGTH_NORM = re.compile(r"\b\d+\s*(?:символ\w*|слов\w*|знаков)", re.I)
+
+_NORM_FRAMING = re.compile(
+    r"рекоменду\w*|треб\w*|официальн\w*|лимит\w*|оптимальн\w*|идеальн\w*|лучшая\s+длина|"
+    r"следует\s+использовать|нужно\s+\d|полностью\s+отображал",
+    re.I,
+)
+
+_NORM_CAVEAT_PRESENT = re.compile(
+    r"эвристик|не (?:указан|закреплён|закреплен)|официальн\w*\s+(?:требован|норма|лимит)\s+не",
+    re.I,
+)
+
+_LENGTH_NORM_CAVEAT = (
+    "Это практическая эвристика, а не официальное требование Pinterest."
+)
+
+
+_WORDING_TOPIC = re.compile(
+    r"призыв|\bcta\b|фраз|слов|текст|описани|заголовок|подпись",
+    re.I,
+)
+
 
 def metric_value(summary: dict, name: str) -> int | float | None:
     value = summary.get(name)
@@ -264,3 +370,50 @@ def analytics_advice(summary: dict, previous: dict | None) -> tuple[list[str], l
             )
 
     return improvements[:4], observations[:4], actions[:4]
+
+
+def analytics_explanation(summary, previous, *, metric="OUTBOUND_CLICK", comparable=False):
+    """Explain trusted numeric data without making causal or significance claims."""
+    labels = {"IMPRESSION": "Показы", "OUTBOUND_CLICK": "Исходящие клики", "SAVE": "Сохранения"}
+    label = labels[metric]
+    current = metric_value(summary, metric)
+    old = metric_value(previous or {}, metric) if comparable else None
+    if current is None:
+        fact = f"{label}: значение недоступно; это не ноль."
+    elif old is None:
+        fact = f"{label}: {format_metric_number(current)}. Сопоставимая динамика не подтверждена."
+    else:
+        fact = f"{label}: {format_metric_number(old)} → {format_metric_number(current)}."
+    if comparable and metric != "IMPRESSION":
+        current_impressions = metric_value(summary, "IMPRESSION")
+        old_impressions = metric_value(previous or {}, "IMPRESSION")
+        if current is not None and old is not None and current_impressions and old_impressions:
+            fact += (
+                f" На 100 показов: {format_metric_number(old / old_impressions * 100)}% → "
+                f"{format_metric_number(current / current_impressions * 100)}%."
+            )
+    limit = "Причина изменения по общей статистике не установлена."
+    if not comparable:
+        action = "Сначала получите полные данные за два равных завершённых периода."
+    elif metric == "IMPRESSION":
+        action = "Одна проверка: сравните показы отдельных пинов одной темы, формата и возраста за эти периоды."
+    else:
+        action = f"Одна проверка: сравните {label.lower()} на 100 показов у отдельных пинов одной темы, формата и возраста."
+    return f"{fact}\n{limit}\n{action}"
+
+
+_FAKE_ACTION = re.compile(
+    r"(?:стратеги\w+|план\w*|контент\w*)\s+(?:уже\s+)?(?:запущен\w*|опубликован\w*|сохранен\w*|сохранён\w*)|"
+    r"\b(?:приступаю\s+к\s+реализации|запускаю\s+(?:стратегию|публикаци\w+)|начинаю\s+публикаци\w+|"
+    r"публикую\s+(?:пин\w*|контент)|запустил\w*\s+(?:стратегию|публикаци\w+))", re.I)
+FAKE_ACTION_NOTE = (
+    "Важно: я ничего не запускал, не публиковал и не сохранял. Это текст-рассуждение, а не созданная стратегия. "
+    "Чтобы получить сохранённую стратегию, напиши «Построй стратегию»."
+)
+
+
+def enforce_no_fake_actions(content):
+    """The chat model cannot launch or publish anything; correct replies that claim it did."""
+    if not isinstance(content, str) or FAKE_ACTION_NOTE in content or not _FAKE_ACTION.search(content):
+        return content
+    return f"{content.rstrip()}\n\n{FAKE_ACTION_NOTE}"

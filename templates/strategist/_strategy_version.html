@@ -1,0 +1,50 @@
+{% load i18n %}
+{% with version=v.version %}
+<div class="strategy-sections">
+    {% if version.goals %}
+        <section class="strategy-section"><h3>{% trans "Цели" %}</h3>
+            <ul class="strategy-list">{% for item in version.goals %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.priorities %}
+        <section class="strategy-section"><h3>{% trans "Приоритеты" %}</h3>
+            <ul class="strategy-list">{% for item in version.priorities %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.keyword_clusters %}
+        <section class="strategy-section"><h3>{% trans "Ключевые слова" %}</h3>
+            {% if v.snapshot %}<p class="meta">{% blocktrans with date=v.snapshot.researched_at|date:"d.m.Y" %}Из исследования ниши от {{ date }}{% endblocktrans %}</p>{% endif %}
+            <ul class="strategy-list">{% for cluster in version.keyword_clusters %}<li><strong>{{ cluster.name }}</strong>: {{ cluster.keywords|join:", " }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.recommended_boards %}
+        <section class="strategy-section"><h3>{% trans "Доски" %}</h3>
+            <ul class="strategy-list">{% for board in version.recommended_boards %}<li>{{ board.name }}{% if board.purpose %} — {{ board.purpose }}{% endif %}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.content_directions %}
+        <section class="strategy-section"><h3>{% trans "Контентные направления" %}</h3>
+            <ul class="strategy-list">{% for item in version.content_directions %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.seasonal_plans %}
+        <section class="strategy-section"><h3>{% trans "Сезонные идеи" %}</h3>
+            <ul class="strategy-list">{% for item in version.seasonal_plans %}<li><strong>{{ item.period }}</strong>: {{ item.idea }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if v.cadence %}
+        <section class="strategy-section"><h3>{% trans "Частота публикаций" %}</h3>
+            <p>{{ v.cadence }}{% if not v.cadence_confirmed %} <span class="strategy-flag">{% trans "гипотеза, данными не подтверждено" %}</span>{% endif %}</p></section>
+    {% endif %}
+    {% if version.exclusions %}
+        <section class="strategy-section"><h3>{% trans "Исключено по вашей просьбе" %}</h3>
+            <ul class="strategy-list">{% for item in version.exclusions %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if v.rationale %}
+        <section class="strategy-section"><h3>{% trans "Почему так" %}</h3>
+            <ul class="strategy-list">{% for item in v.rationale %}<li>{{ item.claim }} <span class="strategy-source">[{{ item.sources|join:", " }}]</span></li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.hypotheses %}
+        <section class="strategy-section"><h3>{% trans "Гипотезы (не подтверждены)" %}</h3>
+            <ul class="strategy-list">{% for item in version.hypotheses %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+    {% if version.missing_data %}
+        <section class="strategy-section"><h3>{% trans "Не хватает данных" %}</h3>
+            <ul class="strategy-list">{% for item in version.missing_data %}<li>{{ item }}</li>{% endfor %}</ul></section>
+    {% endif %}
+</div>
+{% endwith %}

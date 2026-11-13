@@ -1,4 +1,7 @@
-.PHONY: up down logs shell test check migrate makemigrations superuser build rebuild clean
+.PHONY: up down logs shell test check migrate makemigrations superuser build rebuild clean agents
+
+agents:
+	tail -f .kilo/agent-state/LOG.md
 
 up:
 	docker compose up --build

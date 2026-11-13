@@ -1,0 +1,369 @@
+{
+  "mode": "offline-replay",
+  "source_report": "pro-v12-confirmed-final-2026-11-12.json",
+  "source_report_sha256": "8845a60e75c2136d11d0ec1367fca7f0aade5064e7e238b590a0ff9be64e809d",
+  "rating_version": "owner-rules-2026-11-13-v7-manual-disagreement",
+  "new_api_calls": 0,
+  "new_tokens": 0,
+  "rows": [
+    {
+      "case_id": "151286059:01",
+      "expected": "recommended",
+      "previous_actual": "recommended",
+      "actual": "recommended",
+      "score": 100,
+      "label": "Рекомендую",
+      "reasons": [
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина в белых туфлях на каблуке стоит в белой майке и черных джинсах с высокой талией.",
+        "product_match": "MATCH",
+        "content_type": "PRODUCT",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "На фотографии видны женские джинсы прямого кроя с высокой посадкой. Видны обе штанины, пояс и нижняя часть брюк.",
+          "framing": "WHOLE",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "151286059:03",
+      "expected": "recommended",
+      "previous_actual": "not_recommended",
+      "actual": "acceptable",
+      "score": 100,
+      "label": "Допустим",
+      "reasons": [
+        "Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.",
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина стоит спиной к зрителю в белых джинсовых шортах и черных брюках с высокой талией. Она носит белые туфли на каблуке.",
+        "product_match": "MATCH",
+        "content_type": "DETAIL",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "PARTIAL",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "Видны обе штанины женских джинс, но ни верха, ни низа изделия не видно.",
+          "framing": "PART",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        },
+        "framing_disagreement": true
+      }
+    },
+    {
+      "case_id": "151286059:04",
+      "expected": "not_recommended",
+      "previous_actual": "not_recommended",
+      "actual": "acceptable",
+      "score": 100,
+      "label": "Допустим",
+      "reasons": [
+        "Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.",
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина в белых кроссовках стоит в черных джинсах с высокой талией и белой футболке. Джинсы прямого кроя, видны спереди.",
+        "product_match": "MATCH",
+        "content_type": "DETAIL",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "PARTIAL",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "Видна верхняя часть женских джинс, застежка-молния, карманы и пояс. Ноги и нижняя часть изделия отсутствуют.",
+          "framing": "PART",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        },
+        "framing_disagreement": true
+      }
+    },
+    {
+      "case_id": "151286059:05",
+      "expected": "recommended",
+      "previous_actual": "recommended",
+      "actual": "recommended",
+      "score": 100,
+      "label": "Рекомендую",
+      "reasons": [
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина стоит боком в белых туфлях на каблуке, держась рукой за талию. Она одета в белый топ без рукавов и черные брюки с высокой талией.",
+        "product_match": "MATCH",
+        "content_type": "PRODUCT",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "На фотографии видны женские джинсы прямого кроя с высокой талией. Видны обе штанины, пояс и нижняя часть брюк.",
+          "framing": "WHOLE",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "151286059:06",
+      "expected": "recommended",
+      "previous_actual": "recommended",
+      "actual": "recommended",
+      "score": 100,
+      "label": "Рекомендую",
+      "reasons": [
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина в белых туфлях на каблуках стоит в черных джинсах с высокой талией и белой майке.",
+        "product_match": "MATCH",
+        "content_type": "PRODUCT",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "На фотографии видны женские черные джинсы с высокой талией. Видны обе штанины, пояс, карманы и манжеты.",
+          "framing": "WHOLE",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "151286059:07",
+      "expected": "recommended",
+      "previous_actual": "not_recommended",
+      "actual": "acceptable",
+      "score": 100,
+      "label": "Допустим",
+      "reasons": [
+        "Первая проверка сочла товар целым, вторая — обрезанным. Нужна ручная проверка кадра.",
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "Женщина сидит на белом кресле, одетая в белые топ и туфли, черные брюки с высокой талией.",
+        "product_match": "MATCH",
+        "content_type": "DETAIL",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "PARTIAL",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "Видна верхняя часть женских джинс, начиная от пояса и заканчивая примерно серединой бедра. Ноги модели частично закрыты белым пуфом.",
+          "framing": "PART",
+          "presentation": "PRODUCT",
+          "frames_count": 1
+        },
+        "framing_disagreement": true
+      }
+    },
+    {
+      "case_id": "151286059:08",
+      "expected": "not_recommended",
+      "previous_actual": "not_recommended",
+      "actual": "not_recommended",
+      "score": 100,
+      "label": "Не рекомендую",
+      "reasons": [
+        "Размерная таблица или схема замеров не подходит для товарного пина."
+      ],
+      "review": {
+        "description": "Таблица соответствия размеров женских джинс.",
+        "product_match": "MATCH",
+        "content_type": "SIZE_CHART",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      }
+    },
+    {
+      "case_id": "775851159:05",
+      "expected": "acceptable",
+      "previous_actual": "acceptable",
+      "actual": "acceptable",
+      "score": 100,
+      "label": "Допустим",
+      "reasons": [
+        "Можно оставить для ручной проверки: обнаружены признаки: off_body",
+        "Соответствие товару — 35/35",
+        "Видимость товара — 25/25",
+        "Техническое качество — 20/20",
+        "Композиция — 10/10",
+        "Соответствие категории — 10/10"
+      ],
+      "review": {
+        "description": "На сером фоне мальчик в белой футболке, черных спортивных штанах с белыми полосками сбоку и белых кроссовках держит черную толстовку.",
+        "product_match": "MATCH",
+        "content_type": "PRODUCT",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [
+          "off_body"
+        ],
+        "verification": {
+          "description": {
+            "jacket": "HELD",
+            "trousers": "WHOLE"
+          },
+          "jacket": "HELD",
+          "trousers": "WHOLE"
+        }
+      }
+    },
+    {
+      "case_id": "775851159:06",
+      "expected": "not_recommended",
+      "previous_actual": "not_recommended",
+      "actual": "not_recommended",
+      "score": 100,
+      "label": "Не рекомендую",
+      "reasons": [
+        "Размерная таблица или схема замеров не подходит для товарного пина."
+      ],
+      "review": {
+        "description": "Размерная сетка спортивного костюма для мальчиков.",
+        "product_match": "MATCH",
+        "content_type": "SIZE_CHART",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "MAIN",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": []
+      }
+    },
+    {
+      "case_id": "775851159:11",
+      "expected": "not_recommended",
+      "previous_actual": "not_recommended",
+      "actual": "not_recommended",
+      "score": 83,
+      "label": "Не рекомендую",
+      "reasons": [
+        "Показана только деталь или ткань, целый товар не виден."
+      ],
+      "review": {
+        "description": "Мужчина в чёрном спортивном костюме с белой молнией и белыми полосками на рукавах.",
+        "product_match": "MATCH",
+        "content_type": "DETAIL",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "PARTIAL",
+        "technical_quality": "GOOD",
+        "composition": "STRONG",
+        "category_fit": "STRONG",
+        "flags": [],
+        "verification": {
+          "description": "На мужчине надета черная куртка спортивного костюма с белой молнией и белыми полосами на рукавах. Брюки не видны.",
+          "jacket": "WORN",
+          "trousers": "ABSENT"
+        }
+      }
+    },
+    {
+      "case_id": "775851159:15",
+      "expected": "not_recommended",
+      "previous_actual": "not_recommended",
+      "actual": "not_recommended",
+      "score": 77,
+      "label": "Не рекомендую",
+      "reasons": [
+        "Показана только деталь или ткань, целый товар не виден."
+      ],
+      "review": {
+        "description": "Детская рука в черном спортивном костюме.",
+        "product_match": "MATCH",
+        "content_type": "DETAIL",
+        "comparison_layout": "NOT_APPLICABLE",
+        "visibility": "PARTIAL",
+        "technical_quality": "GOOD",
+        "composition": "ACCEPTABLE",
+        "category_fit": "ACCEPTABLE",
+        "flags": [],
+        "verification": {
+          "description": "Видна только рука ребенка в черной одежде.",
+          "jacket": "ABSENT",
+          "trousers": "ABSENT"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "completed": 11,
+    "changed": [
+      {
+        "case_id": "151286059:03",
+        "before": "not_recommended",
+        "after": "acceptable"
+      },
+      {
+        "case_id": "151286059:04",
+        "before": "not_recommended",
+        "after": "acceptable"
+      },
+      {
+        "case_id": "151286059:07",
+        "before": "not_recommended",
+        "after": "acceptable"
+      }
+    ],
+    "verdict_counts": {
+      "recommended": 3,
+      "acceptable": 4,
+      "not_recommended": 4
+    },
+    "false_recommendations": 0
+  }
+}

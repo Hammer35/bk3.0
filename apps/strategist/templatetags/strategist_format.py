@@ -13,6 +13,14 @@ register = template.Library()
 def _inline(value: str) -> str:
     safe = escape(value)
     safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
+    safe = re.sub(
+        r"\[([^\[\]\n]+)\]\((https?://[^\s<>()]+)\)",
+        lambda match: (
+            f'<a href="{match.group(2)}" target="_blank" rel="noopener noreferrer">'
+            f'{match.group(1)}</a>'
+        ),
+        safe,
+    )
     return safe.replace("**", "")
 
 
@@ -97,3 +105,31 @@ def strategist_reply(value: str) -> str:
     flush_paragraph()
     flush_list()
     return mark_safe("".join(blocks))
+
+
+@register.filter(name="provenance_lines")
+def provenance_lines(manifest) -> list[str]:
+    """Readable lines for the sources a reply was built from."""
+    from apps.strategist.provenance import describe
+    return describe(manifest)
+
+
+@register.filter(name="get_item")
+def get_item(mapping, key):
+    """Template access to a dict value by a variable key."""
+    return mapping.get(key, {}) if isinstance(mapping, dict) else {}
+
+
+@register.filter(name="json_attr")
+def json_attr(value) -> str:
+    """JSON for a data-attribute (HTML-escaped by the template engine): data only, no inline script."""
+    import json
+    return json.dumps(value, ensure_ascii=False)
+
+
+@register.simple_tag(takes_context=True)
+def can_edit_business(context, business) -> bool:
+    """Whether the current user may use editing pages of this business (used to show menu items)."""
+    from apps.strategist.memory import actor_can_edit
+    request = context.get("request")
+    return bool(business and request is not None and actor_can_edit(business, request.user))

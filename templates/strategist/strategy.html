@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Стратегия — BOOSTKLIENT®" %}{% endblock %}
+{% block content %}
+<header class="workbench-page-header">
+    <div>
+        <p class="eyebrow">{{ business.workspace.name }} / {{ business.name }}</p>
+        <h1>{% trans "Стратегия" %}</h1>
+        <p>{% trans "Черновики, подтверждённая стратегия и контент-план этого бизнеса. Строит и меняет их ИИ-стратег в чате." %}</p>
+    </div>
+</header>
+
+<div class="strategy-page">
+    <section class="panel strategy-panel strategy-profile" aria-labelledby="profile-title">
+        <h2 class="panel-title" id="profile-title">{% trans "Профиль бизнеса" %}</h2>
+        <dl class="strategy-facts">
+            <div><dt>{% trans "Ниша" %}</dt><dd>{{ business.niche|default:"—" }}{% if business.subniche %} / {{ business.subniche }}{% endif %}</dd></div>
+            <div><dt>{% trans "Рынок" %}</dt><dd>{{ business.market|default:"—" }}</dd></div>
+            <div><dt>{% trans "Аудитория" %}</dt><dd>{{ business.audience|default:"—" }}</dd></div>
+            <div><dt>{% trans "Цели" %}</dt><dd>{{ business.goals|default:"—" }}</dd></div>
+            <div><dt>{% trans "Сайт" %}</dt><dd>{% if business.website|slice:":7" == "http://" or business.website|slice:":8" == "https://" %}<a href="{{ business.website }}" rel="noopener noreferrer">{{ business.website }}</a>{% elif business.website %}{{ business.website }}{% else %}—{% endif %}</dd></div>
+        </dl>
+        {% if profile_missing %}<p class="meta strategy-flag">{% blocktrans with fields=profile_missing|join:", " %}Для стратегии не хватает: {{ fields }}.{% endblocktrans %}</p>{% endif %}
+    </section>
+
+    {% if not active and not draft %}
+        <section class="panel strategy-panel">
+            <h2 class="panel-title">{% trans "Стратегии пока нет" %}</h2>
+            {% if profile_missing %}
+                <p class="meta">{% blocktrans with fields=profile_missing|join:", " %}Чтобы построить стратегию, заполните профиль бизнеса: {{ fields }}.{% endblocktrans %}</p>
+            {% else %}
+                <p class="meta">{% trans "Напишите ИИ-стратегу «Построй стратегию»: он соберёт черновик по профилю бизнеса." %}</p>
+            {% endif %}
+            <a class="button button-primary" href="{% url 'strategist:chat' business.workspace.slug business.slug %}">{% trans "Открыть чат с ИИ-стратегом" %}</a>
+        </section>
+    {% endif %}
+
+    {% if draft %}
+        <section class="panel strategy-panel" aria-labelledby="strategy-draft-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow">{% trans "Ждёт подтверждения" %}</p>
+                    <h2 class="panel-title" id="strategy-draft-title">{% blocktrans with number=draft.version.number %}Черновик, версия {{ number }}{% endblocktrans %}</h2>
+                    {% if draft.version.change_note %}<p class="meta">{{ draft.version.change_note }}</p>{% endif %}
+                </div>
+                {% if can_edit %}
+                    <form method="post" action="{% url 'strategist:strategy-confirm' business.workspace.slug business.slug draft.version.number %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button button-primary">{% trans "Подтвердить стратегию" %}</button>
+                    </form>
+                {% endif %}
+            </div>
+            {% include "strategist/_strategy_version.html" with v=draft %}
+        </section>
+    {% endif %}
+
+    {% if active %}
+        <section class="panel strategy-panel" aria-labelledby="strategy-active-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow status-active">{% trans "Действует" %}</p>
+                    <h2 class="panel-title" id="strategy-active-title">{% blocktrans with number=active.version.number %}Стратегия, версия {{ number }}{% endblocktrans %}</h2>
+                    <p class="meta">{% blocktrans with date=active.version.confirmed_at|date:"d.m.Y" %}Подтверждена {{ date }}{% endblocktrans %}</p>
+                </div>
+            </div>
+            {% include "strategist/_strategy_version.html" with v=active %}
+        </section>
+    {% endif %}
+
+    {% if can_build_plan and not plan %}
+        <section class="panel strategy-panel" aria-labelledby="plan-build-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow">{% trans "Следующий шаг" %}</p>
+                    <h2 class="panel-title" id="plan-build-title">{% trans "Контент-план" %}</h2>
+                    <p class="meta">{% trans "Идеи пинов на 4 недели из подтверждённой стратегии. Составление может занять до минуты." %}</p>
+                </div>
+                <form method="post" action="{% url 'strategist:plan-build' business.workspace.slug business.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-primary">{% trans "Составить контент-план" %}</button>
+                </form>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if plan %}
+        <section class="panel strategy-panel" aria-labelledby="plan-title">
+            <div class="strategy-panel-header">
+                <div>
+                    <p class="eyebrow{% if plan.status == 'CONFIRMED' %} status-active{% endif %}">{{ plan.get_status_display }}</p>
+                    <h2 class="panel-title" id="plan-title">{% blocktrans with number=plan.strategy_version.number %}Контент-план по версии {{ number }}{% endblocktrans %}</h2>
+                    <p class="meta">{% trans "Идеи для производства, а не расписание публикаций: даты и частоту вы задаёте сами." %}</p>
+                    {% if plan_stale %}<p class="meta strategy-flag">{% trans "Стратегия заменена: постройте план заново." %}</p>{% endif %}
+                </div>
+                {% if can_edit and plan.status == 'DRAFT' and not plan_stale %}
+                    <div class="pin-actions">
+                        <form method="post" action="{% url 'strategist:plan-confirm' business.workspace.slug business.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="button button-primary">{% trans "Подтвердить контент-план" %}</button>
+                        </form>
+                        {% if can_build_plan %}
+                            <form method="post" action="{% url 'strategist:plan-build' business.workspace.slug business.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-secondary">{% trans "Составить заново" %}</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="strategy-weeks">
+                {% for week, items in plan_weeks %}
+                    <section class="strategy-section"><h3>{% blocktrans %}Неделя {{ week }}{% endblocktrans %}</h3>
+                        <ul class="strategy-list">
+                            {% for item in items %}
+                                <li>{{ item.idea }}
+                                    <span class="strategy-source">[{{ item.direction }}{% if item.board %}; {% trans "доска" %} «{{ item.board }}»{% endif %}{% if item.keyword %}; {% trans "ключ" %}: {{ item.keyword }}{% endif %}{% if item.content_type == 'VIDEO' %}; {% trans "видео" %}{% endif %}]</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if history %}
+        <section class="panel strategy-panel" aria-labelledby="history-title">
+            <h2 class="panel-title" id="history-title">{% trans "История версий" %}</h2>
+            <div class="strategy-table" role="table" aria-label="{% trans 'История версий стратегии' %}">
+                {% for item in history %}
+                    <div class="strategy-table-row" role="row">
+                        <span role="cell">{% blocktrans with number=item.number %}Версия {{ number }}{% endblocktrans %}</span>
+                        <span role="cell">{{ item.get_status_display }}</span>
+                        <span role="cell">{{ item.created_at|date:"d.m.Y H:i" }}</span>
+                        <span role="cell" class="meta">{{ item.change_note }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="panel strategy-panel" aria-labelledby="memory-title">
+        <h2 class="panel-title" id="memory-title">{% trans "Что помнит ИИ-стратег" %}</h2>
+        {% if memory_facts %}
+            <ul class="strategy-list">{% for fact in memory_facts %}<li>{{ fact.text }}</li>{% endfor %}</ul>
+        {% else %}
+            <p class="meta">{% trans "Пока пусто. Напишите в чате «Запомни: …», чтобы сохранить факт о бизнесе." %}</p>
+        {% endif %}
+        {% if snapshot_fresh %}
+            <p class="meta">{% blocktrans with date=snapshot_fresh.researched_at|date:"d.m.Y" %}Последнее исследование ниши: {{ date }}.{% endblocktrans %}</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

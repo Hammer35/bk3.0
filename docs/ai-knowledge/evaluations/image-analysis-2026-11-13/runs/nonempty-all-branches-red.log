@@ -1,0 +1,142 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+FFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Джинсы', description='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Джинсы', description=' \n\t ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Джинсы', description=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Рубашка', description='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Рубашка', description=' \n\t ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Рубашка', description=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Костюм', description='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Костюм', description=' \n\t ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Костюм', description=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Набор', description='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Набор', description=' \n\t ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Набор', description=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Сыворотка', description='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Сыворотка', description=' \n\t ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+======================================================================
+FAIL: test_no_verification_branch_can_return_a_blank_description (apps.strategist.test_image_analysis.TrouserEvidenceTests.test_no_verification_branch_can_return_a_blank_description) (name='Сыворотка', description=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/apps/strategist/test_image_analysis.py", line 77, in test_no_verification_branch_can_return_a_blank_description
+    with self.subTest(name=name, description=description), self.assertRaises(ImageReviewError):
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageReviewError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (failures=15)

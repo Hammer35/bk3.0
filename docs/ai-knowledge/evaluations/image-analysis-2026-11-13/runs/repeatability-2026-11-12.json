@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-12T09:58:27.955944+00:00",
+  "mode": "live",
+  "metric": "agreement_with_editorial_labels_not_confirmed_accuracy",
+  "requested_model": "GigaChat-2-Pro",
+  "prompt_version": "current-unversioned",
+  "dataset": "/app/docs/ai-knowledge/examples/wb-image-similarity-2026-11-08.csv",
+  "automatic_retries": false,
+  "batch_aborted": true,
+  "cases": [
+    {
+      "case_id": "1221114868:01",
+      "article": "1221114868",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "b62e910a8853df077906383f740d4ac5606c19117a829eefdaefaf9e2bbed441",
+      "expected": "recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "",
+      "product_name": "Антивозрастной набор крем и сыворотка для лица",
+      "category": "cosmetics",
+      "prompt_sha256": "856ac3f975cf5136fe15d67f55a29f1c7583b4343c3f05151eeee8481cfbf2c2"
+    },
+    {
+      "case_id": "1221114868:03",
+      "article": "1221114868",
+      "image_number": 3,
+      "filename": "03.webp",
+      "sha256": "2f82fcc240f92d1136d59091cbdda130703bbd600283e755099ec28fa5df1607",
+      "expected": "acceptable",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "",
+      "product_name": "Антивозрастной набор крем и сыворотка для лица",
+      "category": "cosmetics",
+      "prompt_sha256": "856ac3f975cf5136fe15d67f55a29f1c7583b4343c3f05151eeee8481cfbf2c2"
+    },
+    {
+      "case_id": "246438624:01",
+      "article": "246438624",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "16626fe73b40f1adaa700335dc176911837cba51b5f7f230d600863b221f1286",
+      "expected": "recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Шампунь и кондиционер показаны вместе и хорошо различимы; подписи присутствуют, но товар остаётся главным.",
+      "product_name": "Набор шампунь и кондиционер",
+      "category": "cosmetics",
+      "prompt_sha256": "e39618b6247e1eb283a043f275981523e56d59e8eeb695f7a11619553b72e867"
+    },
+    {
+      "case_id": "280089359:01",
+      "article": "280089359",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "a5de252eb21fd8b17ed0d8dd6502a732d4fe43b3e155cc38f5d65089dd25104b",
+      "expected": "recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Все три средства набора видны вместе; товар хорошо различим, несмотря на подписи.",
+      "product_name": "Набор средств для очищения кожи",
+      "category": "cosmetics",
+      "prompt_sha256": "0bd9870337d44ab2af37a8b39a18ddea8a21d7a2086614eac12dbf2ea3ccf9d2"
+    },
+    {
+      "case_id": "366505286:06",
+      "article": "366505286",
+      "image_number": 6,
+      "filename": "06.webp",
+      "sha256": "8993aaeff18e538052e5b09bc0f4100f52b7e29755ddb4d9c1ab13d58a19e320",
+      "expected": "not_recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Размерная таблица и модель с краю: текст занимает значительную часть изображения.",
+      "product_name": "Брюки парашюты",
+      "category": "parachute_grey",
+      "prompt_sha256": "a2b89ee04eafd3343655c508194df5c60954d4ba149fcd5a167432aba118fe0c"
+    },
+    {
+      "case_id": "366505285:08",
+      "article": "366505285",
+      "image_number": 8,
+      "filename": "08.webp",
+      "sha256": "937f38eb722fc0cae8b446d9b93f167086d0bd367e0ddc1c34b00b5f1329a957",
+      "expected": "not_recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Крупные планы ткани и деталей не показывают брюки целиком.",
+      "product_name": "Брюки парашюты",
+      "category": "parachute_white",
+      "prompt_sha256": "026e8a7684479f3ff8225e45980baac43a730bc55729f25ae181af7022e0137a"
+    },
+    {
+      "case_id": "950377246:07",
+      "article": "950377246",
+      "image_number": 7,
+      "filename": "07.webp",
+      "sha256": "23b41e744d18277ffdbafde4c51f295e462842a6bc9597d60a1dc380e644205f",
+      "expected": "not_recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Коллаж из четырёх кадров делает каждый вид товара мелким.",
+      "product_name": "Женские широкие брюки",
+      "category": "pants_yellow",
+      "prompt_sha256": "06ee6174c64a4b1e10f0771a78a9dbe325c9077a0167e71f565be75b87969bed"
+    },
+    {
+      "case_id": "950377247:04",
+      "article": "950377247",
+      "image_number": 4,
+      "filename": "04.webp",
+      "sha256": "f215a89fa2a108f37697571aa20b3983e2afd8a62814699ffe0afe7a9471363a",
+      "expected": "not_recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "Коллаж из четырёх кадров делает каждый вид товара мелким.",
+      "product_name": "Женские широкие брюки",
+      "category": "pants_pink",
+      "prompt_sha256": "cf7881646c0b0a975afac763d4071a6e65ab47ecda4479134a21203aade78703"
+    }
+  ],
+  "prompts": {
+    "856ac3f975cf5136fe15d67f55a29f1c7583b4343c3f05151eeee8481cfbf2c2": {
+      "product_name": "Антивозрастной набор крем и сыворотка для лица",
+      "category": "cosmetics",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Антивозрастной набор крем и сыворотка для лица». Категория товара: cosmetics. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "e39618b6247e1eb283a043f275981523e56d59e8eeb695f7a11619553b72e867": {
+      "product_name": "Набор шампунь и кондиционер",
+      "category": "cosmetics",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Набор шампунь и кондиционер». Категория товара: cosmetics. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "0bd9870337d44ab2af37a8b39a18ddea8a21d7a2086614eac12dbf2ea3ccf9d2": {
+      "product_name": "Набор средств для очищения кожи",
+      "category": "cosmetics",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Набор средств для очищения кожи». Категория товара: cosmetics. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "a2b89ee04eafd3343655c508194df5c60954d4ba149fcd5a167432aba118fe0c": {
+      "product_name": "Брюки парашюты",
+      "category": "parachute_grey",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Брюки парашюты». Категория товара: parachute_grey. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "026e8a7684479f3ff8225e45980baac43a730bc55729f25ae181af7022e0137a": {
+      "product_name": "Брюки парашюты",
+      "category": "parachute_white",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Брюки парашюты». Категория товара: parachute_white. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "06ee6174c64a4b1e10f0771a78a9dbe325c9077a0167e71f565be75b87969bed": {
+      "product_name": "Женские широкие брюки",
+      "category": "pants_yellow",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Женские широкие брюки». Категория товара: pants_yellow. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    },
+    "cf7881646c0b0a975afac763d4071a6e65ab47ecda4479134a21203aade78703": {
+      "product_name": "Женские широкие брюки",
+      "category": "pants_pink",
+      "text": "Оцени изображение для Pinterest-пина о товаре «Женские широкие брюки». Категория товара: pants_pink. Оцени только то, что реально видно на изображении. Верни только JSON: {\"description\":\"коротко, что изображено\",\"product_match\":\"MATCH|UNCERTAIN|MISMATCH\",\"content_type\":\"PRODUCT|BEFORE_AFTER|INFOGRAPHIC|DETAIL|OTHER\",\"visibility\":\"MAIN|SECONDARY|PARTIAL|NONE\",\"technical_quality\":\"GOOD|ACCEPTABLE|POOR|UNUSABLE\",\"composition\":\"STRONG|ACCEPTABLE|WEAK\",\"category_fit\":\"STRONG|ACCEPTABLE|WEAK\",\"flags\":[]} . MATCH — визуально тот же товар, UNCERTAIN — по фото нельзя уверенно решить, MISMATCH — явно другой товар. MAIN — товар главный и хорошо различим; SECONDARY — различим, но не главный; PARTIAL — закрыт или обрезан; NONE — неразличим. content_type — основной формат: PRODUCT, BEFORE_AFTER (сравнение результата до и после), INFOGRAPHIC, DETAIL или OTHER. Не отклоняй BEFORE_AFTER только потому, что упаковка товара не видна: такой кадр может быть дополнительным пином, если результат явно связан с товаром. Для BEFORE_AFTER оцени, понятно ли сравнение и не перегружено ли оно мелким или лишним текстом; простое сравнение до/после не считай collage. Ставь text_heavy только когда текст мешает восприятию. GOOD — чётко и хорошо освещено; ACCEPTABLE — небольшие недостатки; POOR — заметное размытие, шум или плохой свет; UNUSABLE — товар нельзя рассмотреть. Композиция и категория оцениваются по уместности изображения для Pinterest-пина этого товара. flags — только элементы из списка watermark, collage, text_heavy, low_quality; если их нет, верни пустой список. Не считай обычную небольшую надпись водяным знаком."
+    }
+  },
+  "rows": [
+    {
+      "case_id": "1221114868:01",
+      "article": "1221114868",
+      "image_number": 1,
+      "filename": "01.webp",
+      "sha256": "b62e910a8853df077906383f740d4ac5606c19117a829eefdaefaf9e2bbed441",
+      "expected": "recommended",
+      "rating_status": "editorial_unconfirmed",
+      "owner_confirmed": false,
+      "rating_reason": "",
+      "product_name": "Антивозрастной набор крем и сыворотка для лица",
+      "category": "cosmetics",
+      "prompt_sha256": "856ac3f975cf5136fe15d67f55a29f1c7583b4343c3f05151eeee8481cfbf2c2",
+      "actual": null,
+      "score": null,
+      "raw_response": null,
+      "usage": null,
+      "error": {
+        "type": "ConnectTimeout"
+      },
+      "seconds": 45.236
+    }
+  ],
+  "summary": {
+    "selected": 8,
+    "completed": 1,
+    "evaluated": 0,
+    "errors": 1,
+    "agreement": {
+      "matches": 0,
+      "evaluated": 0,
+      "ratio": null
+    },
+    "confusion_matrix": {
+      "recommended": {
+        "recommended": 0,
+        "acceptable": 0,
+        "not_recommended": 0,
+        "error": 1
+      },
+      "acceptable": {
+        "recommended": 0,
+        "acceptable": 0,
+        "not_recommended": 0,
+        "error": 0
+      },
+      "not_recommended": {
+        "recommended": 0,
+        "acceptable": 0,
+        "not_recommended": 0,
+        "error": 0
+      }
+    },
+    "usage": {
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "total_tokens": null
+    },
+    "usage_complete": false
+  }
+}

@@ -9,6 +9,7 @@ from django.core import signing
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.businesses.models import Business
@@ -38,7 +39,7 @@ def connect(request, business_id):
         return redirect(authorization_url(state))
     except ImproperlyConfigured:
         cache.delete(f"pinterest-oauth:{state}")
-        messages.error(request, "Подключение Pinterest пока не настроено администратором.")
+        messages.error(request, _("Подключение Pinterest пока не настроено администратором."))
         return redirect("core:home")
     except Exception:
         cache.delete(f"pinterest-oauth:{state}")
@@ -71,7 +72,7 @@ def reconnect(request, account_id):
         return redirect(authorization_url(state))
     except ImproperlyConfigured:
         cache.delete(f"pinterest-oauth:{state}")
-        messages.error(request, "Подключение Pinterest пока не настроено администратором.")
+        messages.error(request, _("Подключение Pinterest пока не настроено администратором."))
         return redirect("core:home")
     except Exception:
         cache.delete(f"pinterest-oauth:{state}")
@@ -108,15 +109,15 @@ def disconnect(request, account_id):
             max_age=600,
         )
     except signing.BadSignature:
-        return HttpResponseBadRequest("Требуется подтверждение отключения Pinterest.")
+        return HttpResponseBadRequest(_("Требуется подтверждение отключения Pinterest."))
     if confirmation != {"account_id": str(account.public_id), "user_id": request.user.pk}:
-        return HttpResponseBadRequest("Подтверждение отключения Pinterest недействительно.")
+        return HttpResponseBadRequest(_("Подтверждение отключения Pinterest недействительно."))
 
     disconnect_account(account)
     cache.delete(snapshot_key(account))
     cache.delete(f"pinterest:sync-lock:{account.public_id}")
     cache.delete(f"pinterest:sync-cooldown:{account.public_id}")
-    messages.success(request, "Pinterest аккаунт отключён. OAuth-токены удалены.")
+    messages.success(request, _("Pinterest аккаунт отключён. OAuth-токены удалены."))
     return redirect("core:home")
 
 
@@ -135,16 +136,16 @@ def sync_account(request, account_id):
 
     result = sync_pinterest_account(account=account)
     if result.get("busy"):
-        messages.warning(request, "Синхронизация уже выполняется. Подожди немного и обнови страницу.")
+        messages.warning(request, _("Синхронизация уже выполняется. Подожди немного и обнови страницу."))
     elif result.get("synced"):
         failed = [name for name, state in result["resources"].items() if state.get("error")]
         truncated = any(state.get("ok") and not state.get("complete", True) for state in result["resources"].values())
         if failed or truncated:
-            messages.warning(request, "Часть данных обновлена; Pinterest не вернул все запрошенные ресурсы.")
+            messages.warning(request, _("Часть данных обновлена; Pinterest не вернул все запрошенные ресурсы."))
         else:
-            messages.success(request, f"Данные @{account.username or account.pinterest_user_id} синхронизированы.")
+            messages.success(request, _("Данные @%(name)s синхронизированы.") % {"name": account.username or account.pinterest_user_id})
     else:
-        messages.error(request, "Pinterest не вернул данные. Проверь разрешения аккаунта и повтори попытку позже.")
+        messages.error(request, _("Pinterest не вернул данные. Проверь разрешения аккаунта и повтори попытку позже."))
     return redirect("core:home")
 
 
@@ -171,16 +172,16 @@ def callback(request):
         raise Http404
     if timezone.now() - datetime.fromisoformat(state_data["created_at"]) > timedelta(seconds=STATE_TTL_SECONDS):
         cache.delete(lock_key)
-        messages.error(request, "Срок подключения Pinterest истёк. Попробуйте ещё раз.")
+        messages.error(request, _("Срок подключения Pinterest истёк. Попробуйте ещё раз."))
         return redirect("core:home")
     if request.GET.get("error"):
         cache.delete(lock_key)
-        messages.error(request, "Pinterest отменил или отклонил авторизацию.")
+        messages.error(request, _("Pinterest отменил или отклонил авторизацию."))
         return redirect("core:home")
     code = request.GET.get("code", "")
     if not code:
         cache.delete(lock_key)
-        messages.error(request, "Pinterest не вернул код авторизации.")
+        messages.error(request, _("Pinterest не вернул код авторизации."))
         return redirect("core:home")
 
     try:
@@ -191,9 +192,9 @@ def callback(request):
         account = connect_account(business=business, user=request.user, token_data=token_data, profile=profile)
     except (PinterestOAuthError, KeyError, ValueError):
         cache.delete(lock_key)
-        messages.error(request, "Не удалось подключить Pinterest. Проверьте настройки и попробуйте снова.")
+        messages.error(request, _("Не удалось подключить Pinterest. Проверьте настройки и попробуйте снова."))
         return redirect("core:home")
 
     cache.delete(lock_key)
-    messages.success(request, f"Pinterest аккаунт @{account.username or account.pinterest_user_id} подключён.")
+    messages.success(request, _("Pinterest аккаунт @%(name)s подключён.") % {"name": account.username or account.pinterest_user_id})
     return redirect("core:home")

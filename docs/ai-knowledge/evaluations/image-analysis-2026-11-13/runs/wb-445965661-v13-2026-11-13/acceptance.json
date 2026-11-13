@@ -1,0 +1,19 @@
+{
+  "automatic_retries": false,
+  "processed": 16,
+  "errors": 0,
+  "original_errors_removed": [
+    3,
+    9,
+    13,
+    14,
+    16
+  ],
+  "verdicts": {
+    "recommended": 5,
+    "acceptable": 6,
+    "not_recommended": 5
+  },
+  "labels_owner_confirmed": false,
+  "accuracy": null
+}

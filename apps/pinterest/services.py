@@ -54,7 +54,33 @@ def _token_request(data):
             f"Pinterest token exchange failed (HTTP {response.status_code}).",
             permanent=response.status_code in {400, 401, 403},
         )
-    return response.json()
+    try:
+        token_data = response.json()
+    except ValueError as error:
+        raise PinterestOAuthError("Pinterest token endpoint returned invalid JSON.") from error
+    return _validated_token_data(token_data)
+
+
+def _validated_token_data(data):
+    if not isinstance(data, dict) or not isinstance(data.get("access_token"), str) or not data["access_token"].strip():
+        raise PinterestOAuthError("Pinterest token endpoint returned invalid credentials.")
+    for field in ("expires_in", "refresh_token_expires_in"):
+        value = data.get(field)
+        if field == "refresh_token_expires_in" and value is None:
+            continue
+        if type(value) is not int and not (isinstance(value, str) and value.isdecimal()):
+            raise PinterestOAuthError("Pinterest token endpoint returned invalid expiry.")
+        try:
+            if int(value) <= 0:
+                raise ValueError
+            timezone.now() + timedelta(seconds=int(value))
+        except (ValueError, OverflowError) as error:
+            raise PinterestOAuthError("Pinterest token endpoint returned invalid expiry.") from error
+    if data.get("refresh_token") is not None and not isinstance(data["refresh_token"], str):
+        raise PinterestOAuthError("Pinterest token endpoint returned invalid credentials.")
+    if "scope" in data and not isinstance(data["scope"], str):
+        raise PinterestOAuthError("Pinterest token endpoint returned invalid scope.")
+    return data
 
 
 def exchange_code(code):
@@ -139,13 +165,17 @@ def disconnect_account(account):
 
 
 def refresh_account_token(account):
-    if not account.refresh_token_encrypted:
-        account.status = PinterestAccount.Status.REAUTH_REQUIRED
-        account.last_auth_error = "refresh_token_missing"
-        account.save(update_fields=["status", "last_auth_error", "updated_at"])
-        return False
     with transaction.atomic():
         locked = PinterestAccount.objects.select_for_update().get(pk=account.pk)
+        if locked.deleted_at or locked.status != PinterestAccount.Status.CONNECTED:
+            account.refresh_from_db()
+            return False
+        if not locked.refresh_token_encrypted:
+            locked.status = PinterestAccount.Status.REAUTH_REQUIRED
+            locked.last_auth_error = "refresh_token_missing"
+            locked.save(update_fields=["status", "last_auth_error", "updated_at"])
+            account.refresh_from_db()
+            return False
         old_access_token = account.access_token_encrypted
         if locked.access_token_encrypted != old_access_token and locked.status == PinterestAccount.Status.CONNECTED:
             account.refresh_from_db()
@@ -153,7 +183,11 @@ def refresh_account_token(account):
         locked.last_refresh_attempt_at = timezone.now()
         locked.save(update_fields=["last_refresh_attempt_at", "updated_at"])
         try:
-            token_data = refresh_tokens(decrypt_token(locked.refresh_token_encrypted))
+            try:
+                refresh_token = decrypt_token(locked.refresh_token_encrypted)
+            except ValueError as error:
+                raise PinterestOAuthError("Stored Pinterest refresh token cannot be decrypted.") from error
+            token_data = _validated_token_data(refresh_tokens(refresh_token))
         except PinterestOAuthError as error:
             locked.last_auth_error = str(error)
             if error.permanent:

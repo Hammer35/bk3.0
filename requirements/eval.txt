@@ -1,0 +1,2 @@
+# Optional evaluation tooling; install only in a disposable environment.
+arksim==0.3.8
